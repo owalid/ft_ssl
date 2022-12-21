@@ -58,8 +58,8 @@ void    sha256_process_firsts_blocks(unsigned int *w, unsigned int *vars)
         if (i < 16) {
             ww[i] = w[i];
         } else {
-            s0 = right_rotate(ww[i-15], 7) ^ right_rotate(ww[i-15], 18) ^ right_rotate(ww[i-15], 3);
-            s1 = right_rotate(ww[i-2], 17) ^ right_rotate(ww[i-2], 19) ^ right_rotate(ww[i-2], 10);
+            s0 = right_rotate(ww[i-15], 7) ^ right_rotate(ww[i-15], 18) ^ (ww[i-15] >> 3);
+            s1 = right_rotate(ww[i-2], 17) ^ right_rotate(ww[i-2], 19) ^ (ww[i-2] >> 10);
             ww[i] = ww[i-16] + s0 + ww[i-7] + s1;
         }
     }
