@@ -3,7 +3,7 @@
 
 int main(int argc, char **argv) {
     if (argc > 1) {
-        md5_process(argv[1]);
-        // sha256_process(argv[1]);
+        // md5_process(argv[1]);
+        sha256_process(argv[1]);
     }
 }

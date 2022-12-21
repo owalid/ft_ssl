@@ -64,6 +64,10 @@ void    sha256_process_firsts_blocks(unsigned int *w, unsigned int *vars)
         }
     }
 
+    print_bits((unsigned char *)w, 64);
+    print_bits((unsigned char *)ww, 256);
+
+
     for (int i = 0; i < 64; i++) {
         ch = (e & f) ^ ((~e) & g);
         s1 = right_rotate(e, 6) ^ right_rotate(e, 11) ^ right_rotate(e, 25);
@@ -98,7 +102,7 @@ void    sha256_process_last_block(char *input, unsigned int *vars)
 {
     size_t len_input = ft_strlen(input);
 
-    print_bits(input, 64);
+    // print_bits(input, 64);
     input[len_input] = 0x80;
     ft_bzero(input + len_input + 1, 64 - (len_input + 1));
     len_input *= 8;
@@ -133,6 +137,4 @@ void    sha256_process(char *input)
     // unsigned int digest = vars[0] + vars[1] + vars[2] + vars[3];
     printf("\n%08x %08x %08x %08x %08x %08x %08x %08x \n",vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7]);
     printf("%08x %08x %08x %08x %08x %08x %08x %08x \n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]),__bswap_32(vars[4]), __bswap_32(vars[5]), __bswap_32(vars[6]), __bswap_32(vars[7]));
-    printf("07123e1f 482356c4 15f68440 7a3b8723 e10b2cbb c0b8fcd6 282c49d3 7c9c1abc\n");
-
 }
