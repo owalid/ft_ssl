@@ -81,17 +81,31 @@ void    md5_process_firsts_blocks(unsigned int *w, unsigned int *vars)
     vars[3] += d;
 }
 
+
 void    md5_process_last_block(char *input, unsigned int *vars)
 {
     size_t len_input = ft_strlen(input);
 
+    printf("len_input => %ld\n", len_input);
     print_bits(input, 64);
-    input[len_input] = 0x80;
     ft_bzero(input + len_input + 1, 64 - (len_input + 1));
-    len_input *= 8;
-    ft_memcpy(input + 56, &len_input, 8);
-    md5_process_firsts_blocks((unsigned int*)input, vars);
-    print_bits(input, 64);
+    input[len_input] = 0x80;
+
+    if (len_input >= 56) {
+        char tmp_input[64];
+
+        ft_bzero(tmp_input, 64);
+        len_input *= 8;
+        ft_memcpy(tmp_input + 56, &len_input, 8);
+        print_bits(input, 64);
+        print_bits(tmp_input, 64);
+        md5_process_firsts_blocks((unsigned int*)input, vars);
+        md5_process_firsts_blocks((unsigned int*)tmp_input, vars);
+    } else {
+        len_input *= 8;
+        ft_memcpy(input + 56, &len_input, 8);
+        md5_process_firsts_blocks((unsigned int*)input, vars);
+    }
 }
 
 void    md5_process(char *input)

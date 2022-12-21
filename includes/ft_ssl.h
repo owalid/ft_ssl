@@ -8,9 +8,14 @@
 # include <stdio.h>
 
 
-void     md5_process(char *input);
-void    md5_process_firsts_blocks(unsigned int *w, unsigned int *vars);
-void    md5_process_last_block(char *input, unsigned int *vars);
-unsigned int     left_rotate(unsigned int n, unsigned int d);
-void print_bits(unsigned char *str, size_t len);
+void                md5_process(char *input);
+void                md5_process_firsts_blocks(unsigned int *w, unsigned int *vars);
+void                md5_process_last_block(char *input, unsigned int *vars);
+
+void                sha256_process(char *input);
+void                sha256_process_firsts_blocks(unsigned int *w, unsigned int *vars);
+void                sha256_process_last_block(char *input, unsigned int *vars);
+
+void                print_bits(unsigned char *str, size_t len);
+unsigned int        left_rotate(unsigned int n, unsigned int d);
 #endif
