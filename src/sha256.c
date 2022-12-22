@@ -10,16 +10,22 @@ void print_bit(unsigned char n) {
 }
 
 void print_bits(unsigned char *str, size_t len) {
-	printf("len: %zu\n", len);
+	// printf("len: %zu\n", len);
 	for (size_t i = 0; i < len; i++) {
 		print_bit(str[i]);
 	}
-	printf("\n\n");
+    printf(" | ");
 }
 
+unsigned int swap32(unsigned int num) {
+    return ((num>>24)&0xff) | // move byte 3 to byte 0
+        ((num<<8)&0xff0000) | // move byte 1 to byte 2
+        ((num>>8)&0xff00) | // move byte 2 to byte 1
+        ((num<<24)&0xff000000); // byte 0 to byte 3
+}
 
-unsigned int     right_rotate(unsigned int n, unsigned int d) {
-    return (n >> d)|(n << (32 - d));
+unsigned int right_rotate(unsigned int n, unsigned int d) {
+    return (n >> d) | (n << (32 - d));
 }
 
 size_t swap64(size_t val)
@@ -54,24 +60,24 @@ void    sha256_process_firsts_blocks(unsigned int *w, unsigned int *vars)
     g = vars[6];
     h = vars[7];
 
+	for (unsigned int index = 0; index < 16; index++) {
+
+	}
+    	ft_bzero(ww + 16, 192);
     for (int i = 0; i < 64; i++) {
         if (i < 16) {
-            ww[i] = w[i];
+            ww[i] = swap32(w[i]); // convert to big endian
         } else {
-            s0 = right_rotate(ww[i-15], 7) ^ right_rotate(ww[i-15], 18) ^ (ww[i-15] >> 3);
-            s1 = right_rotate(ww[i-2], 17) ^ right_rotate(ww[i-2], 19) ^ (ww[i-2] >> 10);
-            ww[i] = ww[i-16] + s0 + ww[i-7] + s1;
+            s0 = right_rotate(ww[i-15], 7) ^ right_rotate(ww[i-15], 18) ^ ww[i-15] >> 3;
+            s1 = right_rotate(ww[i-2], 17) ^ right_rotate(ww[i-2], 19) ^ ww[i-2] >> 10;
+            ww[i] = ww[i-16] + s0 + ww[i-7] + s1;               
         }
     }
 
-    print_bits((unsigned char *)w, 64);
-    print_bits((unsigned char *)ww, 256);
-
-
     for (int i = 0; i < 64; i++) {
-        ch = (e & f) ^ ((~e) & g);
         s1 = right_rotate(e, 6) ^ right_rotate(e, 11) ^ right_rotate(e, 25);
-        t1 = g + s1 + ch + K[i] + ww[i];
+        ch = (e & f) ^ ((~e) & g);
+        t1 = h + s1 + ch + K[i] + ww[i];
 
         s0 = right_rotate(a, 2) ^ right_rotate(a, 13) ^ right_rotate(a, 22);
         maj = (a & b) ^ (a & c) ^ (b & c);
@@ -109,7 +115,6 @@ void    sha256_process_last_block(char *input, unsigned int *vars)
     len_input = swap64(len_input);
     ft_memcpy(input + 56, &len_input, 8);
     sha256_process_firsts_blocks((unsigned int*)input, vars);
-    print_bits(input, 64);
 }
 
 
@@ -120,7 +125,7 @@ void    sha256_process(char *input)
     int current_len = 64;
     char current_input[64];
 
-    printf("\n%08x %08x %08x %08x %08x %08x %08x %08x \n\n",vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7]);
+    printf("\n%08x %08x %08x %08x %08x %08x %08x %08x \n",vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7]);
 
     if (ft_strlen(input) >= 64) {
         while (current_len % 64 == 0) {
@@ -135,6 +140,5 @@ void    sha256_process(char *input)
     ft_strncpy(current_input, input, 64);
     sha256_process_last_block(current_input, vars);
     // unsigned int digest = vars[0] + vars[1] + vars[2] + vars[3];
-    printf("\n%08x %08x %08x %08x %08x %08x %08x %08x \n",vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7]);
-    printf("%08x %08x %08x %08x %08x %08x %08x %08x \n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]),__bswap_32(vars[4]), __bswap_32(vars[5]), __bswap_32(vars[6]), __bswap_32(vars[7]));
+    printf("\n%08x%08x%08x%08x%08x%08x%08x%08x \n",vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7]);
 }
