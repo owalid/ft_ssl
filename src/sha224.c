@@ -84,7 +84,7 @@ void    sha224_process_last_block(char *input, unsigned int *vars)
 void    sha224_process(char *input)
 {
 
-    unsigned int vars[] = {   0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4 };
+    unsigned int vars[] = { 0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4 };
     int current_len = 64;
     char current_input[64];
 

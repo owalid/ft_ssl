@@ -46,7 +46,7 @@ void    sha512_process_firsts_blocks(unsigned long *w, unsigned long *vars)
         }
     }
 
-    for (int i = 0; i < 64; i++) {
+    for (int i = 0; i < 80; i++) {
         s1 = right_rotate_512(e, 14) ^ right_rotate_512(e, 18) ^ right_rotate_512(e, 41);
         ch = (e & f) ^ ((~e) & g);
         t1 = h + s1 + ch + K_SHA512[i] + ww[i];
@@ -78,28 +78,13 @@ void    sha512_process_firsts_blocks(unsigned long *w, unsigned long *vars)
 
 void    sha512_process_last_block(char *input, unsigned long *vars)
 {
-    // size_t len_input = ft_strlen(input);
-
-    // // print_bits(input, 64);
-    // input[len_input] = 0x80;
-    // ft_bzero(input + len_input + 1, 64 - (len_input + 1));
-    // len_input *= 8;
-    // len_input = swap64(len_input);
-    // ft_memcpy(input + 56, &len_input, 8);
-    // sha512_process_firsts_blocks((unsigned long*)input, vars);
-
     size_t len_input = ft_strlen(input);
-
-    printf("len_input %lu\n\n\n", len_input);
-
     input[len_input] = 0x80;
     ft_bzero(input + len_input + 1, 128 - (len_input + 1));
-    print_bits(input, 128);
     
-    len_input *= 16;
+    len_input *= 8;
     len_input = swap64(len_input);
-    ft_memcpy(input + 112, &len_input, 8);
-    print_bits(input, 128);
+    ft_memcpy(input + 120, &len_input, 8);
     sha512_process_firsts_blocks((unsigned long*)input, vars);
 }
 
@@ -113,8 +98,6 @@ void    sha512_process(char *input)
     int current_len = 128;
     char current_input[128];
 
-    printf("\n%08lx %08lx %08lx %08lx %08lx %08lx %08lx %08lx \n\n",vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7]);
-
     if (ft_strlen(input) >= 128) {
         while (current_len % 128 == 0) {
             ft_strncpy(current_input, input, 128);
@@ -126,5 +109,5 @@ void    sha512_process(char *input)
 
     ft_strncpy(current_input, input, 128);
     sha512_process_last_block(current_input, vars);
-    printf("\n%08lx %08lx %08lx %08lx %08lx %08lx %08lx %08lx \n",vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7]);
+    printf("\n%016lx%016lx%016lx%016lx%016lx%016lx%016lx%016lx\n",vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7]);
 }
