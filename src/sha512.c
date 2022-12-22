@@ -40,18 +40,18 @@ void    sha512_process_firsts_blocks(unsigned long *w, unsigned long *vars)
         if (i < 16) {
             ww[i] = swap64(w[i]); // convert to big endian
         } else {
-            s0 = right_rotate_512(ww[i-15], 1) ^ right_rotate_512(ww[i-15], 8) ^ ww[i-15] >> 7;
-            s1 = right_rotate_512(ww[i-2], 19) ^ right_rotate_512(ww[i-2], 61) ^ ww[i-2] >> 6;
+            s0 = right_rotate_64(ww[i-15], 1) ^ right_rotate_64(ww[i-15], 8) ^ ww[i-15] >> 7;
+            s1 = right_rotate_64(ww[i-2], 19) ^ right_rotate_64(ww[i-2], 61) ^ ww[i-2] >> 6;
             ww[i] = ww[i-16] + s0 + ww[i-7] + s1;               
         }
     }
 
     for (int i = 0; i < 80; i++) {
-        s1 = right_rotate_512(e, 14) ^ right_rotate_512(e, 18) ^ right_rotate_512(e, 41);
+        s1 = right_rotate_64(e, 14) ^ right_rotate_64(e, 18) ^ right_rotate_64(e, 41);
         ch = (e & f) ^ ((~e) & g);
         t1 = h + s1 + ch + K_SHA512[i] + ww[i];
 
-        s0 = right_rotate_512(a, 28) ^ right_rotate_512(a, 34) ^ right_rotate_512(a, 39);
+        s0 = right_rotate_64(a, 28) ^ right_rotate_64(a, 34) ^ right_rotate_64(a, 39);
         maj = (a & b) ^ (a & c) ^ (b & c);
         t2 = s0 + maj;
 

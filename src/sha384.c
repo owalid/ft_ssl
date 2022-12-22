@@ -31,18 +31,18 @@ void    sha384_process_firsts_blocks(unsigned int *w, unsigned long *vars)
         if (i < 16) {
             ww[i] = swap32(w[i]); // convert to big endian
         } else {
-            s0 = right_rotate_256(ww[i-15], 7) ^ right_rotate_256(ww[i-15], 18) ^ ww[i-15] >> 3;
-            s1 = right_rotate_256(ww[i-2], 17) ^ right_rotate_256(ww[i-2], 19) ^ ww[i-2] >> 10;
+            s0 = right_rotate_32(ww[i-15], 7) ^ right_rotate_32(ww[i-15], 18) ^ ww[i-15] >> 3;
+            s1 = right_rotate_32(ww[i-2], 17) ^ right_rotate_32(ww[i-2], 19) ^ ww[i-2] >> 10;
             ww[i] = ww[i-16] + s0 + ww[i-7] + s1;               
         }
     }
 
     for (int i = 0; i < 64; i++) {
-        s1 = right_rotate_256(e, 6) ^ right_rotate_256(e, 11) ^ right_rotate_256(e, 25);
+        s1 = right_rotate_32(e, 6) ^ right_rotate_32(e, 11) ^ right_rotate_32(e, 25);
         ch = (e & f) ^ ((~e) & g);
         t1 = h + s1 + ch + K_SHA384[i] + ww[i];
 
-        s0 = right_rotate_256(a, 2) ^ right_rotate_256(a, 13) ^ right_rotate_256(a, 22);
+        s0 = right_rotate_32(a, 2) ^ right_rotate_32(a, 13) ^ right_rotate_32(a, 22);
         maj = (a & b) ^ (a & c) ^ (b & c);
         t2 = s0 + maj;
 

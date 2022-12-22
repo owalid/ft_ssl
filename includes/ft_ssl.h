@@ -33,11 +33,10 @@ void                print_bits(unsigned char *str, size_t len);
 unsigned int        left_rotate(unsigned int n, unsigned int d);
 unsigned int        swap32(unsigned int num);
 size_t              swap64(size_t val);
-unsigned long       right_rotate_512(unsigned long n, unsigned long d);
+unsigned long       right_rotate_64(unsigned long n, unsigned long d);
 unsigned int        left_rotate(unsigned int n, unsigned int d);
-unsigned int        right_rotate_256(unsigned int n, unsigned int d);
 unsigned int        left_rotate(unsigned int n, unsigned int d);
-unsigned int        right_rotate_256(unsigned int n, unsigned int d);
+unsigned int        right_rotate_32(unsigned int n, unsigned int d);
 
 typedef struct		s_ft_ssl_op
 {
