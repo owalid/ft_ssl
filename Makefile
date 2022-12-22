@@ -3,6 +3,7 @@ NAME	= ft_ssl
 SRC		= main.c \
 			sha512.c \
 			sha256.c \
+			sha384.c \
 			md5.c \
 			utils.c
 

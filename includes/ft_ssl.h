@@ -16,10 +16,14 @@ void                sha256_process(char *input);
 void                sha256_process_firsts_blocks(unsigned int *w, unsigned int *vars);
 void                sha256_process_last_block(char *input, unsigned int *vars);
 
-
 void                sha512_process(char *input);
 void                sha512_process_firsts_blocks(unsigned long *w, unsigned long *vars);
 void                sha512_process_last_block(char *input, unsigned long *vars);
+
+
+void                sha384_process(char *input);
+void                sha384_process_firsts_blocks(unsigned int *w, unsigned long *vars);
+void                sha384_process_last_block(char *input, unsigned long *vars);
 
 void                print_bits(unsigned char *str, size_t len);
 unsigned int        left_rotate(unsigned int n, unsigned int d);
