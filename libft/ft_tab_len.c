@@ -6,15 +6,15 @@
 /*   By: oel-ayad <oel-ayad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/16 18:51:27 by oel-ayad          #+#    #+#             */
-/*   Updated: 2022/12/19 16:32:37 by oel-ayad         ###   ########.fr       */
+/*   Updated: 2022/12/22 18:04:06 by oel-ayad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-size_t		ft_tab_len(char **tab)
+size_t		ft_tab_len(void **tab)
 {
-	int			i;
+	size_t			i;
 
 	i = -1;
 	while (tab[++i])

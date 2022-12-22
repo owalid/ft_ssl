@@ -2,40 +2,7 @@
 #include "libft.h"
 #include <stdio.h>
 
-void print_bit(unsigned char n) {
-	for (int i = 7; i >= 0; i--) {
-		printf("%d", (n >> i) & 1);
-	}
-	printf(" ");
-}
-
-void print_bits(unsigned char *str, size_t len) {
-	// printf("len: %zu\n", len);
-	for (size_t i = 0; i < len; i++) {
-		print_bit(str[i]);
-	}
-    printf(" | ");
-}
-
-unsigned int swap32(unsigned int num) {
-    return ((num>>24)&0xff) | // move byte 3 to byte 0
-        ((num<<8)&0xff0000) | // move byte 1 to byte 2
-        ((num>>8)&0xff00) | // move byte 2 to byte 1
-        ((num<<24)&0xff000000); // byte 0 to byte 3
-}
-
-unsigned int right_rotate(unsigned int n, unsigned int d) {
-    return (n >> d) | (n << (32 - d));
-}
-
-size_t swap64(size_t val)
-{
-    val = ((val << 8) & 0xFF00FF00FF00FF00ULL ) | ((val >> 8) & 0x00FF00FF00FF00FFULL );
-    val = ((val << 16) & 0xFFFF0000FFFF0000ULL ) | ((val >> 16) & 0x0000FFFF0000FFFFULL );
-    return (val << 32) | (val >> 32);
-}
-
-unsigned int K[] = {
+unsigned int K_SHA256[] = {
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
     0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
@@ -64,18 +31,18 @@ void    sha256_process_firsts_blocks(unsigned int *w, unsigned int *vars)
         if (i < 16) {
             ww[i] = swap32(w[i]); // convert to big endian
         } else {
-            s0 = right_rotate(ww[i-15], 7) ^ right_rotate(ww[i-15], 18) ^ ww[i-15] >> 3;
-            s1 = right_rotate(ww[i-2], 17) ^ right_rotate(ww[i-2], 19) ^ ww[i-2] >> 10;
+            s0 = right_rotate_256(ww[i-15], 7) ^ right_rotate_256(ww[i-15], 18) ^ ww[i-15] >> 3;
+            s1 = right_rotate_256(ww[i-2], 17) ^ right_rotate_256(ww[i-2], 19) ^ ww[i-2] >> 10;
             ww[i] = ww[i-16] + s0 + ww[i-7] + s1;               
         }
     }
 
     for (int i = 0; i < 64; i++) {
-        s1 = right_rotate(e, 6) ^ right_rotate(e, 11) ^ right_rotate(e, 25);
+        s1 = right_rotate_256(e, 6) ^ right_rotate_256(e, 11) ^ right_rotate_256(e, 25);
         ch = (e & f) ^ ((~e) & g);
-        t1 = h + s1 + ch + K[i] + ww[i];
+        t1 = h + s1 + ch + K_SHA256[i] + ww[i];
 
-        s0 = right_rotate(a, 2) ^ right_rotate(a, 13) ^ right_rotate(a, 22);
+        s0 = right_rotate_256(a, 2) ^ right_rotate_256(a, 13) ^ right_rotate_256(a, 22);
         maj = (a & b) ^ (a & c) ^ (b & c);
         t2 = s0 + maj;
 

@@ -2,8 +2,9 @@ NAME	= ft_ssl
 
 SRC		= main.c \
 			sha512.c \
-			# sha256.c \
-			# md5.c \
+			sha256.c \
+			md5.c \
+			utils.c
 
 OBJ		= $(addprefix $(OBJDIR),$(SRC:.c=.o))
 
@@ -22,7 +23,7 @@ OBJDIR	= ./obj/
 
 all: $(NAME)
 
-$(OBJDIR)%.o:$(SRCDIR)%.c
+$(OBJDIR)%.o:$(SRCDIR)%.c $(INCDIR) Makefile
 	mkdir -p $(OBJDIR)
 	$(CC) $(CFLAGS) $(FT_INC) -o $@ -c $< -I $(INCDIR)
 

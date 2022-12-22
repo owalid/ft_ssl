@@ -2,40 +2,8 @@
 #include "libft.h"
 #include <stdio.h>
 
-void print_bit(unsigned char n) {
-	for (int i = 7; i >= 0; i--) {
-		printf("%d", (n >> i) & 1);
-	}
-	printf(" ");
-}
 
-void print_bits(unsigned char *str, size_t len) {
-	// printf("len: %zu\n", len);
-	for (size_t i = 0; i < len; i++) {
-		print_bit(str[i]);
-	}
-    printf("\n\n");
-}
-
-unsigned int swap32(unsigned int num) {
-    return ((num>>24)&0xff) | // move byte 3 to byte 0
-        ((num<<8)&0xff0000) | // move byte 1 to byte 2
-        ((num>>8)&0xff00) | // move byte 2 to byte 1
-        ((num<<24)&0xff000000); // byte 0 to byte 3
-}
-
-unsigned long right_rotate(unsigned long n, unsigned long d) {
-    return (n >> d) | (n << (64 - d));
-}
-
-size_t swap64(size_t val)
-{
-    val = ((val << 8) & 0xFF00FF00FF00FF00ULL ) | ((val >> 8) & 0x00FF00FF00FF00FFULL );
-    val = ((val << 16) & 0xFFFF0000FFFF0000ULL ) | ((val >> 16) & 0x0000FFFF0000FFFFULL );
-    return (val << 32) | (val >> 32);
-}
-
-unsigned long K[] = {
+unsigned long K_SHA512[] = {
    0x428a2f98d728ae22, 0x7137449123ef65cd, 0xb5c0fbcfec4d3b2f, 0xe9b5dba58189dbbc, 0x3956c25bf348b538, 
     0x59f111f1b605d019, 0x923f82a4af194f9b, 0xab1c5ed5da6d8118, 0xd807aa98a3030242, 0x12835b0145706fbe, 
     0x243185be4ee4b28c, 0x550c7dc3d5ffb4e2, 0x72be5d74f27b896f, 0x80deb1fe3b1696b1, 0x9bdc06a725c71235, 
@@ -72,18 +40,18 @@ void    sha512_process_firsts_blocks(unsigned long *w, unsigned long *vars)
         if (i < 16) {
             ww[i] = swap64(w[i]); // convert to big endian
         } else {
-            s0 = right_rotate(ww[i-15], 1) ^ right_rotate(ww[i-15], 8) ^ ww[i-15] >> 7;
-            s1 = right_rotate(ww[i-2], 19) ^ right_rotate(ww[i-2], 61) ^ ww[i-2] >> 6;
+            s0 = right_rotate_512(ww[i-15], 1) ^ right_rotate_512(ww[i-15], 8) ^ ww[i-15] >> 7;
+            s1 = right_rotate_512(ww[i-2], 19) ^ right_rotate_512(ww[i-2], 61) ^ ww[i-2] >> 6;
             ww[i] = ww[i-16] + s0 + ww[i-7] + s1;               
         }
     }
 
     for (int i = 0; i < 64; i++) {
-        s1 = right_rotate(e, 14) ^ right_rotate(e, 18) ^ right_rotate(e, 41);
+        s1 = right_rotate_512(e, 14) ^ right_rotate_512(e, 18) ^ right_rotate_512(e, 41);
         ch = (e & f) ^ ((~e) & g);
-        t1 = h + s1 + ch + K[i] + ww[i];
+        t1 = h + s1 + ch + K_SHA512[i] + ww[i];
 
-        s0 = right_rotate(a, 28) ^ right_rotate(a, 34) ^ right_rotate(a, 39);
+        s0 = right_rotate_512(a, 28) ^ right_rotate_512(a, 34) ^ right_rotate_512(a, 39);
         maj = (a & b) ^ (a & c) ^ (b & c);
         t2 = s0 + maj;
 

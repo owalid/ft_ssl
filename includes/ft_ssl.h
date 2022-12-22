@@ -23,4 +23,18 @@ void                sha512_process_last_block(char *input, unsigned long *vars);
 
 void                print_bits(unsigned char *str, size_t len);
 unsigned int        left_rotate(unsigned int n, unsigned int d);
+unsigned int        swap32(unsigned int num);
+size_t              swap64(size_t val);
+unsigned long       right_rotate_512(unsigned long n, unsigned long d);
+unsigned int        left_rotate(unsigned int n, unsigned int d);
+unsigned int        right_rotate_256(unsigned int n, unsigned int d);
+unsigned int        left_rotate(unsigned int n, unsigned int d);
+unsigned int        right_rotate_256(unsigned int n, unsigned int d);
+
+typedef struct		s_ft_ssl_op
+{
+	char		*name;
+	void		(*ft_ssl_process)(char *input);
+}					t_ft_ssl_op;
+
 #endif

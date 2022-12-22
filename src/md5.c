@@ -3,23 +3,7 @@
 #include <byteswap.h>
 #include <stdio.h>
 
-void print_bit(unsigned char n) {
-	for (int i = 7; i >= 0; i--) {
-		printf("%d", (n >> i) & 1);
-	}
-	printf(" ");
-}
-
-void print_bits(unsigned char *str, size_t len) {
-	printf("len: %zu\n", len);
-	for (size_t i = 0; i < len; i++) {
-		print_bit(str[i]);
-	}
-	printf("\n");
-}
-
-
-unsigned int K[] = {
+unsigned int K_md5[] = {
     0xd76aa478,	0xe8c7b756,	0x242070db,	0xc1bdceee,	0xf57c0faf,	0x4787c62a,	0xa8304613,	0xfd469501,
     0x698098d8,	0x8b44f7af,	0xffff5bb1,	0x895cd7be,	0x6b901122,	0xfd987193,	0xa679438e,	0x49b40821,
     0xf61e2562,	0xc040b340,	0x265e5a51,	0xe9b6c7aa,	0xd62f105d,	0x02441453,	0xd8a1e681,	0xe7d3fbc8,
@@ -36,10 +20,6 @@ unsigned int R[] = {
     4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
     6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21
 };
-
-unsigned int     left_rotate(unsigned int n, unsigned int d) {
-    return (n << d)|(n >> (32 - d));
-}
 
 void    md5_process_firsts_blocks(unsigned int *w, unsigned int *vars)
 {
@@ -71,7 +51,7 @@ void    md5_process_firsts_blocks(unsigned int *w, unsigned int *vars)
         tmp = d;
         d = c;
         c = b;
-        b = left_rotate((a + f + K[i] + w[g]), R[i]) + b;
+        b = left_rotate((a + f + K_md5[i] + w[g]), R[i]) + b;
         a = tmp;
     }
 
