@@ -12,6 +12,10 @@ void                md5_process(char *input);
 void                md5_process_firsts_blocks(unsigned int *w, unsigned int *vars);
 void                md5_process_last_block(char *input, unsigned int *vars);
 
+void                sha224_process(char *input);
+void                sha224_process_firsts_blocks(unsigned int *w, unsigned int *vars);
+void                sha224_process_last_block(char *input, unsigned int *vars);
+
 void                sha256_process(char *input);
 void                sha256_process_firsts_blocks(unsigned int *w, unsigned int *vars);
 void                sha256_process_last_block(char *input, unsigned int *vars);

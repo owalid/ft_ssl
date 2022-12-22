@@ -8,7 +8,6 @@ void print_bit(unsigned char n) {
 }
 
 void print_bits(unsigned char *str, size_t len) {
-	// printf("len: %zu\n", len);
 	for (size_t i = 0; i < len; i++) {
 		print_bit(str[i]);
 	}
