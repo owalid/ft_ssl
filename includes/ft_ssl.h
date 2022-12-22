@@ -26,7 +26,7 @@ void                sha512_process_last_block(char *input, unsigned long *vars);
 
 
 void                sha384_process(char *input);
-void                sha384_process_firsts_blocks(unsigned int *w, unsigned long *vars);
+void                sha384_process_firsts_blocks(unsigned long *w, unsigned long *vars);
 void                sha384_process_last_block(char *input, unsigned long *vars);
 
 void                print_bits(unsigned char *str, size_t len);
