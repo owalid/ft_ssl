@@ -60,10 +60,6 @@ void    sha256_process_firsts_blocks(unsigned int *w, unsigned int *vars)
     g = vars[6];
     h = vars[7];
 
-	for (unsigned int index = 0; index < 16; index++) {
-
-	}
-    	ft_bzero(ww + 16, 192);
     for (int i = 0; i < 64; i++) {
         if (i < 16) {
             ww[i] = swap32(w[i]); // convert to big endian
