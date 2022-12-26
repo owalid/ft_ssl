@@ -141,7 +141,7 @@ void* fn_process(char *input, int input_type, int byte_size, void *vars, int sho
         ft_strncpy(current_input, input, byte_size);
         process_last_block(current_input, vars, size_of_input_copy, should_swap, byte_size, fn_process_firsts_blocks);
         return vars;
-    } else if (input_type == 1 || input_type == 2) {
+    } else if (input_type == 1 || input_type == 2) { //TODO NEED TO CHANGE THIS
         int fd = (input_type == 2) ? 0 : open(input, O_RDONLY);
         
         if (fd > -1) {
