@@ -1,4 +1,6 @@
 #include "ft_ssl.h"
+#include "libft.h"
+
 
 void print_bit(unsigned char n) {
 	for (int i = 7; i >= 0; i--) {
@@ -43,4 +45,37 @@ unsigned int     left_rotate(unsigned int n, unsigned int d) {
 
 unsigned int right_rotate_32(unsigned int n, unsigned int d) {
     return (n >> d) | (n << (32 - d));
+}
+
+void process_last_block(char *input, unsigned int *vars, size_t total_size, int should_swap, int byte_size, int treshold_bytes)
+{
+    size_t lasts_read = total_size % byte_size;
+    if (lasts_read < byte_size) {
+        ft_bzero(input + lasts_read + 1, byte_size - (lasts_read + 1));
+    }
+
+    if (lasts_read >= treshold_bytes) {
+        char tmp_input[byte_size];
+
+        if (lasts_read >= byte_size) {
+            tmp_input[byte_size] = 0x80;
+        }
+        else
+            input[lasts_read] = 0x80;
+
+        ft_bzero(tmp_input, byte_size);
+        total_size *= 8;
+        if (should_swap == 1)
+            total_size = swap64(total_size);
+        ft_memcpy(tmp_input + treshold_bytes, &total_size, 8);
+        md5_process_firsts_blocks((unsigned int*)input, vars);
+        md5_process_firsts_blocks((unsigned int*)tmp_input, vars);
+    } else {
+        input[lasts_read] = 0x80;
+        total_size *= 8;
+        if (should_swap == 1)
+            total_size = swap64(total_size);
+        ft_memcpy(input + treshold_bytes, &total_size, 8);
+        md5_process_firsts_blocks((unsigned int*)input, vars);
+    }
 }

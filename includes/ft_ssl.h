@@ -18,8 +18,7 @@ typedef struct		s_ft_ssl_mode
 
 void                md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type);
 void                md5_process_firsts_blocks(unsigned int *w, unsigned int *vars);
-void    			md5_process_last_block(char *input, unsigned int *vars, size_t readed);
-
+void    			md5_process_last_block(char *input, unsigned int *vars, size_t total_size);
 void                sha224_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type);
 
 void                sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type);
@@ -40,6 +39,8 @@ unsigned long       right_rotate_64(unsigned long n, unsigned long d);
 unsigned int        left_rotate(unsigned int n, unsigned int d);
 unsigned int        left_rotate(unsigned int n, unsigned int d);
 unsigned int        right_rotate_32(unsigned int n, unsigned int d);
+
+void				process_last_block(char *input, unsigned int *vars, size_t total_size, int should_swap, int byte_size, int treshold_bytes);
 
 typedef struct		s_ft_ssl_op
 {

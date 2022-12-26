@@ -71,7 +71,6 @@ void    sha256_process_last_block(char *input, unsigned int *vars)
 {
     size_t len_input = ft_strlen(input);
 
-    // print_bits(input, 64);
     input[len_input] = 0x80;
     ft_bzero(input + len_input + 1, 64 - (len_input + 1));
     len_input *= 8;
@@ -83,7 +82,6 @@ void    sha256_process_last_block(char *input, unsigned int *vars)
 
 void    sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
 {
-
     unsigned int vars[] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
     int current_len = 64;
     char current_input[64];
@@ -97,9 +95,7 @@ void    sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
         }       
     }
 
-    // printf("%d\n", current_len);
     ft_strncpy(current_input, input, 64);
     sha256_process_last_block(current_input, vars);
-    // unsigned int digest = vars[0] + vars[1] + vars[2] + vars[3];
     printf("\n%08x%08x%08x%08x%08x%08x%08x%08x \n",vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7]);
 }

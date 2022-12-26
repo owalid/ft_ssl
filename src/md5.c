@@ -63,24 +63,31 @@ void    md5_process_firsts_blocks(unsigned int *w, unsigned int *vars)
 }
 
 
-void    md5_process_last_block(char *input, unsigned int *vars, size_t readed)
-{
-    size_t len_input = (readed == -1) ? ft_strlen(input) : readed;
+void    md5_process_last_block(char *input, unsigned int *vars, size_t total_size)
+{  
+    size_t lasts_read = total_size % 64;
+    if (lasts_read < 64) {
+        ft_bzero(input + lasts_read + 1, 64 - (lasts_read + 1));
+    }
 
-    ft_bzero(input + len_input + 1, 64 - (len_input + 1));
-    input[len_input] = 0x80;
-
-    if (len_input >= 56) {
+    if (lasts_read >= 56) {
         char tmp_input[64];
 
+        if (lasts_read >= 64) {
+            tmp_input[64] = 0x80;
+        }
+        else
+            input[lasts_read] = 0x80;
+
         ft_bzero(tmp_input, 64);
-        len_input *= 8;
-        ft_memcpy(tmp_input + 56, &len_input, 8);
+        total_size *= 8;
+        ft_memcpy(tmp_input + 56, &total_size, 8);
         md5_process_firsts_blocks((unsigned int*)input, vars);
         md5_process_firsts_blocks((unsigned int*)tmp_input, vars);
     } else {
-        len_input *= 8;
-        ft_memcpy(input + 56, &len_input, 8);
+        input[lasts_read] = 0x80;
+        total_size *= 8;
+        ft_memcpy(input + 56, &total_size, 8);
         md5_process_firsts_blocks((unsigned int*)input, vars);
     }
 }
@@ -91,46 +98,39 @@ void   md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
     char current_input[64];
 
     if (input_type == 0) {
-        int current_len = 64;
+        int size_of_input = ft_strlen(input);
+        int size_of_input_copy = size_of_input;
+        int size_cmpt = 0;
 
         if (ft_strlen(input) >= 64) {
-            while (current_len % 64 == 0) {
+            while (size_of_input >= 64) {
                 ft_strncpy(current_input, input, 64);
                 md5_process_firsts_blocks((unsigned int*)current_input, vars);
-                input += current_len;
-                current_len += ft_strlen(current_input);
-            }       
-        }
+                size_of_input -= 64;
+                input += 64;
+                size_cmpt += 64;
+            } 
+        }   
 
         ft_strncpy(current_input, input, 64);
-        md5_process_last_block(current_input, vars, -1);
+        process_last_block(current_input, vars, size_of_input_copy, 0, 64, 56);
         printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
     } else if (input_type == 1 || input_type == 2) {
-        printf("not ready yet \n");
-        printf("input_type: %d\n", input_type);
         int fd = (input_type == 2) ? 0 : open(input, O_RDONLY);
-
-        // TODO REMOVE DEBUG
-        if (fd == 0) {
-            printf("stdin\n");
-        } else if (fd > 1) {
-            printf("file process %s: fd:%d\n", input, input_type);
-        } else {
-            printf("file not exist\n");
-        }
-        // END DEBUG
 
         if (fd > -1) {
             int readed = read(fd, current_input, 64);
-            printf("readed: %d", readed);
+            int total_size = readed;
+
             while (readed) {
                 if (readed < 64) {
-                    md5_process_last_block(current_input, vars, readed);
+                    process_last_block(current_input, vars, total_size+readed, 0, 64, 56);
                     printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
                     break;
                 } else {
                     md5_process_firsts_blocks((unsigned int*)current_input, vars);
                     readed = read(fd, current_input, 64);
+                    total_size += readed;
                 }
             }
         }
