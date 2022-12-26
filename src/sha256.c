@@ -13,23 +13,25 @@ unsigned int K_SHA256[] = {
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-void    sha256_process_firsts_blocks(unsigned int *w, unsigned int *vars)
+void    sha256_process_firsts_blocks(void *w, void *vars)
 {
+    unsigned int * wcopy = (unsigned int*)w;
+    unsigned int * vars_cpy = (unsigned int*)vars;
     unsigned int a, b, c, d, e, f, g, h, tmp, ch, maj, t1, t2, s1, s0;
     unsigned int ww[64]; 
 
-    a = vars[0];
-    b = vars[1];
-    c = vars[2];
-    d = vars[3];
-    e = vars[4];
-    f = vars[5];
-    g = vars[6];
-    h = vars[7];
+    a = vars_cpy[0];
+    b = vars_cpy[1];
+    c = vars_cpy[2];
+    d = vars_cpy[3];
+    e = vars_cpy[4];
+    f = vars_cpy[5];
+    g = vars_cpy[6];
+    h = vars_cpy[7];
 
     for (int i = 0; i < 64; i++) {
         if (i < 16) {
-            ww[i] = swap32(w[i]); // convert to big endian
+            ww[i] = swap32(wcopy[i]); // convert to big endian
         } else {
             s0 = right_rotate_32(ww[i-15], 7) ^ right_rotate_32(ww[i-15], 18) ^ ww[i-15] >> 3;
             s1 = right_rotate_32(ww[i-2], 17) ^ right_rotate_32(ww[i-2], 19) ^ ww[i-2] >> 10;
@@ -56,46 +58,50 @@ void    sha256_process_firsts_blocks(unsigned int *w, unsigned int *vars)
         a = t1 + t2;
     }
 
-    vars[0] += a;
-    vars[1] += b;
-    vars[2] += c;
-    vars[3] += d;
-    vars[4] += e;
-    vars[5] += f;
-    vars[6] += g;
-    vars[7] += h;
+    vars_cpy[0] += a;
+    vars_cpy[1] += b;
+    vars_cpy[2] += c;
+    vars_cpy[3] += d;
+    vars_cpy[4] += e;
+    vars_cpy[5] += f;
+    vars_cpy[6] += g;
+    vars_cpy[7] += h;
+    vars = vars_cpy;
 }
 
 
-void    sha256_process_last_block(char *input, unsigned int *vars)
-{
-    size_t len_input = ft_strlen(input);
+// void    sha256_process_last_block(char *input, unsigned int *vars)
+// {
+//     size_t len_input = ft_strlen(input);
 
-    input[len_input] = 0x80;
-    ft_bzero(input + len_input + 1, 64 - (len_input + 1));
-    len_input *= 8;
-    len_input = swap64(len_input);
-    ft_memcpy(input + 56, &len_input, 8);
-    sha256_process_firsts_blocks((unsigned int*)input, vars);
-}
+//     input[len_input] = 0x80;
+//     ft_bzero(input + len_input + 1, 64 - (len_input + 1));
+//     len_input *= 8;
+//     len_input = swap64(len_input);
+//     ft_memcpy(input + 56, &len_input, 8);
+//     sha256_process_firsts_blocks((unsigned int*)input, vars);
+// }
 
 
 void    sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
 {
     unsigned int vars[] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
-    int current_len = 64;
-    char current_input[64];
 
-    if (ft_strlen(input) >= 64) {
-        while (current_len % 64 == 0) {
-            ft_strncpy(current_input, input, 64);
-            sha256_process_firsts_blocks((unsigned int*)current_input, vars);
-            input += current_len;
-            current_len += ft_strlen(current_input);
-        }       
-    }
-
-    ft_strncpy(current_input, input, 64);
-    sha256_process_last_block(current_input, vars);
+    fn_process(input, input_type, 64, vars, 1, sha256_process_firsts_blocks);
     printf("\n%08x%08x%08x%08x%08x%08x%08x%08x \n",vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7]);
+    // int current_len = 64;
+    // char current_input[64];
+
+    // if (ft_strlen(input) >= 64) {
+    //     while (current_len % 64 == 0) {
+    //         ft_strncpy(current_input, input, 64);
+    //         sha256_process_firsts_blocks((unsigned int*)current_input, vars);
+    //         input += current_len;
+    //         current_len += ft_strlen(current_input);
+    //     }       
+    // }
+
+    // ft_strncpy(current_input, input, 64);
+    // sha256_process_last_block(current_input, vars);
+    // printf("\n%08x%08x%08x%08x%08x%08x%08x%08x \n",vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7]);
 }

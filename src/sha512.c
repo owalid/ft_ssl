@@ -22,23 +22,25 @@ unsigned long K_SHA512[] = {
     0x431d67c49c100d4c, 0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817
 };
 
-void    sha512_process_firsts_blocks(unsigned long *w, unsigned long *vars)
+void    sha512_process_firsts_blocks(void *w, void *vars)
 {
+    unsigned long* w_copy = (unsigned long*)w;
+    unsigned long* var_copy = (unsigned long*)vars;
     unsigned long a, b, c, d, e, f, g, h, tmp, ch, maj, t1, t2, s1, s0;
     unsigned long ww[80]; 
 
-    a = vars[0];
-    b = vars[1];
-    c = vars[2];
-    d = vars[3];
-    e = vars[4];
-    f = vars[5];
-    g = vars[6];
-    h = vars[7];
+    a = var_copy[0];
+    b = var_copy[1];
+    c = var_copy[2];
+    d = var_copy[3];
+    e = var_copy[4];
+    f = var_copy[5];
+    g = var_copy[6];
+    h = var_copy[7];
 
     for (int i = 0; i < 80; i++) {
         if (i < 16) {
-            ww[i] = swap64(w[i]); // convert to big endian
+            ww[i] = swap64(w_copy[i]); // convert to big endian
         } else {
             s0 = right_rotate_64(ww[i-15], 1) ^ right_rotate_64(ww[i-15], 8) ^ ww[i-15] >> 7;
             s1 = right_rotate_64(ww[i-2], 19) ^ right_rotate_64(ww[i-2], 61) ^ ww[i-2] >> 6;
@@ -65,28 +67,29 @@ void    sha512_process_firsts_blocks(unsigned long *w, unsigned long *vars)
         a = t1 + t2;
     }
 
-    vars[0] += a;
-    vars[1] += b;
-    vars[2] += c;
-    vars[3] += d;
-    vars[4] += e;
-    vars[5] += f;
-    vars[6] += g;
-    vars[7] += h;
+    var_copy[0] += a;
+    var_copy[1] += b;
+    var_copy[2] += c;
+    var_copy[3] += d;
+    var_copy[4] += e;
+    var_copy[5] += f;
+    var_copy[6] += g;
+    var_copy[7] += h;
+    vars = var_copy;
 }
 
 
-void    sha512_process_last_block(char *input, unsigned long *vars)
-{
-    size_t len_input = ft_strlen(input);
-    input[len_input] = 0x80;
-    ft_bzero(input + len_input + 1, 128 - (len_input + 1));
+// void    sha512_process_last_block(char *input, unsigned long *vars)
+// {
+//     size_t len_input = ft_strlen(input);
+//     input[len_input] = 0x80;
+//     ft_bzero(input + len_input + 1, 128 - (len_input + 1));
     
-    len_input *= 8;
-    len_input = swap64(len_input);
-    ft_memcpy(input + 120, &len_input, 8);
-    sha512_process_firsts_blocks((unsigned long*)input, vars);
-}
+//     len_input *= 8;
+//     len_input = swap64(len_input);
+//     ft_memcpy(input + 120, &len_input, 8);
+//     sha512_process_firsts_blocks((unsigned long*)input, vars);
+// }
 
 
 
@@ -95,19 +98,20 @@ void    sha512_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
 
     unsigned long vars[] = { 0x6a09e667f3bcc908, 0xbb67ae8584caa73b, 0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1, 
                             0x510e527fade682d1, 0x9b05688c2b3e6c1f, 0x1f83d9abfb41bd6b, 0x5be0cd19137e2179 };
-    int current_len = 128;
-    char current_input[128];
-
-    if (ft_strlen(input) >= 128) {
-        while (current_len % 128 == 0) {
-            ft_strncpy(current_input, input, 128);
-            sha512_process_firsts_blocks((unsigned long*)current_input, vars);
-            input += current_len;
-            current_len += ft_strlen(current_input);
-        }
-    }
-
-    ft_strncpy(current_input, input, 128);
-    sha512_process_last_block(current_input, vars);
+    fn_process(input, input_type, 128, vars, 1, sha512_process_firsts_blocks);
     printf("\n%016lx%016lx%016lx%016lx%016lx%016lx%016lx%016lx\n",vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7]);
+    // int current_len = 128;
+    // char current_input[128];
+
+    // if (ft_strlen(input) >= 128) {
+    //     while (current_len % 128 == 0) {
+    //         ft_strncpy(current_input, input, 128);
+    //         sha512_process_firsts_blocks((unsigned long*)current_input, vars);
+    //         input += current_len;
+    //         current_len += ft_strlen(current_input);
+    //     }
+    // }
+
+    // ft_strncpy(current_input, input, 128);
+    // sha512_process_last_block(current_input, vars);
 }

@@ -49,7 +49,7 @@ unsigned int right_rotate_32(unsigned int n, unsigned int d) {
     return (n >> d) | (n << (32 - d));
 }
 
-void process_last_block(char *input, unsigned int *vars, size_t total_size, int should_swap, int byte_size, int treshold_bytes)
+void process_last_block(char *input, void *vars, size_t total_size, int should_swap, int byte_size, t_fn_process_firsts_blocks fn_process_firsts_blocks)
 {
     size_t lasts_read = total_size % byte_size;
     
@@ -57,7 +57,7 @@ void process_last_block(char *input, unsigned int *vars, size_t total_size, int 
         ft_bzero(input + lasts_read + 1, byte_size - (lasts_read + 1));
     }
 
-    if (lasts_read >= treshold_bytes) {
+    if (lasts_read >= (56*(byte_size/64))) {
         char tmp_input[byte_size];
 
         if (lasts_read >= byte_size) {
@@ -70,20 +70,23 @@ void process_last_block(char *input, unsigned int *vars, size_t total_size, int 
         total_size *= 8;
         if (should_swap == 1)
             total_size = swap64(total_size);
-        ft_memcpy(tmp_input + treshold_bytes, &total_size, 8);
-        md5_process_firsts_blocks((unsigned int*)input, vars);
-        md5_process_firsts_blocks((unsigned int*)tmp_input, vars);
+        ft_memcpy(tmp_input + (byte_size-8), &total_size, 8);
+        fn_process_firsts_blocks(input, vars);
+        fn_process_firsts_blocks(tmp_input, vars);
     } else {
+        printf("wesh\n");
+        printf("lasts_read: %ld\n", lasts_read);
+        printf("total_size: %ld\n", total_size);
         input[lasts_read] = 0x80;
         total_size *= 8;
         if (should_swap == 1)
             total_size = swap64(total_size);
-        ft_memcpy(input + treshold_bytes, &total_size, 8);
-        md5_process_firsts_blocks((unsigned int*)input, vars);
+        ft_memcpy(input + (byte_size-8), &total_size, 8);
+        fn_process_firsts_blocks(input, vars);
     }
 }
 
-void* fn_process(char *input, int input_type, int byte_size, int treshold_bytes, void *vars, t_fn_process_firsts_blocks fn_process_firsts_blocks)
+void* fn_process(char *input, int input_type, int byte_size, void *vars, int should_swap, t_fn_process_firsts_blocks fn_process_firsts_blocks)
 {
     char current_input[byte_size];
 
@@ -103,31 +106,28 @@ void* fn_process(char *input, int input_type, int byte_size, int treshold_bytes,
         }   
 
         ft_strncpy(current_input, input, byte_size);
-        process_last_block(current_input, vars, size_of_input_copy, 0, byte_size, treshold_bytes);
+        process_last_block(current_input, vars, size_of_input_copy, should_swap, byte_size, fn_process_firsts_blocks);
         return vars;
-        // printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
     } else if (input_type == 1 || input_type == 2) {
-        // printf("input_type: %d\n", input_type);
         int fd = (input_type == 2) ? 0 : open(input, O_RDONLY);
         
         if (fd > -1) {
             int readed = read(fd, current_input, byte_size);
             int total_size = readed;
+            char tmp_input[byte_size];
 
             while (readed) {
-                if (readed < byte_size) {
-                    // printf("wesh alors2 ?\n");
-                    process_last_block(current_input, vars, total_size, 0, byte_size, treshold_bytes);
-                    return vars;
-                    // printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
-                    // break;
-                } else {
-                    fn_process_firsts_blocks(current_input, vars);
-                    readed = read(fd, current_input, byte_size);
-                    total_size += readed;
-                    // printf("wesh alors\n");
+                ft_memcpy(tmp_input, current_input, readed);
+                // tmp_input + readed;
+                if (total_size % byte_size == 0) {
+                    fn_process_firsts_blocks(tmp_input, vars);
+                    ft_bzero(tmp_input, byte_size);
                 }
+                readed = read(fd, current_input, byte_size);
+                total_size += readed;
             }
+            process_last_block(tmp_input, vars, total_size, should_swap, byte_size, fn_process_firsts_blocks);
+            return vars;
         }
     }
 }

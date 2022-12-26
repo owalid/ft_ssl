@@ -24,7 +24,6 @@ unsigned int R[] = {
 
 void    md5_process_firsts_blocks(void *w, void *vars)
 {
-    // printf("hello world\n");
     unsigned int * ww = (unsigned int*)w;
     unsigned int * vars_cpy = (unsigned int*)vars;
     unsigned int f, g, a, b, c, d, tmp;
@@ -63,55 +62,12 @@ void    md5_process_firsts_blocks(void *w, void *vars)
     vars_cpy[2] += c;
     vars_cpy[3] += d;
     vars = vars_cpy;
-    // return vars;
 }
 
 void   md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
 {
     unsigned int vars[] = { 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476 };
-    // char current_input[64];
 
-    // printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
-    fn_process(input, input_type, 64, 56, vars, md5_process_firsts_blocks);
+    fn_process(input, input_type, 64, vars, 0, md5_process_firsts_blocks);
     printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
-
-
-    // if (input_type == 0) {
-    //     int size_of_input = ft_strlen(input);
-    //     int size_of_input_copy = size_of_input;
-    //     int size_cmpt = 0;
-
-    //     if (ft_strlen(input) >= 64) {
-    //         while (size_of_input >= 64) {
-    //             ft_strncpy(current_input, input, 64);
-    //             md5_process_firsts_blocks((unsigned int*)current_input, vars);
-    //             size_of_input -= 64;
-    //             input += 64;
-    //             size_cmpt += 64;
-    //         } 
-    //     }   
-
-    //     ft_strncpy(current_input, input, 64);
-    //     process_last_block(current_input, vars, size_of_input_copy, 0, 64, 56);
-    //     printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
-    // } else if (input_type == 1 || input_type == 2) {
-    //     int fd = (input_type == 2) ? 0 : open(input, O_RDONLY);
-
-    //     if (fd > -1) {
-    //         int readed = read(fd, current_input, 64);
-    //         int total_size = readed;
-
-    //         while (readed) {
-    //             if (readed < 64) {
-    //                 process_last_block(current_input, vars, total_size+readed, 0, 64, 56);
-    //                 printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
-    //                 break;
-    //             } else {
-    //                 md5_process_firsts_blocks((unsigned int*)current_input, vars);
-    //                 readed = read(fd, current_input, 64);
-    //                 total_size += readed;
-    //             }
-    //         }
-    //     }
-    // }
 }

@@ -25,11 +25,6 @@ int main(int argc, char **argv) {
                 int j = 2;
 
                 for (; j < argc; j++) {
-                    if (ft_strcmp(argv[j], "-s") == 0 && (j + 1) < argc) { // process as string
-                        g_ftssl_op[i].ft_ssl_process(argv[j + 1], ssl_mode, 0);
-                        flag_process = 1;
-                        j += 2; // pass -s and string
-                    }
                     if (ft_strcmp(argv[j], "-p") == 0) {
                         j++;
                         break;
@@ -39,10 +34,13 @@ int main(int argc, char **argv) {
                         j--;
                         break;
                     }
-
+                    if (ft_strcmp(argv[j], "-s") == 0 && (j + 1) < argc) { // process as string
+                        g_ftssl_op[i].ft_ssl_process(argv[j + 1], ssl_mode, 0);
+                        flag_process = 1;
+                        j += 2; // pass -s and string
+                    }
                     // printf
                 }
-                // printf("J: %d\n", j);
                 // printf("argc: %d\n", argc);
                 for (; j < argc; j++) { // process as files
                     // printf("%s\n", argv[j]);
