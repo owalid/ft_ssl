@@ -24,7 +24,8 @@ unsigned int R[] = {
 
 void    md5_process_firsts_blocks(unsigned int *w, unsigned int *vars)
 {
-
+    // unsigned int * ww = (unsigned int*)w;
+    // unsigned int * vars_cpy = (unsigned int*)vars;
     unsigned int f, g, a, b, c, d, tmp;
 
     f = 0;
@@ -97,6 +98,10 @@ void   md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
     unsigned int vars[] = { 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476 };
     char current_input[64];
 
+    // fn_process(input, input_type, 64, 56, vars, md5_process_firsts_blocks);
+    // printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
+
+
     if (input_type == 0) {
         int size_of_input = ft_strlen(input);
         int size_of_input_copy = size_of_input;
@@ -113,7 +118,7 @@ void   md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
         }   
 
         ft_strncpy(current_input, input, 64);
-        process_last_block(current_input, vars, size_of_input_copy, 0, 64, 56);
+        md5_process_last_block(current_input, vars, size_of_input_copy);
         printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
     } else if (input_type == 1 || input_type == 2) {
         int fd = (input_type == 2) ? 0 : open(input, O_RDONLY);
@@ -124,7 +129,7 @@ void   md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
 
             while (readed) {
                 if (readed < 64) {
-                    process_last_block(current_input, vars, total_size+readed, 0, 64, 56);
+                    md5_process_last_block(current_input, vars, total_size+readed);
                     printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
                     break;
                 } else {
