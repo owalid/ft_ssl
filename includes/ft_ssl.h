@@ -19,18 +19,16 @@ typedef 			void (*t_fn_process_firsts_blocks)(void *w, void *vars);
 
 void                md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type);
 void    			md5_process_firsts_blocks(void *w, void *vars);
-// void    			md5_process_last_block(char *input, unsigned int *vars, size_t total_size);
+
 void                sha224_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type);
 
 void                sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type);
 void    			sha256_process_firsts_blocks(void *w, void *vars);
-// void                sha256_process_last_block(char *input, unsigned int *vars);
 
 void                sha384_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type);
 
 void                sha512_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type);
-void    sha512_process_firsts_blocks(void *w, void *vars);
-// void                sha512_process_last_block(char *input, unsigned long *vars);
+void    			sha512_process_firsts_blocks(void *w, void *vars);
 
 void                print_bits(unsigned char *str, size_t len);
 unsigned int        left_rotate(unsigned int n, unsigned int d);
