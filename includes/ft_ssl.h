@@ -15,10 +15,10 @@ typedef struct		s_ft_ssl_mode
 	int			std_mode;
 }					t_ft_ssl_mode;
 
-typedef 			void *(*t_fn_process_firsts_blocks)(void *w, void *vars);
+typedef 			void (*t_fn_process_firsts_blocks)(void *w, void *vars);
 
 void                md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type);
-void    md5_process_firsts_blocks(unsigned int *w, unsigned int *vars);
+void                md5_process_firsts_blocks(void *w, void *vars);
 // void    			md5_process_last_block(char *input, unsigned int *vars, size_t total_size);
 void                sha224_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type);
 

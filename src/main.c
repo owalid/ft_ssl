@@ -9,7 +9,7 @@ t_ft_ssl_mode* ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
             ssl_mode->quiet_mode = 1;
         } else if (ft_strcmp(argv[i], "-r") == 0) {
             ssl_mode->reverse_mode = 1;
-        } else if (ft_strcmp(argv[i], "-q") == 0) {
+        } else if (ft_strcmp(argv[i], "-p") == 0) {
             ssl_mode->std_mode = 1;
         }
     }
@@ -29,14 +29,23 @@ int main(int argc, char **argv) {
                         g_ftssl_op[i].ft_ssl_process(argv[j + 1], ssl_mode, 0);
                         flag_process = 1;
                         j += 2; // pass -s and string
+                    }
+                    if (ft_strcmp(argv[j], "-p") == 0) {
+                        j++;
                         break;
                     }
-                    if (ft_strstr(argv[j], "-") != NULL) // check if is an file
+                    if (ft_strstr(argv[j], "-") == NULL && ft_strcmp(argv[j-1], "-s") != 0) { // check if is an file
+                        printf("argv[j]: %s\n", argv[j]);
                         j--;
                         break;
+                    }
+
+                    // printf
                 }
                 // printf("J: %d\n", j);
+                // printf("argc: %d\n", argc);
                 for (; j < argc; j++) { // process as files
+                    // printf("%s\n", argv[j]);
                     g_ftssl_op[i].ft_ssl_process(argv[j], ssl_mode, 1);
                     flag_process = 1;
                 }

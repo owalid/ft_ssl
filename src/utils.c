@@ -107,15 +107,17 @@ void* fn_process(char *input, int input_type, int byte_size, int treshold_bytes,
         return vars;
         // printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
     } else if (input_type == 1 || input_type == 2) {
+        // printf("input_type: %d\n", input_type);
         int fd = (input_type == 2) ? 0 : open(input, O_RDONLY);
-
+        
         if (fd > -1) {
             int readed = read(fd, current_input, byte_size);
             int total_size = readed;
 
             while (readed) {
                 if (readed < byte_size) {
-                    process_last_block(current_input, vars, total_size+readed, 0, byte_size, treshold_bytes);
+                    // printf("wesh alors2 ?\n");
+                    process_last_block(current_input, vars, total_size, 0, byte_size, treshold_bytes);
                     return vars;
                     // printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
                     // break;
@@ -123,6 +125,7 @@ void* fn_process(char *input, int input_type, int byte_size, int treshold_bytes,
                     fn_process_firsts_blocks(current_input, vars);
                     readed = read(fd, current_input, byte_size);
                     total_size += readed;
+                    // printf("wesh alors\n");
                 }
             }
         }
