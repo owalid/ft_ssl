@@ -2,6 +2,7 @@
 #include "libft.h"
 #include <byteswap.h>
 #include <stdio.h>
+#include <fcntl.h>
 
 unsigned int K_md5[] = {
     0xd76aa478,	0xe8c7b756,	0x242070db,	0xc1bdceee,	0xf57c0faf,	0x4787c62a,	0xa8304613,	0xfd469501,
@@ -62,9 +63,9 @@ void    md5_process_firsts_blocks(unsigned int *w, unsigned int *vars)
 }
 
 
-void    md5_process_last_block(char *input, unsigned int *vars)
+void    md5_process_last_block(char *input, unsigned int *vars, size_t readed)
 {
-    size_t len_input = ft_strlen(input);
+    size_t len_input = (readed == -1) ? ft_strlen(input) : readed;
 
     ft_bzero(input + len_input + 1, 64 - (len_input + 1));
     input[len_input] = 0x80;
@@ -102,21 +103,35 @@ void   md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
         }
 
         ft_strncpy(current_input, input, 64);
-        md5_process_last_block(current_input, vars);
+        md5_process_last_block(current_input, vars, -1);
         printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
-    } else if (input_type == 1) {
+    } else if (input_type == 1 || input_type == 2) {
         printf("not ready yet \n");
-    } else if (input_type == 2) {
-        printf("stdin\n");
-        int readed = read(0, current_input, 64);
-        while (readed) {
-            if (readed < 64) {
-                md5_process_last_block(current_input, vars);
-                printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
-                break;
-            } else {
-                md5_process_firsts_blocks((unsigned int*)current_input, vars);
-                readed = read(0, current_input, 64);
+        printf("input_type: %d\n", input_type);
+        int fd = (input_type == 2) ? 0 : open(input, O_RDONLY);
+
+        // TODO REMOVE DEBUG
+        if (fd == 0) {
+            printf("stdin\n");
+        } else if (fd > 1) {
+            printf("file process %s: fd:%d\n", input, input_type);
+        } else {
+            printf("file not exist\n");
+        }
+        // END DEBUG
+
+        if (fd > -1) {
+            int readed = read(fd, current_input, 64);
+            printf("readed: %d", readed);
+            while (readed) {
+                if (readed < 64) {
+                    md5_process_last_block(current_input, vars, readed);
+                    printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
+                    break;
+                } else {
+                    md5_process_firsts_blocks((unsigned int*)current_input, vars);
+                    readed = read(fd, current_input, 64);
+                }
             }
         }
     }

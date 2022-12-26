@@ -32,8 +32,10 @@ int main(int argc, char **argv) {
                         break;
                     }
                     if (ft_strstr(argv[j], "-") != NULL) // check if is an file
+                        j--;
                         break;
                 }
+                printf("J: %d\n", j);
                 for (; j < argc; j++) { // process as files
                     g_ftssl_op[i].ft_ssl_process(argv[j], ssl_mode, 1);
                     flag_process = 1;
