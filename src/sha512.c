@@ -90,7 +90,7 @@ void    sha512_process_last_block(char *input, unsigned long *vars)
 
 
 
-void    sha512_process(char *input)
+void    sha512_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
 {
 
     unsigned long vars[] = { 0x6a09e667f3bcc908, 0xbb67ae8584caa73b, 0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1, 

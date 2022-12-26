@@ -66,8 +66,6 @@ void    md5_process_last_block(char *input, unsigned int *vars)
 {
     size_t len_input = ft_strlen(input);
 
-    printf("len_input => %ld\n", len_input);
-    print_bits(input, 64);
     ft_bzero(input + len_input + 1, 64 - (len_input + 1));
     input[len_input] = 0x80;
 
@@ -77,8 +75,6 @@ void    md5_process_last_block(char *input, unsigned int *vars)
         ft_bzero(tmp_input, 64);
         len_input *= 8;
         ft_memcpy(tmp_input + 56, &len_input, 8);
-        print_bits(input, 64);
-        print_bits(tmp_input, 64);
         md5_process_firsts_blocks((unsigned int*)input, vars);
         md5_process_firsts_blocks((unsigned int*)tmp_input, vars);
     } else {
@@ -88,28 +84,40 @@ void    md5_process_last_block(char *input, unsigned int *vars)
     }
 }
 
-void    md5_process(char *input)
+void   md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
 {
     unsigned int vars[] = { 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476 };
-    int current_len = 64;
     char current_input[64];
 
-    printf("%x%x%x%x\n", vars[0], vars[1], vars[2], vars[3]);
+    if (input_type == 0) {
+        int current_len = 64;
 
-    if (ft_strlen(input) >= 64) {
-        while (current_len % 64 == 0) {
-            ft_strncpy(current_input, input, 64);
-            md5_process_firsts_blocks((unsigned int*)current_input, vars);
-            input += current_len;
-            current_len += ft_strlen(current_input);
-        }       
+        if (ft_strlen(input) >= 64) {
+            while (current_len % 64 == 0) {
+                ft_strncpy(current_input, input, 64);
+                md5_process_firsts_blocks((unsigned int*)current_input, vars);
+                input += current_len;
+                current_len += ft_strlen(current_input);
+            }       
+        }
+
+        ft_strncpy(current_input, input, 64);
+        md5_process_last_block(current_input, vars);
+        printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
+    } else if (input_type == 1) {
+        printf("not ready yet \n");
+    } else if (input_type == 2) {
+        printf("stdin\n");
+        int readed = read(0, current_input, 64);
+        while (readed) {
+            if (readed < 64) {
+                md5_process_last_block(current_input, vars);
+                printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
+                break;
+            } else {
+                md5_process_firsts_blocks((unsigned int*)current_input, vars);
+                readed = read(0, current_input, 64);
+            }
+        }
     }
-
-    printf("%d\n", current_len);
-    ft_strncpy(current_input, input, 64);
-    md5_process_last_block(current_input, vars);
-    // unsigned int digest = vars[0] + vars[1] + vars[2] + vars[3];
-    printf("%08x%08x%08x%08x\n",vars[0], vars[1], vars[2], vars[3]);
-    printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
-
 }
