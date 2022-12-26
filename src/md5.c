@@ -69,5 +69,9 @@ void   md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
     unsigned int vars[] = { 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476 };
 
     fn_process(input, input_type, 64, vars, 0, md5_process_firsts_blocks);
-    printf("%08x%08x%08x%08x\n",__bswap_32(vars[0]), __bswap_32(vars[1]), __bswap_32(vars[2]), __bswap_32(vars[3]));
+    for (int i = 0; i < 4; i++)
+    {
+        vars[i] = swap32(vars[i]);
+    }
+    print_hash_32(vars, 4);
 }

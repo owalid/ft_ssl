@@ -6,7 +6,7 @@
 #    By: oel-ayad <oel-ayad@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/01/30 15:43:53 by oel-ayad          #+#    #+#              #
-#    Updated: 2022/12/19 16:38:08 by oel-ayad         ###   ########.fr        #
+#    Updated: 2022/12/26 21:00:40 by oel-ayad         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -79,6 +79,7 @@ SRCS =	ft_memset.c \
 		ft_isgraph.c \
 		ft_isblank.c \
 		ft_itoa_base.c \
+		ft_utoa_base.c \
 		ft_str_is_alpha.c \
 		ft_str_is_lowercase.c \
 		ft_str_is_numeric.c \

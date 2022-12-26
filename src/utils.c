@@ -2,7 +2,40 @@
 #include "libft.h"
 #include <fcntl.h>
 
+void print_hash_32(unsigned int* hash, size_t size)
+{
+    char *str;
+    int len;
 
+    for (int i = 0; i < size; i++) {
+        str = ft_strlowcase(ft_utoa_base(hash[i], 16));
+        len = ft_strlen(str);
+        for (int i = 0; i < 8 - len; i++) {
+            ft_putchar('0');
+        }
+        ft_putstr(str);
+        free(str);
+    }
+    ft_putchar('\n');
+}
+
+
+void print_hash_64(unsigned long* hash, size_t size)
+{
+    char *str;
+    int len;
+
+    for (int i = 0; i < size; i++) {
+        str = ft_strlowcase(ft_utoa_base(hash[i], 16));
+        len = ft_strlen(str);
+        for (int i = 0; i < 16 - len; i++) {
+            ft_putchar('0');
+        }
+        ft_putstr(str);
+        free(str);
+    }
+    ft_putchar('\n');
+}
 
 void print_bit(unsigned char n) {
 	for (int i = 7; i >= 0; i--) {
