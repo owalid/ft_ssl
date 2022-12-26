@@ -70,38 +70,10 @@ void    sha256_process_firsts_blocks(void *w, void *vars)
 }
 
 
-// void    sha256_process_last_block(char *input, unsigned int *vars)
-// {
-//     size_t len_input = ft_strlen(input);
-
-//     input[len_input] = 0x80;
-//     ft_bzero(input + len_input + 1, 64 - (len_input + 1));
-//     len_input *= 8;
-//     len_input = swap64(len_input);
-//     ft_memcpy(input + 56, &len_input, 8);
-//     sha256_process_firsts_blocks((unsigned int*)input, vars);
-// }
-
-
 void    sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
 {
     unsigned int vars[] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
 
     fn_process(input, input_type, 64, vars, 1, sha256_process_firsts_blocks);
     printf("\n%08x%08x%08x%08x%08x%08x%08x%08x \n",vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7]);
-    // int current_len = 64;
-    // char current_input[64];
-
-    // if (ft_strlen(input) >= 64) {
-    //     while (current_len % 64 == 0) {
-    //         ft_strncpy(current_input, input, 64);
-    //         sha256_process_firsts_blocks((unsigned int*)current_input, vars);
-    //         input += current_len;
-    //         current_len += ft_strlen(current_input);
-    //     }       
-    // }
-
-    // ft_strncpy(current_input, input, 64);
-    // sha256_process_last_block(current_input, vars);
-    // printf("\n%08x%08x%08x%08x%08x%08x%08x%08x \n",vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7]);
 }
