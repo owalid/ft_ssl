@@ -107,9 +107,6 @@ void process_last_block(char *input, void *vars, size_t total_size, int should_s
         fn_process_firsts_blocks(input, vars);
         fn_process_firsts_blocks(tmp_input, vars);
     } else {
-        printf("wesh\n");
-        printf("lasts_read: %ld\n", lasts_read);
-        printf("total_size: %ld\n", total_size);
         input[lasts_read] = 0x80;
         total_size *= 8;
         if (should_swap == 1)
