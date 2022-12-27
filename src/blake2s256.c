@@ -44,7 +44,17 @@ unsigned int mix(unsigned int a, unsigned int b, unsigned int c, unsigned int d,
 
 unsigned int compress(unsigned int h, unsigned long chunk, int t, int is_last)
 {
+    for (int i = 0; i < 12; i++) {
+        mix(v[0], v[4], v[8], v[12], m[S0], m[S1]);
+        mix(v[1], v[5], v[9], v[13], m[S2], m[S3]);
+        mix(v[2], v[6], v[10], v[14], m[S4], m[S5]);
+        mix(v[3], v[7], v[11], v[15], m[S6], m[S7]);
 
+        mix(v[0], v[5], v[10], v[15], m[S8], m[S9]);
+        mix(v[1], v[6], v[11], v[12], m[S10], m[S11]);
+        mix(v[2], v[7], v[8], v[13], m[S12], m[S13]);
+        mix(v[3], v[4], v[9], v[14], m[S14], m[S15]);
+    }
 }
 
 
