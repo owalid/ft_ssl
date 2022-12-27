@@ -1,7 +1,5 @@
 #include "ft_ssl.h"
 #include "libft.h"
-#include <stdio.h>
-
 
 unsigned long K_SHA512[] = {
    0x428a2f98d728ae22, 0x7137449123ef65cd, 0xb5c0fbcfec4d3b2f, 0xe9b5dba58189dbbc, 0x3956c25bf348b538, 
@@ -22,25 +20,25 @@ unsigned long K_SHA512[] = {
     0x431d67c49c100d4c, 0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817
 };
 
-void    sha512_process_firsts_blocks(void *w, void *vars)
+void    sha512_process_firsts_blocks(void *raw_w, void *raw_hash)
 {
-    unsigned long* w_copy = (unsigned long*)w;
-    unsigned long* var_copy = (unsigned long*)vars;
+    unsigned long* w = (unsigned long*)raw_w;
+    unsigned long* hash = (unsigned long*)raw_hash;
     unsigned long a, b, c, d, e, f, g, h, tmp, ch, maj, t1, t2, s1, s0;
     unsigned long ww[80]; 
 
-    a = var_copy[0];
-    b = var_copy[1];
-    c = var_copy[2];
-    d = var_copy[3];
-    e = var_copy[4];
-    f = var_copy[5];
-    g = var_copy[6];
-    h = var_copy[7];
+    a = hash[0];
+    b = hash[1];
+    c = hash[2];
+    d = hash[3];
+    e = hash[4];
+    f = hash[5];
+    g = hash[6];
+    h = hash[7];
 
     for (int i = 0; i < 80; i++) {
         if (i < 16) {
-            ww[i] = swap64(w_copy[i]); // convert to big endian
+            ww[i] = swap64(w[i]); // convert to big endian
         } else {
             s0 = right_rotate_64(ww[i-15], 1) ^ right_rotate_64(ww[i-15], 8) ^ ww[i-15] >> 7;
             s1 = right_rotate_64(ww[i-2], 19) ^ right_rotate_64(ww[i-2], 61) ^ ww[i-2] >> 6;
@@ -67,15 +65,15 @@ void    sha512_process_firsts_blocks(void *w, void *vars)
         a = t1 + t2;
     }
 
-    var_copy[0] += a;
-    var_copy[1] += b;
-    var_copy[2] += c;
-    var_copy[3] += d;
-    var_copy[4] += e;
-    var_copy[5] += f;
-    var_copy[6] += g;
-    var_copy[7] += h;
-    vars = var_copy;
+    hash[0] += a;
+    hash[1] += b;
+    hash[2] += c;
+    hash[3] += d;
+    hash[4] += e;
+    hash[5] += f;
+    hash[6] += g;
+    hash[7] += h;
+    raw_w = hash;
 }
 
 

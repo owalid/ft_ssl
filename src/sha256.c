@@ -1,6 +1,5 @@
 #include "ft_ssl.h"
 #include "libft.h"
-#include <stdio.h>
 
 unsigned int K_SHA256[] = {
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -13,25 +12,25 @@ unsigned int K_SHA256[] = {
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-void    sha256_process_firsts_blocks(void *w, void *vars)
+void    sha256_process_firsts_blocks(void *raw_w, void *raw_hash)
 {
-    unsigned int * wcopy = (unsigned int*)w;
-    unsigned int * vars_cpy = (unsigned int*)vars;
+    unsigned int * w = (unsigned int*)raw_w;
+    unsigned int * hash = (unsigned int*)raw_hash;
     unsigned int a, b, c, d, e, f, g, h, tmp, ch, maj, t1, t2, s1, s0;
     unsigned int ww[64]; 
 
-    a = vars_cpy[0];
-    b = vars_cpy[1];
-    c = vars_cpy[2];
-    d = vars_cpy[3];
-    e = vars_cpy[4];
-    f = vars_cpy[5];
-    g = vars_cpy[6];
-    h = vars_cpy[7];
+    a = hash[0];
+    b = hash[1];
+    c = hash[2];
+    d = hash[3];
+    e = hash[4];
+    f = hash[5];
+    g = hash[6];
+    h = hash[7];
 
     for (int i = 0; i < 64; i++) {
         if (i < 16) {
-            ww[i] = swap32(wcopy[i]); // convert to big endian
+            ww[i] = swap32(w[i]); // convert to big endian
         } else {
             s0 = right_rotate_32(ww[i-15], 7) ^ right_rotate_32(ww[i-15], 18) ^ ww[i-15] >> 3;
             s1 = right_rotate_32(ww[i-2], 17) ^ right_rotate_32(ww[i-2], 19) ^ ww[i-2] >> 10;
@@ -58,15 +57,15 @@ void    sha256_process_firsts_blocks(void *w, void *vars)
         a = t1 + t2;
     }
 
-    vars_cpy[0] += a;
-    vars_cpy[1] += b;
-    vars_cpy[2] += c;
-    vars_cpy[3] += d;
-    vars_cpy[4] += e;
-    vars_cpy[5] += f;
-    vars_cpy[6] += g;
-    vars_cpy[7] += h;
-    vars = vars_cpy;
+    hash[0] += a;
+    hash[1] += b;
+    hash[2] += c;
+    hash[3] += d;
+    hash[4] += e;
+    hash[5] += f;
+    hash[6] += g;
+    hash[7] += h;
+    raw_hash = hash;
 }
 
 

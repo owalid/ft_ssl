@@ -11,12 +11,6 @@ t_ft_ssl_mode* ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
             ssl_mode->reverse_mode = 1;
         } else if (ft_strcmp(argv[i], "-p") == 0) {
             ssl_mode->std_mode = 1;
-        } else if (ft_strcmp(argv[i], "-help") == 0) {
-            ft_putstr(USAGE);
-            exit(0);
-        } else if (ft_strcmp(argv[i], "-list") == 0) {
-            ft_putstr(ALGO_LIST);
-            exit(0);
         }
     }
 }
@@ -27,11 +21,12 @@ int main(int argc, char **argv) {
         if (ft_strcmp(argv[1], "-list") == 0) {
             ft_putstr(ALGO_LIST);
             exit(0);
-        } else {
+        } else if (ft_strcmp(argv[1], "-list") == 0) {
             ft_putstr(USAGE);
+            exit(0);
         }
     }
-    if (argc > 2) {
+    if (argc >= 2) {
         for (int i = 0; i < SIZE_OP; i++) {
             if (ft_strcmp(argv[1], g_ftssl_op[i].name) == 0) { // get name of digest algorithm
                 flag = 1;

@@ -1,8 +1,5 @@
 #include "ft_ssl.h"
 #include "libft.h"
-#include <byteswap.h>
-#include <stdio.h>
-#include <fcntl.h>
 
 unsigned int K_md5[] = {
     0xd76aa478,	0xe8c7b756,	0x242070db,	0xc1bdceee,	0xf57c0faf,	0x4787c62a,	0xa8304613,	0xfd469501,
@@ -22,18 +19,18 @@ unsigned int R[] = {
     6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21
 };
 
-void    md5_process_firsts_blocks(void *w, void *vars)
+void    md5_process_firsts_blocks(void *raw_w, void *raw_hash)
 {
-    unsigned int * ww = (unsigned int*)w;
-    unsigned int * vars_cpy = (unsigned int*)vars;
+    unsigned int *w = (unsigned int*)raw_w;
+    unsigned int * hash = (unsigned int*)raw_hash;
     unsigned int f, g, a, b, c, d, tmp;
 
     f = 0;
     g = 0;
-    a = vars_cpy[0];
-    b = vars_cpy[1];
-    c = vars_cpy[2];
-    d = vars_cpy[3];
+    a = hash[0];
+    b = hash[1];
+    c = hash[2];
+    d = hash[3];
 
     for (int i = 0; i < 64; i++) {
         if (i <= 15) {
@@ -53,15 +50,15 @@ void    md5_process_firsts_blocks(void *w, void *vars)
         tmp = d;
         d = c;
         c = b;
-        b = left_rotate((a + f + K_md5[i] + ww[g]), R[i]) + b;
+        b = left_rotate((a + f + K_md5[i] + w[g]), R[i]) + b;
         a = tmp;
     }
 
-    vars_cpy[0] += a;
-    vars_cpy[1] += b;
-    vars_cpy[2] += c;
-    vars_cpy[3] += d;
-    vars = vars_cpy;
+    hash[0] += a;
+    hash[1] += b;
+    hash[2] += c;
+    hash[3] += d;
+    raw_hash = hash;
 }
 
 void   md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name)
