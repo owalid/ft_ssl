@@ -1,7 +1,7 @@
 #include "ft_ssl.h"
 #include "libft.h"
 
-unsigned int IV_BLAKE2B[] = {
+unsigned int H_BLAKE2B[] = {
     0x6a09e667f3bcc908,
     0xbb67ae8584caa73b,
     0x3c6ef372fe94f82b,
@@ -27,9 +27,19 @@ unsigned int SIGMA[] = {
     14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3
 };
 
-unsigned int mix(unsigned int *v, unsigned int x, unsigned int y)
-{
 
+unsigned int mix(unsigned int a, unsigned int b, unsigned int c, unsigned int d, unsigned int x, unsigned y) {
+    a += b + x;
+    d = right_rotate_64((d ^ a), 32);
+
+    c += d;
+    b = right_rotate_64((b ^ c), 24);
+
+    a += b + y;
+    d = right_rotate_64((d ^ a), 16);
+
+    c += d;
+    b = right_rotate_64(b ^ c, 63);
 }
 
 unsigned int compress(unsigned int h, unsigned long chunk, int t, int is_last)
