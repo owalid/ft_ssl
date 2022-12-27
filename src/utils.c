@@ -2,13 +2,59 @@
 #include "libft.h"
 #include <fcntl.h>
 
-void print_hash_32(unsigned int* hash, size_t size)
+
+void preprocess_final_output(t_ft_ssl_mode *ssl_mode, char *algo_name, int input_type, char *input, t_fn_print_hash fn_print_hash, void *hash, size_t size)
 {
+    if (ssl_mode->quiet_mode == 1)
+        return;
+    
+    if (ssl_mode->reverse_mode == 0) {
+        char *str_cpy = ft_strnew(ft_strlen(algo_name));
+        ft_strcpy(str_cpy, algo_name);
+        ft_putstr(ft_strupcase(str_cpy));
+        free(str_cpy);
+        if (input_type == 2) {
+            ft_putstr(" (stdin)= ");
+        } else if (input_type == 1) {
+            ft_putstr(" (");
+            ft_putstr(input);
+            ft_putstr(")= ");
+        } else {
+            ft_putstr(" (\"");
+            ft_putstr(input);
+            ft_putstr("\")= ");
+        }
+        fn_print_hash(hash, size);
+    } else {
+        fn_print_hash(hash, size);
+        if (input_type == 2) {
+            ft_putstr(" *stdin");
+        } else if (input_type == 1) {
+            ft_putstr(" *");
+            ft_putstr(input);
+        } else {
+            ft_putstr(" *\"");
+            ft_putstr(input);
+            ft_putchar('\"');
+        }
+    }
+    ft_putchar('\n');
+}
+
+void print_hash_32(void *hash, size_t size)
+{
+    unsigned int *hashh = (unsigned int*)hash;
     char *str;
     int len;
 
+    // PAS D'OPTIONS AFFICHER (ALGO)= HASH
+    // OPTION -p AFFICHER ("STR")= HASH
+    // OPTION -q AFFICHER HASH
+    // FILE AFFICHER (FILE) HASH
+    // OPTION -r AFFICHER HASH FILE ou HASH STR
+
     for (int i = 0; i < size; i++) {
-        str = ft_strlowcase(ft_utoa_base(hash[i], 16));
+        str = ft_strlowcase(ft_utoa_base(hashh[i], 16));
         len = ft_strlen(str);
         for (int i = 0; i < 8 - len; i++) {
             ft_putchar('0');
@@ -16,17 +62,17 @@ void print_hash_32(unsigned int* hash, size_t size)
         ft_putstr(str);
         free(str);
     }
-    ft_putchar('\n');
 }
 
 
-void print_hash_64(unsigned long* hash, size_t size)
+void print_hash_64(void* hash, size_t size)
 {
     char *str;
     int len;
+    unsigned long *hashh = (unsigned long*)hash;
 
     for (int i = 0; i < size; i++) {
-        str = ft_strlowcase(ft_utoa_base(hash[i], 16));
+        str = ft_strlowcase(ft_utoa_base(hashh[i], 16));
         len = ft_strlen(str);
         for (int i = 0; i < 16 - len; i++) {
             ft_putchar('0');
@@ -34,7 +80,6 @@ void print_hash_64(unsigned long* hash, size_t size)
         ft_putstr(str);
         free(str);
     }
-    ft_putchar('\n');
 }
 
 void print_bit(unsigned char n) {
@@ -140,7 +185,7 @@ void* fn_process(char *input, int input_type, int byte_size, void *vars, int sho
         return vars;
     }  else if (input_type == 1 || input_type == 2) { //TODO NEED TO CHANGE THIS
         int fd = (input_type == 2) ? 0 : open(input, O_RDONLY);
-        
+        printf("[FD]: %d", fd);
         if (fd > -1) {
             int readed = 0;
             int total_size = readed;
@@ -157,11 +202,13 @@ void* fn_process(char *input, int input_type, int byte_size, void *vars, int sho
                 }
                 total_size += readed;
             }
-            printf("tmp_input:\n%s\n", tmp_input);
             process_last_block((void *)tmp_input, vars, total_size, should_swap, byte_size, fn_process_firsts_blocks);
             free(tmp_input);
 
             return vars;
+        } else {
+            ft_putstr(ERROR_FILE);
+            return NULL;
         }
     }
 }

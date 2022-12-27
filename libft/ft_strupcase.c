@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strupcase.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oel-ayad <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: oel-ayad <oel-ayad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/12 21:29:12 by oel-ayad          #+#    #+#             */
-/*   Updated: 2018/11/12 21:35:21 by oel-ayad         ###   ########.fr       */
+/*   Updated: 2022/12/27 15:17:10 by oel-ayad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ char		*ft_strupcase(char *str)
 
 	i = -1;
 	while (str[++i])
-		if (!(ft_isupper(str[i])))
+		if (ft_islower(str[i]))
 			str[i] = ft_toupper(str[i]);
 	return (str);
 }

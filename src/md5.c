@@ -64,7 +64,7 @@ void    md5_process_firsts_blocks(void *w, void *vars)
     vars = vars_cpy;
 }
 
-void   md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
+void   md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name)
 {
     unsigned int vars[] = { 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476 };
 
@@ -73,5 +73,6 @@ void   md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
     {
         vars[i] = swap32(vars[i]);
     }
-    print_hash_32(vars, 4);
+
+    preprocess_final_output(ssl_mode, algo_name, input_type, input, print_hash_32, vars, 4);
 }

@@ -70,11 +70,11 @@ void    sha256_process_firsts_blocks(void *w, void *vars)
 }
 
 
-void    sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type)
+void    sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name)
 {
     unsigned int vars[] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
 
 
     fn_process(input, input_type, 64, vars, 1, sha256_process_firsts_blocks);
-    print_hash_32(vars, 8);
+    preprocess_final_output(ssl_mode, algo_name, input_type, input, print_hash_32, vars, 8);
 }
