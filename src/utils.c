@@ -138,25 +138,29 @@ void* fn_process(char *input, int input_type, int byte_size, void *vars, int sho
         ft_strncpy(current_input, input, byte_size);
         process_last_block(current_input, vars, size_of_input_copy, should_swap, byte_size, fn_process_firsts_blocks);
         return vars;
-    } else if (input_type == 1 || input_type == 2) { //TODO NEED TO CHANGE THIS
+    }  else if (input_type == 1 || input_type == 2) { //TODO NEED TO CHANGE THIS
         int fd = (input_type == 2) ? 0 : open(input, O_RDONLY);
         
         if (fd > -1) {
-            int readed = read(fd, current_input, byte_size);
+            int readed = 0;
             int total_size = readed;
-            char tmp_input[byte_size];
+            char *tmp_input = ft_strnew(byte_size);
 
-            while (readed) {
-                ft_memcpy(tmp_input, current_input, readed);
-                // tmp_input + readed;
-                if (total_size % byte_size == 0) {
-                    fn_process_firsts_blocks(tmp_input, vars);
-                    ft_bzero(tmp_input, byte_size);
+            while (readed = read(fd, current_input, byte_size)) {
+                if ((total_size % byte_size) + readed >= byte_size) {
+                    ft_memcpy((void *)tmp_input + (readed % byte_size), current_input, byte_size - (readed % byte_size));
+                    fn_process_firsts_blocks((void *)tmp_input, vars);
+                    ft_bzero((void *)tmp_input, byte_size);
+                    ft_memcpy((void *)tmp_input, current_input + (total_size % byte_size), (total_size % byte_size));
+                } else {
+                    ft_memcpy((void *)tmp_input + (total_size % byte_size), current_input, readed);
                 }
-                readed = read(fd, current_input, byte_size);
                 total_size += readed;
             }
-            process_last_block(tmp_input, vars, total_size, should_swap, byte_size, fn_process_firsts_blocks);
+            printf("tmp_input:\n%s\n", tmp_input);
+            process_last_block((void *)tmp_input, vars, total_size, should_swap, byte_size, fn_process_firsts_blocks);
+            free(tmp_input);
+
             return vars;
         }
     }

@@ -32,7 +32,7 @@ def runCommands(algo, stdin, name):
 	print(Style.RESET_ALL, end='')
 
 def testAlgos(stdin, name):
-	for algo in ['md5', 'sha256', 'sha224', 'sha512', 'sha384']:
+	for algo in ['md5']:
 		runCommands(algo, stdin, name)
 
 for index in range(150):
