@@ -47,18 +47,11 @@ void print_hash_32(void *hash, size_t size)
     char *str;
     int len;
 
-    // PAS D'OPTIONS AFFICHER (ALGO)= HASH
-    // OPTION -p AFFICHER ("STR")= HASH
-    // OPTION -q AFFICHER HASH
-    // FILE AFFICHER (FILE) HASH
-    // OPTION -r AFFICHER HASH FILE ou HASH STR
-
     for (int i = 0; i < size; i++) {
         str = ft_strlowcase(ft_utoa_base(hashh[i], 16));
         len = ft_strlen(str);
-        for (int i = 0; i < 8 - len; i++) {
+        for (int i = 0; i < 8 - len; i++)
             ft_putchar('0');
-        }
         ft_putstr(str);
         free(str);
     }
@@ -74,27 +67,26 @@ void print_hash_64(void* hash, size_t size)
     for (int i = 0; i < size; i++) {
         str = ft_strlowcase(ft_utoa_base(hashh[i], 16));
         len = ft_strlen(str);
-        for (int i = 0; i < 16 - len; i++) {
+        for (int i = 0; i < 16 - len; i++)
             ft_putchar('0');
-        }
         ft_putstr(str);
         free(str);
     }
 }
 
-void print_bit(unsigned char n) {
-	for (int i = 7; i >= 0; i--) {
-		printf("%d", (n >> i) & 1);
-	}
-	printf(" ");
-}
+// void print_bit(unsigned char n) {
+// 	for (int i = 7; i >= 0; i--) {
+// 		printf("%d", (n >> i) & 1);
+// 	}
+// 	printf(" ");
+// }
 
-void print_bits(unsigned char *str, size_t len) {
-	for (size_t i = 0; i < len; i++) {
-		print_bit(str[i]);
-	}
-    printf("\n\n");
-}
+// void print_bits(unsigned char *str, size_t len) {
+// 	for (size_t i = 0; i < len; i++) {
+// 		print_bit(str[i]);
+// 	}
+//     printf("\n\n");
+// }
 
 
 unsigned int swap32(unsigned int num) {
@@ -161,7 +153,7 @@ void process_last_block(char *input, void *vars, size_t total_size, int should_s
     }
 }
 
-void* fn_process(char *input, int input_type, int byte_size, void *vars, int should_swap, t_fn_process_firsts_blocks fn_process_firsts_blocks)
+int fn_process(char *input, int input_type, int byte_size, void *vars, int should_swap, t_fn_process_firsts_blocks fn_process_firsts_blocks)
 {
     char current_input[byte_size];
 
@@ -182,10 +174,9 @@ void* fn_process(char *input, int input_type, int byte_size, void *vars, int sho
 
         ft_strncpy(current_input, input, byte_size);
         process_last_block(current_input, vars, size_of_input_copy, should_swap, byte_size, fn_process_firsts_blocks);
-        return vars;
+        return 1;
     }  else if (input_type == 1 || input_type == 2) { //TODO NEED TO CHANGE THIS
         int fd = (input_type == 2) ? 0 : open(input, O_RDONLY);
-        printf("[FD]: %d", fd);
         if (fd > -1) {
             int readed = 0;
             int total_size = readed;
@@ -204,11 +195,12 @@ void* fn_process(char *input, int input_type, int byte_size, void *vars, int sho
             }
             process_last_block((void *)tmp_input, vars, total_size, should_swap, byte_size, fn_process_firsts_blocks);
             free(tmp_input);
-
-            return vars;
+            return 1;
         } else {
             ft_putstr(ERROR_FILE);
-            return NULL;
+            ft_putstr(input);
+            ft_putchar('\n');
+            return 0;
         }
     }
 }

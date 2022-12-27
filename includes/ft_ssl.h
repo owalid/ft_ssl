@@ -8,6 +8,24 @@
 # include <stdio.h>
 
 # define ERROR_FILE "No such file or directory: "
+# define ERROR_ALGO_1 "Error algorithm "
+# define ERROR_ALGO_2 " not found"
+# define USAGE "Usage: ft_ssl algorithm [options] [file...]\n\n\
+Message Digest algorithm:\n\
+md5, sha256, sha224, sha384, sha512.\n\n\
+General options: \n\
+-help Display this summary\n\
+-list List digests\n\n\
+Output options: \n\
+-r reverse the format of the output.\n\
+-p echo STDIN to STDOUT and append the checksum to STDOUT.\n\
+-q quiet mode.\n\
+-s print the sum of the given string.\n\n\
+Parameters:\n\
+file Files to digest (optional; default is stdin).\n"
+
+# define ALGO_LIST "Message Digest algorithm:\n\
+md5, sha256, sha224, sha384, sha512.\n"
 
 typedef struct		s_ft_ssl_mode
 {
@@ -47,7 +65,7 @@ void 				preprocess_final_output(t_ft_ssl_mode *ssl_mode, char *algo_name, int i
 
 
 void				process_last_block(char *input, void *vars, size_t total_size, int should_swap, int byte_size, t_fn_process_firsts_blocks fn_process_firsts_blocks);
-void* 				fn_process(char *input, int input_type, int byte_size, void *vars, int should_swap, t_fn_process_firsts_blocks fn_process_firsts_blocks);
+int 				fn_process(char *input, int input_type, int byte_size, void *vars, int should_swap, t_fn_process_firsts_blocks fn_process_firsts_blocks);
 
 
 typedef struct		s_ft_ssl_op

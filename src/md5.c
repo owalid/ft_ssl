@@ -68,11 +68,11 @@ void   md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *a
 {
     unsigned int vars[] = { 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476 };
 
-    fn_process(input, input_type, 64, vars, 0, md5_process_firsts_blocks);
-    for (int i = 0; i < 4; i++)
-    {
-        vars[i] = swap32(vars[i]);
-    }
+    int res = fn_process(input, input_type, 64, vars, 0, md5_process_firsts_blocks);
+    if (res == 1) {
+        for (int i = 0; i < 4; i++)
+            vars[i] = swap32(vars[i]);
 
-    preprocess_final_output(ssl_mode, algo_name, input_type, input, print_hash_32, vars, 4);
+        preprocess_final_output(ssl_mode, algo_name, input_type, input, print_hash_32, vars, 4);
+    }
 }
