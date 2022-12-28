@@ -86,17 +86,13 @@ size_t swap64(size_t val)
     return (val << 32) | (val >> 32);
 }
 
-
 unsigned long right_rotate_64(unsigned long n, unsigned long d) {
     return (n >> d) | (n << (64 - d));
 }
 
-
-unsigned int     left_rotate(unsigned int n, unsigned int d) {
+unsigned int left_rotate(unsigned int n, unsigned int d) {
     return (n << d)|(n >> (32 - d));
 }
-
-
 
 unsigned int right_rotate_32(unsigned int n, unsigned int d) {
     return (n >> d) | (n << (32 - d));
