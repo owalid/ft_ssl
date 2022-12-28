@@ -37,15 +37,18 @@ typedef struct		s_ft_ssl_mode
 	int			std_mode;
 }					t_ft_ssl_mode;
 
-typedef struct		s_ft_ssl_digest_op
+typedef struct		s_ft_ssl_op
 {
 	char		*name;
 	void		(*ft_ssl_process)(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
-}					t_ft_ssl_digest_op;
+}					t_ft_ssl_op;
 
 
 typedef 			void (*t_fn_process_firsts_blocks)(void *raw_w, void *raw_hash);
 typedef				void (*t_fn_print_hash)(void *hash, size_t size);
+
+
+//  === DIGEST ===
 
 // md5.c
 void   				md5_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
@@ -64,6 +67,12 @@ void    			sha384_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, 
 // sha512.c
 void    			sha512_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
 void    			sha512_process_firsts_blocks(void *raw_w, void *raw_hash);
+
+// === DES ===
+
+// base64.c
+void   				base64_process(char *input);
+
 
 // utils.c
 unsigned int        swap32(unsigned int num);
