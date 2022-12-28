@@ -38,7 +38,7 @@ def testAlgos(stdin, name):
 	for algo in ['md5', 'sha224', 'sha256', 'sha384', 'sha512']:
 		runCommands(algo, stdin, name)
 
-for index in range(150):
+for index in range(260):
 	testAlgos('A' * index, f"'A' * {index}")
 
 testAlgos('A' * 100000 , f"'A' * 10000")

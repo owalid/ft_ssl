@@ -24,7 +24,7 @@ void    sha512_process_firsts_blocks(void *raw_w, void *raw_hash)
 {
     unsigned long* w = (unsigned long*)raw_w;
     unsigned long* hash = (unsigned long*)raw_hash;
-    unsigned long a, b, c, d, e, f, g, h, tmp, ch, maj, t1, t2, s1, s0;
+    unsigned long a, b, c, d, e, f, g, h, ch, maj, t1, t2, s1, s0;
     unsigned long ww[80]; 
 
     a = hash[0];

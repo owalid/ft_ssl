@@ -16,7 +16,7 @@ void    sha256_process_firsts_blocks(void *raw_w, void *raw_hash)
 {
     unsigned int * w = (unsigned int*)raw_w;
     unsigned int * hash = (unsigned int*)raw_hash;
-    unsigned int a, b, c, d, e, f, g, h, tmp, ch, maj, t1, t2, s1, s0;
+    unsigned int a, b, c, d, e, f, g, h, ch, maj, t1, t2, s1, s0;
     unsigned int ww[64]; 
 
     a = hash[0];

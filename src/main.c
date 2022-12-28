@@ -3,7 +3,7 @@
 #include "ft_ssl_op.h"
 
 
-t_ft_ssl_mode* ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
+void ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
     for (int i = 0; i < argc; i++) {
         if (ft_strcmp(argv[i], "-q") == 0) {
             ssl_mode->quiet_mode = 1;

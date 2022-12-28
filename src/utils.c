@@ -12,13 +12,13 @@ void preprocess_final_output(t_ft_ssl_mode *ssl_mode, char *algo_name, int input
         ft_putstr(ft_strupcase(str_cpy));
         free(str_cpy);
         if (input_type == 2) {
-            ft_putstr(" (stdin)= ");
+            ft_putstr("(stdin)= ");
         } else if (input_type == 1) {
-            ft_putstr(" (");
+            ft_putchar('(');
             ft_putstr(input);
             ft_putstr(")= ");
         } else {
-            ft_putstr(" (\"");
+            ft_putstr("(\"");
             ft_putstr(input);
             ft_putstr("\")= ");
         }
@@ -45,7 +45,7 @@ void print_hash_32(void *hash, size_t size)
     char *str;
     int len;
 
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; (size_t)i < size; i++) {
         str = ft_strlowcase(ft_utoa_base(hashh[i], 16));
         len = ft_strlen(str);
         for (int i = 0; i < 8 - len; i++)
@@ -62,7 +62,7 @@ void print_hash_64(void* hash, size_t size)
     int len;
     unsigned long *hashh = (unsigned long*)hash;
 
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; (size_t)i < size; i++) {
         str = ft_strlowcase(ft_utoa_base(hashh[i], 16));
         len = ft_strlen(str);
         for (int i = 0; i < 16 - len; i++)

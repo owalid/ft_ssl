@@ -1,7 +1,7 @@
 # include "ft_ssl.h"
 # include "libft.h"
 
-void process_last_block(char *input, void *vars, size_t total_size, int should_swap, int byte_size, t_fn_process_firsts_blocks fn_process_firsts_blocks)
+void process_last_block(char *input, void *vars, size_t total_size, int should_swap, size_t byte_size, t_fn_process_firsts_blocks fn_process_firsts_blocks)
 {
     size_t lasts_read = total_size % byte_size;
     
@@ -35,7 +35,7 @@ void process_last_block(char *input, void *vars, size_t total_size, int should_s
     }
 }
 
-int fn_process(char *input, int input_type, int byte_size, void *vars, int should_swap, t_fn_process_firsts_blocks fn_process_firsts_blocks)
+int fn_process(char *input, int input_type, size_t byte_size, void *vars, int should_swap, t_fn_process_firsts_blocks fn_process_firsts_blocks)
 {
     char current_input[byte_size];
 
@@ -45,7 +45,7 @@ int fn_process(char *input, int input_type, int byte_size, void *vars, int shoul
         int size_cmpt = 0;
 
         if (ft_strlen(input) >= byte_size) {
-            while (size_of_input >= byte_size) {
+            while ((size_t)size_of_input >= byte_size) {
                 ft_strncpy(current_input, input, byte_size);
                 fn_process_firsts_blocks(current_input, vars);
                 size_of_input -= byte_size;
@@ -64,7 +64,7 @@ int fn_process(char *input, int input_type, int byte_size, void *vars, int shoul
             int total_size = readed;
             char *tmp_input = ft_strnew(byte_size);
 
-            while (readed = read(fd, current_input, byte_size)) {
+            while ((readed = read(fd, current_input, byte_size))) {
                 if ((total_size % byte_size) + readed >= byte_size) {
                     ft_memcpy((void *)tmp_input + (readed % byte_size), current_input, byte_size - (readed % byte_size));
                     fn_process_firsts_blocks((void *)tmp_input, vars);
@@ -85,4 +85,5 @@ int fn_process(char *input, int input_type, int byte_size, void *vars, int shoul
             return 0;
         }
     }
+    return 0;
 }
