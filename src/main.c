@@ -20,6 +20,7 @@ void ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
 
 int main(int argc, char **argv) {
     int flag = 0;
+    int s_flag = 0; // check if we have already an -s options
     if (argc <= 3) {
         if ((argc == 2 && ft_strcmp(argv[1], "-list") == 0) || (argc == 3 && ft_strcmp(argv[2], "-list") == 0)) {
             ft_putstr(ALGO_LIST);
@@ -44,16 +45,18 @@ int main(int argc, char **argv) {
                         j++;
                         break;
                     }
-                    if ((ft_strstr(argv[j], "-") == NULL && ft_strcmp(argv[j-1], "-s") != 0)) // check if is a file
+                    if (ft_strstr(argv[j], "-") == NULL) // check if is a file
                         break;
                     if (ft_strcmp(argv[j], "-s") == 0) { // process as string
                         if (argc < (j + 1) || !argv[j+1]) {
                             ft_putstr(ERROR_STR_OPT);
                             exit(1);
                         }
-                        
-                        g_ftssl_op[i].ft_ssl_process(argv[j + 1], ssl_mode, 0, g_ftssl_op[i].name);
-                        flag_process = 1;
+                        if (s_flag == 0) {
+                            g_ftssl_op[i].ft_ssl_process(argv[j + 1], ssl_mode, 0, g_ftssl_op[i].name);
+                            flag_process = 1;
+                            s_flag = 1;
+                        }
                         j++; // pass -s and string
                     }
                 }

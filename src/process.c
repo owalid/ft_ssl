@@ -60,16 +60,12 @@ int fn_process(char *input, int input_type, size_t byte_size, void *vars, int sh
         return 1;
     }  else if (input_type == 1 || input_type == 2) { // 1 => file; 2 => stdin
         int should_print_std = (input_type == 2 && ssl_mode->std_mode == 1) ? 1 : 0;
-        if (should_print_std == 1) {
-            if (ssl_mode->quiet_mode == 0) {
-                char *str_cpy = ft_strnew(ft_strlen(algo_name));
-                ft_strcpy(str_cpy, algo_name);
-                ft_putstr(ft_strupcase(str_cpy));
-                free(str_cpy);
-                ft_putstr("(\"");
-            } else {
-                ft_putstr("(\"");
-            }
+        if (should_print_std == 1 && ssl_mode->quiet_mode == 0) {
+            char *str_cpy = ft_strnew(ft_strlen(algo_name));
+            ft_strcpy(str_cpy, algo_name);
+            ft_putstr(ft_strupcase(str_cpy));
+            free(str_cpy);
+            ft_putstr("(\"");
         }
         int fd = (input_type == 2) ? 0 : open(input, O_RDONLY);
         if (fd > -1) {
@@ -96,7 +92,10 @@ int fn_process(char *input, int input_type, size_t byte_size, void *vars, int sh
             process_last_block((void *)tmp_input, vars, total_size, should_swap, byte_size, fn_process_firsts_blocks);
             
             if (should_print_std == 1) {
-                ft_putstr("\")= ");
+                if (ssl_mode->quiet_mode == 0)
+                    ft_putstr("\")= ");
+                else
+                    ft_putchar('\n');
             }
             return 1;
         } else {
