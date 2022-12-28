@@ -82,7 +82,7 @@ void    sha512_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, cha
 
     unsigned long vars[] = { 0x6a09e667f3bcc908, 0xbb67ae8584caa73b, 0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1, 
                             0x510e527fade682d1, 0x9b05688c2b3e6c1f, 0x1f83d9abfb41bd6b, 0x5be0cd19137e2179 };
-    int res = fn_process(input, input_type, 128, vars, 1, sha512_process_firsts_blocks);
+    int res = fn_process(input, input_type, 128, vars, 1, sha512_process_firsts_blocks, ssl_mode, algo_name);
     
     if (res == 1)
         preprocess_final_output(ssl_mode, algo_name, input_type, input, print_hash_64, vars, 8);

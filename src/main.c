@@ -36,10 +36,10 @@ int main(int argc, char **argv) {
                 int j = 2;
 
                 for (; j < argc; j++) {
-                    if (ft_strcmp(argv[j], "-p") == 0) {
-                        j++;
-                        break;
-                    }
+                    // if (ft_strcmp(argv[j], "-p") == 0) {
+                    //     j++;
+                    //     break;
+                    // }
                     if (ft_strstr(argv[j], "-") == NULL && ft_strcmp(argv[j-1], "-s") != 0) // check if is a file
                         break;
                     if (ft_strcmp(argv[j], "-s") == 0 && (j + 1) < argc) { // process as string

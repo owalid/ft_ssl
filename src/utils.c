@@ -3,10 +3,27 @@
 
 void preprocess_final_output(t_ft_ssl_mode *ssl_mode, char *algo_name, int input_type, char *input, t_fn_print_hash fn_print_hash, void *hash, size_t size)
 {
-    if (ssl_mode->quiet_mode == 1)
-        return;
+    int should_print_std = (input_type == 2 && ssl_mode->quiet_mode == 0 && ssl_mode->std_mode == 1) ? 1 : 0;
     
-    if (ssl_mode->reverse_mode == 0) {
+    if (should_print_std == 1 || ssl_mode->quiet_mode == 1) {
+        fn_print_hash(hash, size);
+        ft_putchar('\n');
+        return;
+    }
+    
+    if (ssl_mode->reverse_mode == 1) {
+        fn_print_hash(hash, size);
+        if (input_type == 2) {
+            ft_putstr(" *stdin");
+        } else if (input_type == 1) {
+            ft_putstr(" *");
+            ft_putstr(input);
+        } else {
+            ft_putstr(" *\"");
+            ft_putstr(input);
+            ft_putchar('\"');
+        }
+    } else {
         char *str_cpy = ft_strnew(ft_strlen(algo_name));
         ft_strcpy(str_cpy, algo_name);
         ft_putstr(ft_strupcase(str_cpy));
@@ -23,18 +40,6 @@ void preprocess_final_output(t_ft_ssl_mode *ssl_mode, char *algo_name, int input
             ft_putstr("\")= ");
         }
         fn_print_hash(hash, size);
-    } else {
-        fn_print_hash(hash, size);
-        if (input_type == 2) {
-            ft_putstr(" *stdin");
-        } else if (input_type == 1) {
-            ft_putstr(" *");
-            ft_putstr(input);
-        } else {
-            ft_putstr(" *\"");
-            ft_putstr(input);
-            ft_putchar('\"');
-        }
     }
     ft_putchar('\n');
 }

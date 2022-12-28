@@ -35,11 +35,11 @@ void process_last_block(char *input, void *vars, size_t total_size, int should_s
     }
 }
 
-int fn_process(char *input, int input_type, size_t byte_size, void *vars, int should_swap, t_fn_process_firsts_blocks fn_process_firsts_blocks)
+int fn_process(char *input, int input_type, size_t byte_size, void *vars, int should_swap, t_fn_process_firsts_blocks fn_process_firsts_blocks, t_ft_ssl_mode *ssl_mode, char *algo_name)
 {
     char current_input[byte_size];
 
-    if (input_type == 0) {
+    if (input_type == 0) { // string
         int size_of_input = ft_strlen(input);
         int size_of_input_copy = size_of_input;
         int size_cmpt = 0;
@@ -57,7 +57,19 @@ int fn_process(char *input, int input_type, size_t byte_size, void *vars, int sh
         ft_strncpy(current_input, input, byte_size);
         process_last_block(current_input, vars, size_of_input_copy, should_swap, byte_size, fn_process_firsts_blocks);
         return 1;
-    }  else if (input_type == 1 || input_type == 2) {
+    }  else if (input_type == 1 || input_type == 2) { // 1 => file; 2 => stdin
+        int should_print_std = (input_type == 2 && ssl_mode->std_mode == 1) ? 1 : 0;
+        if (should_print_std == 1) {
+            if (ssl_mode->quiet_mode == 0) {
+                char *str_cpy = ft_strnew(ft_strlen(algo_name));
+                ft_strcpy(str_cpy, algo_name);
+                ft_putstr(ft_strupcase(str_cpy));
+                free(str_cpy);
+                ft_putstr("(\"");
+            } else {
+                ft_putstr("(\"");
+            }
+        }
         int fd = (input_type == 2) ? 0 : open(input, O_RDONLY);
         if (fd > -1) {
             int readed = 0;
@@ -65,6 +77,9 @@ int fn_process(char *input, int input_type, size_t byte_size, void *vars, int sh
             char *tmp_input = ft_strnew(byte_size);
 
             while ((readed = read(fd, current_input, byte_size))) {
+                if (should_print_std == 1) {
+                    ft_putstr(current_input);
+                }
                 if ((total_size % byte_size) + readed >= byte_size) {
                     ft_memcpy((void *)tmp_input + (readed % byte_size), current_input, byte_size - (readed % byte_size));
                     fn_process_firsts_blocks((void *)tmp_input, vars);
@@ -77,6 +92,10 @@ int fn_process(char *input, int input_type, size_t byte_size, void *vars, int sh
             }
             process_last_block((void *)tmp_input, vars, total_size, should_swap, byte_size, fn_process_firsts_blocks);
             free(tmp_input);
+            
+            if (should_print_std == 1) {
+                ft_putstr("\")= ");
+            }
             return 1;
         } else {
             ft_putstr(ERROR_FILE);
