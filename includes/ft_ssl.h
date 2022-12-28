@@ -22,6 +22,8 @@ Output options: \n\
 Parameters:\n\
 file Files to digest (optional; default is stdin).\n"
 
+# define ERROR_STR_OPT "Option -s should have an string as parameters.\n"
+
 # define ALGO_LIST "Message Digest algorithm:\n\
 md5, sha256, sha224, sha384, sha512.\n"
 

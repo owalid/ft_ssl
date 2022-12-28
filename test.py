@@ -41,4 +41,4 @@ def testAlgos(stdin, name):
 for index in range(260):
 	testAlgos('A' * index, f"'A' * {index}")
 
-# testAlgos('A' * 100000 , f"'A' * 10000")
+testAlgos('A' * 100000 , f"'A' * 10000")
