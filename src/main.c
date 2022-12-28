@@ -4,7 +4,7 @@
 
 
 void ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
-    for (int i = 0; i < argc; i++) {
+    for (int i = 2; i < argc; i++) {
         // todo check options not found
         if (ft_strcmp(argv[i], "--") == 0)
             break;
@@ -14,6 +14,11 @@ void ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
             ssl_mode->reverse_mode = 1;
         } else if (ft_strcmp(argv[i], "-p") == 0) {
             ssl_mode->std_mode = 1;
+        } else if (argv[i][0] == '-') {
+            ft_putstr("option: '");
+            ft_putstr(argv[i]);
+            ft_putstr("'. Not found.\n");
+            exit(1);
         }
     }
 }
@@ -45,7 +50,7 @@ int main(int argc, char **argv) {
                         j++;
                         break;
                     }
-                    if (ft_strstr(argv[j], "-") == NULL) // check if is a file
+                    if (argv[j][0] != '-') // check if is a file 
                         break;
                     if (ft_strcmp(argv[j], "-s") == 0) { // process as string
                         if (argc < (j + 1) || !argv[j+1]) {
