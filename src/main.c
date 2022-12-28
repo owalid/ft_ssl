@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
                     }
                     if ((ft_strstr(argv[j], "-") == NULL && ft_strcmp(argv[j-1], "-s") != 0)) // check if is a file
                         break;
-                    if (ft_strcmp(argv[j], "-s") == 0 && (j + 1) < argc) { // process as string
+                    if (ft_strcmp(argv[j], "-s") == 0 && (j + 1) <= argc) { // process as string
                         g_ftssl_op[i].ft_ssl_process(argv[j + 1], ssl_mode, 0, g_ftssl_op[i].name);
                         flag_process = 1;
                         j += 2; // pass -s and string

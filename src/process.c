@@ -37,7 +37,7 @@ void process_last_block(char *input, void *vars, size_t total_size, int should_s
 
 int fn_process(char *input, int input_type, size_t byte_size, void *vars, int should_swap, t_fn_process_firsts_blocks fn_process_firsts_blocks, t_ft_ssl_mode *ssl_mode, char *algo_name)
 {
-    char current_input[byte_size];
+    char* current_input = ft_strnew(byte_size);
 
     if (input_type == 0) { // string
         int size_of_input = ft_strlen(input);
@@ -56,6 +56,7 @@ int fn_process(char *input, int input_type, size_t byte_size, void *vars, int sh
 
         ft_strncpy(current_input, input, byte_size);
         process_last_block(current_input, vars, size_of_input_copy, should_swap, byte_size, fn_process_firsts_blocks);
+        free(current_input);
         return 1;
     }  else if (input_type == 1 || input_type == 2) { // 1 => file; 2 => stdin
         int should_print_std = (input_type == 2 && ssl_mode->std_mode == 1) ? 1 : 0;
@@ -90,6 +91,8 @@ int fn_process(char *input, int input_type, size_t byte_size, void *vars, int sh
                 }
                 total_size += readed;
             }
+            ft_bzero((void *)current_input, byte_size);
+            free(current_input);
             process_last_block((void *)tmp_input, vars, total_size, should_swap, byte_size, fn_process_firsts_blocks);
             free(tmp_input);
             

@@ -12,8 +12,7 @@ SRC		= main.c \
 OBJ		= $(addprefix $(OBJDIR),$(SRC:.c=.o))
 
 CC		= gcc -g
-CFLAGS	=
-# -Wall -Wextra -Werror
+CFLAGS	= -Wall -Wextra -Werror
 
 
 FT		= ./libft/
