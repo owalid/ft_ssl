@@ -54,10 +54,8 @@ int main(int argc, char **argv) {
                     g_ftssl_op[i].ft_ssl_process(argv[j], ssl_mode, 1, g_ftssl_op[i].name);
                     flag_process = 1;
                 }
-                if (flag_process == 0 || ssl_mode->std_mode == 1) {
-                    printf("lol");
+                if (flag_process == 0 || ssl_mode->std_mode == 1)
                     g_ftssl_op[i].ft_ssl_process(NULL, ssl_mode, 2, g_ftssl_op[i].name);
-                }
             }
         }
         if (flag == 0) {
