@@ -27,6 +27,16 @@ file Files to digest (optional; default is stdin).\n"
 # define ALGO_LIST "Message Digest algorithm:\n\
 md5, sha256, sha224, sha384, sha512.\n"
 
+typedef struct      s_ft_ssl_ctx
+{
+    char            *algo_name;
+    char            *input;
+    int             input_type;
+    size_t          byte_size;
+    int             should_swap;
+    t_ft_ssl_mode   *ssl_mode;
+}                   t_ft_ssl_ctx;
+
 typedef struct		s_ft_ssl_mode
 {
 	int			quiet_mode;

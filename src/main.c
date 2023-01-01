@@ -4,8 +4,7 @@
 
 
 void ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
-    for (int i = 2; i < argc; i++) {
-        // todo check options not found
+    for (int i = 2; i < argc; i++) { // search for -q, -r, -p, -s options and -- to stop options
         if (ft_strcmp(argv[i], "--") == 0)
             break;
         if (ft_strcmp(argv[i], "-q") == 0) {
@@ -30,7 +29,7 @@ int main(int argc, char **argv) {
     int s_flag = 0; // check if we have already an -s options
     int op_size = sizeof(g_ftssl_op) / sizeof(g_ftssl_op[0]); // get size of array of digest algorithms
 
-    if (argc <= 3) {
+    if (argc <= 3) { // display -list and -help options
         if ((argc == 2 && ft_strcmp(argv[1], "-list") == 0) || (argc == 3 && ft_strcmp(argv[2], "-list") == 0)) {
             ft_putstr(ALGO_LIST);
             exit(0);
@@ -50,7 +49,7 @@ int main(int argc, char **argv) {
                 int j = 2;
 
                 for (; j < argc; j++) {
-                    if (ft_strcmp(argv[j], "--") == 0) {
+                    if (ft_strcmp(argv[j], "--") == 0) { // stop options and process the rest as files
                         j++;
                         break;
                     }
@@ -73,11 +72,11 @@ int main(int argc, char **argv) {
                     g_ftssl_op[i].ft_ssl_process(argv[j], ssl_mode, 1, g_ftssl_op[i].name);
                     flag_process = 1;
                 }
-                if (flag_process == 0 || ssl_mode->std_mode == 1)
+                if (flag_process == 0 || ssl_mode->std_mode == 1) // if no processed and std mode is activated
                     g_ftssl_op[i].ft_ssl_process(NULL, ssl_mode, 2, g_ftssl_op[i].name);
             }
         }
-        if (flag == 0) {
+        if (flag == 0) { // error if digest algorithm not found
             ft_putstr(ERROR_ALGO_1);
             ft_putstr(argv[1]);
             ft_putstr(ERROR_ALGO_2);
