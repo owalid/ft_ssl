@@ -14,6 +14,8 @@ void ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
             ssl_mode->reverse_mode = 1;
         } else if (ft_strcmp(argv[i], "-p") == 0) {
             ssl_mode->std_mode = 1;
+        } else if (ft_strcmp(argv[i], "-s") == 0) {
+            continue;
         } else if (argv[i][0] == '-') {
             ft_putstr("option: '");
             ft_putstr(argv[i]);
@@ -26,6 +28,8 @@ void ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
 int main(int argc, char **argv) {
     int flag = 0;
     int s_flag = 0; // check if we have already an -s options
+    int op_size = sizeof(g_ftssl_op) / sizeof(g_ftssl_op[0]); // get size of array of digest algorithms
+
     if (argc <= 3) {
         if ((argc == 2 && ft_strcmp(argv[1], "-list") == 0) || (argc == 3 && ft_strcmp(argv[2], "-list") == 0)) {
             ft_putstr(ALGO_LIST);
@@ -36,7 +40,7 @@ int main(int argc, char **argv) {
         }
     }
     if (argc >= 2) {
-        for (int i = 0; i < SIZE_OP; i++) {
+        for (int i = 0; i < op_size; i++) {
             if (ft_strcmp(argv[1], g_ftssl_op[i].name) == 0) { // get name of digest algorithm
                 flag = 1;
                 t_ft_ssl_mode ssl_mode[1];

@@ -10,9 +10,7 @@
 # define SHA384     "sha384"
 # define SHA512		"sha512"
 
-# define SIZE_OP    5
-
-static t_ft_ssl_op	g_ftssl_op[SIZE_OP] =
+static t_ft_ssl_op	g_ftssl_op[] =
 {
 	{MD5, &md5_process},
 	{SHA224, &sha224_process},
