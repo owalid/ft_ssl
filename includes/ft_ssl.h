@@ -35,16 +35,6 @@ typedef struct		s_ft_ssl_mode
 	int			std_mode;
 }					t_ft_ssl_mode;
 
-typedef struct      s_ft_ssl_ctx
-{
-    char            *algo_name;
-    char            *input;
-    int             input_type;
-    size_t          byte_size;
-    int             should_swap;
-    t_ft_ssl_mode   *ssl_mode;
-}                   t_ft_ssl_ctx;
-
 typedef struct		s_ft_ssl_op
 {
 	char		*name;
