@@ -12,9 +12,8 @@ void process_last_block(char *input, void *vars, size_t total_size, int should_s
     if (lasts_read >= (56*(byte_size/64))) {
         char tmp_input[byte_size];
 
-        if (lasts_read >= byte_size) {
+        if (lasts_read >= byte_size)
             tmp_input[byte_size] = 0x80;
-        }
         else
             input[lasts_read] = 0x80;
 

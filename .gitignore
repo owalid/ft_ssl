@@ -1,3 +1,6 @@
+.vscode
+-p
+*.py
 obj
 test.py
 .test
