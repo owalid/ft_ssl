@@ -27,6 +27,8 @@ file Files to digest (optional; default is stdin).\n"
 # define ALGO_LIST "Message Digest algorithm:\n\
 md5, sha256, sha224, sha384, sha512.\n"
 
+# define DIR_READ "Read error in "
+
 
 typedef struct		s_ft_ssl_mode
 {

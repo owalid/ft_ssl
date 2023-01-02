@@ -89,6 +89,14 @@ int fn_process(char *input, int input_type, size_t byte_size, void *vars, int sh
                 total_size += readed;
             }
 
+            if (readed < 0) {
+                ft_putstr(DIR_READ);
+                ft_putstr(input);
+                ft_putchar('\n');
+                return 0;
+            }
+
+
             ft_bzero((void *)current_input, byte_size);
             process_last_block((void *)tmp_input, vars, total_size, should_swap, byte_size, fn_process_firsts_blocks);
             
