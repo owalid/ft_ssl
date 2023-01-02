@@ -1,6 +1,24 @@
 #include "ft_ssl.h"
 #include "libft.h"
 
+
+void print_bit(unsigned char n) {
+	for (int i = 7; i >= 0; i--) {
+		printf("%d", (n >> i) & 1);
+	}
+	printf(" ");
+}
+
+void print_bits(unsigned char *str, size_t len) {
+	for (size_t i = 0; i < len; i++) {
+		if (!(i % 8)) printf("\n");
+		print_bit(str[i]);
+	}
+	printf("\n");
+}
+
+
+
 void preprocess_final_output(t_ft_ssl_mode *ssl_mode, char *algo_name, int input_type, char *input, t_fn_print_hash fn_print_hash, void *hash, size_t size)
 {
     int should_print_std = (input_type == 2 && ssl_mode->quiet_mode == 0 && ssl_mode->std_mode == 1) ? 1 : 0;

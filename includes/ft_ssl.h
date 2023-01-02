@@ -71,8 +71,12 @@ void    			sha512_process_firsts_blocks(void *raw_w, void *raw_hash);
 // === DES ===
 
 // base64.c
-void   				base64_process(char *input);
+void    			base64_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
 
+// TODO REMOVE ONLY DEBUG
+
+void 				print_bits(unsigned char *str, size_t len);
+void print_bit(unsigned char n);
 
 // utils.c
 unsigned int        swap32(unsigned int num);

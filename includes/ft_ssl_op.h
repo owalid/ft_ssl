@@ -16,16 +16,13 @@ static t_ft_ssl_op	g_ftssl_digest_op[] =
 	{DIGEST_SHA224, &sha224_process},
 	{DIGEST_SHA256, &sha256_process},
     {DIGEST_SHA384, &sha384_process},
-	{DIGEST_SHA512, &sha512_process},
+	{DIGEST_SHA512, &sha512_process}
 };
 
 
 # define DES_BASE64			"base64"
 
-# define SIZE_DES_OP    1
-
-
-static t_ft_ssl_op 		g_ftssl_des_op[SIZE_DES_OP] =
+static t_ft_ssl_op 		g_ftssl_des_op[] =
 {
 	{DES_BASE64, &base64_process}
 };
