@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
     int s_flag = 0; // check if we have already an -s options
     int op_size = sizeof(g_ftssl_op) / sizeof(g_ftssl_op[0]); // get size of array of digest algorithms
 
-    if (argc <= 3) { // display -list and -help options
+    if (argc == 3 || argc == 2) { // display -list and -help options
         if ((argc == 2 && ft_strcmp(argv[1], "-list") == 0) || (argc == 3 && ft_strcmp(argv[2], "-list") == 0)) {
             ft_putstr(ALGO_LIST);
             exit(0);
