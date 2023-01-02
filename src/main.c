@@ -14,6 +14,7 @@ void ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
         } else if (ft_strcmp(argv[i], "-p") == 0) {
             ssl_mode->std_mode = 1;
         } else if (ft_strcmp(argv[i], "-s") == 0) {
+            i++;
             continue;
         } else if (argv[i][0] == '-') {
             ft_putstr("option: '");
