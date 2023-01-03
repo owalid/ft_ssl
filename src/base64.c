@@ -110,7 +110,7 @@ void    base64_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, cha
         b64_to_three_bytes(input + i, tmp);
         ft_putstr(tmp);
 
-        i+=4;
+        i += 4;
     }
     putchar('\n');
 }
