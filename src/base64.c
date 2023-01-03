@@ -1,29 +1,42 @@
 #include "ft_ssl.h"
 #include "libft.h"
 
-char b64_charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+char b64_charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
 
-unsigned char* bytes_split(unsigned char *input) {
-    
+unsigned char* three_bytes_to_b64(unsigned char *raw_input, unsigned char *output)
+{
+    // Input size is between 1 to 3
+    // Result size is 4
+    char padding;
+    char input[4];
+
+    ft_memcpy(input, raw_input, 4);
+
     int len_input = ft_strlen(input);
-    unsigned char* result = ft_strnew(4);
-    int curr = 0;
-    int next = 0;
-    int l = 0;
-    int r = 0;
 
-    ft_bzero(result, len_input*sizeof(unsigned char));
+    ft_bzero(output, 4);
+    ft_memcpy(output, input, len_input);
 
-    for (int u = 0; u < len_input; u++)
-    {
-        result[u] = ((input[u] & (0b111111 << 2)) >> 2);
-        
-        // r = input[u] - result[u];
-        // print_bit(r);
+    // process three bytes to four bytes
+    
+    output[0] = b64_charset[(input[0] >> 2) & 0b00111111];
+    output[1] = b64_charset[((input[0] << 4) | ((input[1] >> 4))) & 0b00111111];
+
+    // Apply padding
+    if (len_input == 1) {
+        output[2] = b64_charset[64];
+        output[3] = b64_charset[64];
     }
-    printf("\n");
-    return result;
+    else if (len_input == 2) {
+        output[2] = b64_charset[(input[1] << 2 | input[2] >> 6) & 0b00111111];
+        output[3] = b64_charset[64];
+    } else {
+        output[2] = b64_charset[(input[1] << 2 | input[2] >> 6) & 0b00111111];
+        output[3] = b64_charset[input[2] & 0b00111111];
+    }
+    
+    return output;
 }
 
 void    base64_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name)
@@ -31,31 +44,19 @@ void    base64_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, cha
     printf("input => %s\n", input);
     
     int len_input = ft_strlen(input);
-    char *lol = ft_strnew(len_input*8);
-    // for (int l=0; l < len_input*8; l+=8) {
-        // for (int j=6; j>6; j++) {
-            // ft_memccpy(&lol, (input[l] >> j) & 1, )
-        // }
-    //     ft_memccpy(&lol, (n >> i) & 1, )
-    // }
-    unsigned char* res = bytes_split(input);
-    // printf("lollol => %ls\n", res);
-    for (int i = 0; i < len_input; i++) {
-        // unsigned char lolmdr = (input[i] & (0b111111 << 2)) >> 2;
-        // // unsigned int lolmdr = input[i] & (0b111111 << 2);
-        // printf("%c =>\n", input[i]);
-        // // printf("")
-        // printf("%d => %c\n", lolmdr, b64_charset[lolmdr]);
-        // printf("%d => %c\n", res[i], b64_charset[res[i]]);
+    unsigned char tmp[4];
+    // ft_bzero(tmp, 4);
+    int i = 0;
+    // printf("[strlen]: %d\n", len_input);
 
-        // print_bit(res[i]);
-        // printf("010011\n");
-        // print_bit(res[i]);
-        // printf("\n");
-        // print_bit(lolmdr);
-        // printf("\n");
-        // print_bit(input[i]);
-        // printf("\n");
+    while (i < len_input)
+    {
+        // printf("[i] %d\n", i);
+        ft_bzero(tmp, 4);
+        three_bytes_to_b64(input + i, tmp);
+        ft_putstr(tmp);
+
+        i+=3;
     }
-    printf("\n");
+    putchar('\n');
 }
