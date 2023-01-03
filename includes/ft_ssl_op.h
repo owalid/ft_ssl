@@ -21,10 +21,12 @@ static t_ft_ssl_op	g_ftssl_digest_op[] =
 
 
 # define DES_BASE64			"base64"
+# define DES_ECB			"des-ecb"
 
 static t_ft_ssl_op 		g_ftssl_des_op[] =
 {
-	{DES_BASE64, &base64_process}
+	{DES_BASE64, &base64_process},
+	{DES_ECB, &des_ecb_process},
 };
 
 #endif

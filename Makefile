@@ -4,6 +4,7 @@ SRC		= main.c \
 			md5.c sha224.c sha256.c sha384.c sha512.c \
 			base64.c \
 			process.c \
+			des_ecb.c \
 			utils.c
 
 OBJ		= $(addprefix $(OBJDIR),$(SRC:.c=.o))
