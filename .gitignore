@@ -1,4 +1,5 @@
 .vscode
+tmp*
 -p
 *.py
 obj
