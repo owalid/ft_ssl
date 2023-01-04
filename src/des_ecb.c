@@ -91,20 +91,55 @@ unsigned int SHIFT_TAB[] = {
     2, 2, 2, 1
 };
 
+unsigned int COMPRESS_KEY_TAB[] = {
+    14, 17, 11, 24, 1, 5,
+    3, 28, 15, 6, 21, 10,
+    23, 19, 12, 4, 26, 8,
+    16, 7, 27, 20, 13, 2,
+    41, 52, 31, 37, 47, 55,
+    30, 40, 51, 45, 33, 48,
+    44, 49, 39, 56, 34, 53,
+    46, 42, 50, 36, 29, 32
+};
 
-// DES UTILS
+// ============== DES UTILS ===============
 
-unsigned int permutation(unsigned int key)
+unsigned int permutation(unsigned int *input, unsigned long *arr, unsigned int n)
 {
-    // 
-    // TODO
+    // permute according input[i] = input[arr[i]]
+    unsigned long tmp_input[64];
+
+    ft_bzero(tmp_input, 64);
+    ft_memcpy(tmp_input, input, 64);
+
+    for (int i=0; i < n; i++)
+        input[i] = tmp_input[arr[i] - 1];
+
+    return input;
 }
 
-unsigned int shift_left(unsigned int input, unsigned int n)
+unsigned int shift_left(unsigned long *input, unsigned int n, unsigned int len)
 {
-    // Shift input according SHIFT_TAB[n]
-    // TODO
+    // Process shift_left according SHIFT_TAB
+
+    unsigned long *res = malloc(len * sizeof(unsigned long));
+    int j;
+
+    for (int i = 0; i < SHIFT_TAB[n]; i++)
+    {
+        j = 1;
+        for (; j < len; j++)
+            res[j-1] += input[j];
+        res[j] += input[0];
+    }
+
+    ft_bzero(input, len);
+    ft_memcpy(input, res, len);
+    free(res);
 }
+
+
+// ============== END OF DES UTILS ===============
 
 
 // ======== Process encrypt pt =========
@@ -115,39 +150,77 @@ unsigned int feistel_schema(unsigned char *b1, unsigned char *b2)
 
 }
 
-unsigned int encrypt_block(unsigned char *block, unsigned int key)
+unsigned int encrypt_block(unsigned char *block, unsigned long *key)
 {
-    for (int i = 0; i <= 16; i++)
-    {
-        // TODO
-        // the block is split into 2 halves
+    unsigned long big_block[76], right_exp[48], big_right[48], left[28], sbox[32];
 
-        // the right half of the block is taken
-
-        // process these steps:
-        // 1- Expansion Permutation
-        // 2- Key mixing
-        // 3 - Substitution (S1, S2,...,S8)
-        // 4 - Permutation (P)
-    }
-}
-
-unsigned int process_round_keys(unsigned int key)
-{
-    // get 56 bits of keys
-    // split to have left and right
+    ft_bzero(big_block, 76);
+    ft_bzero(right_exp, 48);
+    ft_bzero(big_right, 48);
+    ft_bzero(left, 28);
 
     for (int i = 0; i < 16; i++)
     {
+        // TODO
+        // the block is split into 2 halves
+        ft_memcpy(left, block, 28);
+        ft_memcpy(big_right, block + 28, 28);
+
+        // the right half of the block is taken
+
+        // 1- Expansion Permutation
+       permutation(big_right, EXPANSION_TAB, 48);
+
+        // 2- Key mixing
+        for (int l=0; l < 48; l++)
+            big_right[l] ^= key[i];
+
+        // 3 - Substitution (S1, S2,...,S8)
+        for (int f=0; f < 8; f++)
+        {
+            // TODO BAIL DE SUB
+            // GET ROW
+            // GET COL
+        }
+
+        // 4 - Permutation (P)
+        permutation(sbox, PERMUTATION_TAB, 32);
+    }
+
+    // 5 - Combine left and right
+    ft_memcpy(big_block, left, 28);
+    ft_memcpy(big_block+28, big_right, 48);
+    
+}
+
+unsigned long* process_round_keys(unsigned long *key, unsigned long *round_k)
+{
+    // get 56 bits of keys
+    // split to have left and right
+    unsigned long left[28], right[28];
+    unsigned long concat[56];
+
+    ft_memcpy(left, key, 28);
+    ft_memcpy(right, key + 28, 28);
+
+    for (int i = 0; i < 16; i++)
+    {
+        // shift_left left of key
+        shift_left(left, i, 28);
 
         // shift_left right of key
-        // shift_left left of key
+        shift_left(right, i, 28);
 
         // concate twice
-
+        ft_bzero(concat, 56);
+        ft_memcpy(concat, left, 28);
+        ft_memcpy(concat + 28, right, 28);
+        
         // key_permutation with concatenation
-        // shift_left
+        round_k[i] = permutation(concat, COMPRESS_KEY_TAB, 48);
     }
+
+    return round_k;
 }
 
 void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name)
@@ -155,7 +228,7 @@ void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, ch
 
     //  ======== Process key =========
 
-    // split righ
+    // split right
     // key_permutation
 
     // shift_left
