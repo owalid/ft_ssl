@@ -144,36 +144,29 @@ unsigned int shift_left(unsigned long *input, unsigned int n, unsigned int len)
 
 // ======== Process encrypt pt =========
 
-unsigned int encrypt_block(unsigned long *block, unsigned long *key)
+unsigned int encrypt_block(unsigned long block, unsigned long *key)
 {
-    unsigned long big_block[76], right_exp[48], big_right[48], left[28], sbox[32];
-    unsigned long xor_round;
+    unsigned long big_block, right, big_right, left, sbox, xor_round;
     int row, col;
 
-    ft_bzero(big_block, 76);
-    ft_bzero(right_exp, 48);
-    ft_bzero(big_right, 48);
-    ft_bzero(left, 28);
-
     permutation(block, PERMUTATION_TAB, 64);
+    
+    // the block is split into 2 halves
+    left = block << 32;
+    right = block >> 32;
+    
 
     for (int i = 0; i < 16; i++)
     {
         // TODO
-        // the block is split into 2 halves
-        ft_memcpy(left, block, 28);
-        ft_memcpy(big_right, block + 28, 28);
 
         // the right half of the block is taken
 
         // 1- Expansion Permutation
-       permutation(big_right, EXPANSION_TAB, 48);
+       permutation(right, EXPANSION_TAB, 48);
 
         // 2- Key mixing
-        for (int l = 0; l < 48; l++)
-            big_right[l] ^= key[i];
-
-        xor_round = big_right[i] ^ key[i]; // pas sur de ca
+        xor_round = right ^ key[i];
 
         // 3 - Substitution (S1, S2,...,S8)
         for (int f = 0; f < 8; f++)
@@ -184,19 +177,23 @@ unsigned int encrypt_block(unsigned long *block, unsigned long *key)
             // GET COL
             col = xor_round >> 6;
 
-            // printf("[row] %d\n", row);
-            // printf("[col] %d\n", col);
-                
+            printf("[row] %d\n", row);
+            printf("[col] %d\n", col);
+
             // sbox[f] = S_BOX[f][row][col];
         }
 
         // 4 - Permutation (P)
         permutation(sbox, PERMUTATION_TAB, 32);
+
+        left = sbox;
+        ft_swap(&right, &left);
     }
 
+    // end_block = left+right;
     // 5 - Combine left and right
-    ft_memcpy(big_block, left, 28);
-    ft_memcpy(big_block+28, big_right, 48);
+    // ft_memcpy(big_block, left, 28);
+    // ft_memcpy(big_block+28, big_right, 48);
 
 }
 
