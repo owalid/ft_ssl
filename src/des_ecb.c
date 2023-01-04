@@ -2,7 +2,7 @@
 #include "libft.h"
 
 
-unsigned int S_BOX[8][4][16] = { // used to obscure the relationship between the key and the ciphertext
+unsigned long S_BOX[8][4][16] = { // used to obscure the relationship between the key and the ciphertext
     { // S1
         {14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7},
         {0, 15, 7, 4, 14, 2, 13, 1, 10, 6, 12, 11, 9, 5, 3, 8},
@@ -53,7 +53,7 @@ unsigned int S_BOX[8][4][16] = { // used to obscure the relationship between the
     }
 };
 
-unsigned int PERMUTATION_TAB[] = {
+unsigned long PERMUTATION_TAB[] = {
     58, 50, 42, 34, 26, 18, 10, 2,
     60, 52, 44, 36, 28, 20, 12, 4,
     62, 54, 46, 38, 30, 22, 14, 6,
@@ -64,7 +64,7 @@ unsigned int PERMUTATION_TAB[] = {
     63, 55, 47, 39, 31, 23, 15, 7
 };
 
-unsigned int EXPANSION_TAB[] = {
+unsigned long EXPANSION_TAB[] = {
     32, 1, 2, 3, 4, 5, 4, 5,
     6, 7, 8, 9, 8, 9, 10, 11,
     12, 13, 12, 13, 14, 15, 16, 17,
@@ -73,7 +73,7 @@ unsigned int EXPANSION_TAB[] = {
     28, 29, 28, 29, 30, 31, 32, 1
 };
 
-unsigned int P_TAB[] = {
+unsigned long P_TAB[] = {
     16, 7, 20, 21,
 	29, 12, 28, 17,
 	1, 15, 23, 26,
@@ -84,14 +84,14 @@ unsigned int P_TAB[] = {
 	22, 11, 4, 25
 };
 
-unsigned int SHIFT_TAB[] = {
+unsigned long SHIFT_TAB[] = {
     1, 1, 2, 2,
     2, 2, 2, 2,
     1, 2, 2, 2,
     2, 2, 2, 1
 };
 
-unsigned int COMPRESS_KEY_TAB[] = {
+unsigned long COMPRESS_KEY_TAB[] = {
     14, 17, 11, 24, 1, 5,
     3, 28, 15, 6, 21, 10,
     23, 19, 12, 4, 26, 8,
@@ -104,24 +104,25 @@ unsigned int COMPRESS_KEY_TAB[] = {
 
 // ============== DES UTILS ===============
 
-unsigned int permutation(unsigned int *input, unsigned long *arr, unsigned int n)
+void permutation(unsigned long *input, unsigned long *arr, unsigned int n)
 {
+
+    // (0b1 >> permu[index]) << index - permu[index];
+    // (0b1 >> permu[index]) >> permu[index] - index
     // permute according input[i] = input[arr[i]]
     unsigned long tmp_input[64];
 
     ft_bzero(tmp_input, 64);
     ft_memcpy(tmp_input, input, 64);
 
-    for (int i=0; i < n; i++)
+    for (int i = 0; i < n; i++)
         input[i] = tmp_input[arr[i] - 1];
 
-    return input;
 }
 
 unsigned int shift_left(unsigned long *input, unsigned int n, unsigned int len)
 {
     // Process shift_left according SHIFT_TAB
-
     unsigned long *res = malloc(len * sizeof(unsigned long));
     int j;
 
@@ -138,26 +139,23 @@ unsigned int shift_left(unsigned long *input, unsigned int n, unsigned int len)
     free(res);
 }
 
-
 // ============== END OF DES UTILS ===============
 
 
 // ======== Process encrypt pt =========
 
-
-unsigned int feistel_schema(unsigned char *b1, unsigned char *b2)
-{
-
-}
-
-unsigned int encrypt_block(unsigned char *block, unsigned long *key)
+unsigned int encrypt_block(unsigned long *block, unsigned long *key)
 {
     unsigned long big_block[76], right_exp[48], big_right[48], left[28], sbox[32];
+    unsigned long xor_round;
+    int row, col;
 
     ft_bzero(big_block, 76);
     ft_bzero(right_exp, 48);
     ft_bzero(big_right, 48);
     ft_bzero(left, 28);
+
+    permutation(block, PERMUTATION_TAB, 64);
 
     for (int i = 0; i < 16; i++)
     {
@@ -172,15 +170,24 @@ unsigned int encrypt_block(unsigned char *block, unsigned long *key)
        permutation(big_right, EXPANSION_TAB, 48);
 
         // 2- Key mixing
-        for (int l=0; l < 48; l++)
+        for (int l = 0; l < 48; l++)
             big_right[l] ^= key[i];
 
+        xor_round = big_right[i] ^ key[i]; // pas sur de ca
+
         // 3 - Substitution (S1, S2,...,S8)
-        for (int f=0; f < 8; f++)
+        for (int f = 0; f < 8; f++)
         {
-            // TODO BAIL DE SUB
             // GET ROW
+            row = xor_round << 2;
+
             // GET COL
+            col = xor_round >> 6;
+
+            // printf("[row] %d\n", row);
+            // printf("[col] %d\n", col);
+                
+            // sbox[f] = S_BOX[f][row][col];
         }
 
         // 4 - Permutation (P)
@@ -190,7 +197,7 @@ unsigned int encrypt_block(unsigned char *block, unsigned long *key)
     // 5 - Combine left and right
     ft_memcpy(big_block, left, 28);
     ft_memcpy(big_block+28, big_right, 48);
-    
+
 }
 
 unsigned long* process_round_keys(unsigned long *key, unsigned long *round_k)
@@ -211,13 +218,14 @@ unsigned long* process_round_keys(unsigned long *key, unsigned long *round_k)
         // shift_left right of key
         shift_left(right, i, 28);
 
-        // concate twice
+        // // concate twice
         ft_bzero(concat, 56);
         ft_memcpy(concat, left, 28);
         ft_memcpy(concat + 28, right, 28);
         
-        // key_permutation with concatenation
-        round_k[i] = permutation(concat, COMPRESS_KEY_TAB, 48);
+        // // key_permutation with concatenation
+        ft_memcpy(round_k, concat, 56);
+        permutation(round_k, COMPRESS_KEY_TAB, 48);
     }
 
     return round_k;
@@ -228,14 +236,17 @@ void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, ch
 
     //  ======== Process key =========
 
-    // split right
-    // key_permutation
+    unsigned char pt[3] = "lol";
+    unsigned char key[8] = "lolololo";
+    unsigned long r_k[56];
 
-    // shift_left
+    printf("%ld\n", process_round_keys(key, r_k));
 
-
-    // For each block of 64 bits encrypt block
-
-
-    printf("%s", input);
+    encrypt_block(input, r_k);
+    printf("\n%s", input);
 }
+
+
+// key => lolololo
+// pt => lol
+// result => 56f74dec963f7bbf
