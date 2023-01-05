@@ -72,7 +72,7 @@ unsigned char* three_bytes_to_b64(unsigned char *raw_input, unsigned char *outpu
     return output;
 }
 
-void    base64_process_(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name)
+void    base64_process_encode(char *input)
 {
     printf("input => %s\n", input);
     

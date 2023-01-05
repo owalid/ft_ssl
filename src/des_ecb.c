@@ -53,7 +53,18 @@ unsigned long S_BOX[8][4][16] = { // used to obscure the relationship between th
     }
 };
 
-unsigned long PERMUTATION_TAB[] = {
+unsigned long PERMUTATION_INIT_KEY[] = {
+    14, 17, 11, 24, 1, 5,
+    3, 28, 15, 6, 21, 10,
+    23, 19, 12, 4, 26, 8,
+    16, 7, 27, 20, 13, 2,
+    41, 52, 31, 37, 47, 55,
+    30, 40, 51, 45, 33, 48,
+    44, 49, 39, 56, 34, 53,
+    46, 42, 50, 36, 29, 32
+};
+
+unsigned long PERMUTATION_INIT_BLOCK[] = {
     58, 50, 42, 34, 26, 18, 10, 2,
     60, 52, 44, 36, 28, 20, 12, 4,
     62, 54, 46, 38, 30, 22, 14, 6,
@@ -104,39 +115,41 @@ unsigned long COMPRESS_KEY_TAB[] = {
 
 // ============== DES UTILS ===============
 
+
+void	swap_val(unsigned long *a, unsigned long *b)
+{
+	unsigned long temp;
+
+	temp = *a;
+	*a = *b;
+	*b = temp;
+}
+
 void permutation(unsigned long *input, unsigned long *arr, unsigned int n)
 {
 
     // (0b1 >> permu[index]) << index - permu[index];
     // (0b1 >> permu[index]) >> permu[index] - index
     // permute according input[i] = input[arr[i]]
-    unsigned long tmp_input[64];
+    // unsigned long tmp_input[64];
 
-    ft_bzero(tmp_input, 64);
-    ft_memcpy(tmp_input, input, 64);
+    // ft_bzero(tmp_input, 64);
+    // ft_memcpy(tmp_input, input, 64);
+
+    unsigned long input_cpy = *input;
 
     for (int i = 0; i < n; i++)
-        input[i] = tmp_input[arr[i] - 1];
-
+    {
+        *input |= input_cpy << arr[i];
+    }
 }
 
-unsigned int shift_left(unsigned long *input, unsigned int n, unsigned int len)
+unsigned int shift_left(unsigned int *input, unsigned int n, unsigned int len)
 {
     // Process shift_left according SHIFT_TAB
-    unsigned long *res = malloc(len * sizeof(unsigned long));
-    int j;
 
-    for (int i = 0; i < SHIFT_TAB[n]; i++)
-    {
-        j = 1;
-        for (; j < len; j++)
-            res[j-1] += input[j];
-        res[j] += input[0];
-    }
-
-    ft_bzero(input, len);
-    ft_memcpy(input, res, len);
-    free(res);
+    for (int i = 0; i < n; i++)
+        *input = ((*input & 0x000000ff) << len) | (*input & 0x0000FFFF0000000UL) | (*input & 0x0000000FFFF0000UL) | ((*input & 0xff000000) >> len);
 }
 
 // ============== END OF DES UTILS ===============
@@ -144,26 +157,31 @@ unsigned int shift_left(unsigned long *input, unsigned int n, unsigned int len)
 
 // ======== Process encrypt pt =========
 
-unsigned int encrypt_block(unsigned long block, unsigned long *key)
+unsigned int encrypt_block(unsigned char *block, unsigned long *key)
 {
-    unsigned long big_block, right, big_right, left, sbox, xor_round;
+    unsigned long big_block, right, big_right, left, sbox, xor_round, tmp;
     int row, col;
 
-    permutation(block, PERMUTATION_TAB, 64);
+
+    // permutation before block process
+    unsigned long tmp_input[64];
+
+    ft_bzero(tmp_input, 64);
+    ft_memcpy(tmp_input, block, 64);
+
+    for (int i = 0; i < 64; i++)
+        block[i] = tmp_input[PERMUTATION_INIT_BLOCK[i] - 1];
     
     // the block is split into 2 halves
-    left = block << 32;
-    right = block >> 32;
-    
+    ft_memcpy(&left, block, 32);
+    ft_memcpy(&right, block + 32, 32);    
 
     for (int i = 0; i < 16; i++)
     {
-        // TODO
-
         // the right half of the block is taken
 
         // 1- Expansion Permutation
-       permutation(right, EXPANSION_TAB, 48);
+       permutation(&right, EXPANSION_TAB, 48);
 
         // 2- Key mixing
         xor_round = right ^ key[i];
@@ -171,23 +189,33 @@ unsigned int encrypt_block(unsigned long block, unsigned long *key)
         // 3 - Substitution (S1, S2,...,S8)
         for (int f = 0; f < 8; f++)
         {
-            // GET ROW
-            row = xor_round << 2;
+            // print_bit(xor_round);
 
-            // GET COL
-            col = xor_round >> 6;
+            // xor_round = 0xF0;
+
+            // GET ROW (extremite b1, b6)
+            row = (xor_round & 0b10000000) >> 6 | (xor_round & (0b00000001));
+
+            // GET COL (middle b2 -> b5)
+            col = (xor_round & 0b01111110) >> 1;
+            // break;
+
+            // print_bit((xor_round & 0b10000000) >> 6 | (xor_round & (0b00000001)));
+            // print_bit(row);
+            // printf("\n");
 
             printf("[row] %d\n", row);
             printf("[col] %d\n", col);
+            // break;
 
             // sbox[f] = S_BOX[f][row][col];
         }
 
         // 4 - Permutation (P)
-        permutation(sbox, PERMUTATION_TAB, 32);
+        permutation(&sbox, PERMUTATION_INIT_BLOCK, 32);
 
         left = sbox;
-        ft_swap(&right, &left);
+        swap_val(&right, &left);
     }
 
     // end_block = left+right;
@@ -197,35 +225,43 @@ unsigned int encrypt_block(unsigned long block, unsigned long *key)
 
 }
 
-unsigned long* process_round_keys(unsigned long *key, unsigned long *round_k)
+unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
 {
     // get 56 bits of keys
     // split to have left and right
-    unsigned long left[28], right[28];
-    unsigned long concat[56];
+    unsigned int left, right;
+    unsigned long concat;
 
-    ft_memcpy(left, key, 28);
-    ft_memcpy(right, key + 28, 28);
+    permutation(&key, PERMUTATION_INIT_KEY, 56);
+
+    left = key >> 4;
+    right = key & (0b11110000);
 
     for (int i = 0; i < 16; i++)
     {
         // shift_left left of key
-        shift_left(left, i, 28);
+        shift_left(&left, i, 28);
 
         // shift_left right of key
-        shift_left(right, i, 28);
+        shift_left(&right, i, 28);
 
-        // // concate twice
-        ft_bzero(concat, 56);
-        ft_memcpy(concat, left, 28);
-        ft_memcpy(concat + 28, right, 28);
+        // concate twice
+        concat = (left << 4) | (right);
         
-        // // key_permutation with concatenation
-        ft_memcpy(round_k, concat, 56);
-        permutation(round_k, COMPRESS_KEY_TAB, 48);
+        // key_permutation with concatenation
+        ft_memcpy(round_k+i, &concat, 56);
+        permutation(&round_k[i], COMPRESS_KEY_TAB, 48);
     }
 
     return round_k;
+}
+
+
+void    pad_block(unsigned char *input, int len_input)
+{
+    int diff = 64 - (len_input % 64);
+    for (int i = len_input%64; i < diff; i++)
+        input[i] = diff;
 }
 
 void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name)
@@ -233,14 +269,34 @@ void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, ch
 
     //  ======== Process key =========
 
-    unsigned char pt[3] = "lol";
+    unsigned char pt[64] = "lol";
     unsigned char key[8] = "lolololo";
-    unsigned long r_k[56];
+    unsigned long r_k[16];
+    unsigned char block[64];
 
-    printf("%ld\n", process_round_keys(key, r_k));
+    int len_input = ft_strlen(pt);
 
-    encrypt_block(input, r_k);
-    printf("\n%s", input);
+    // if (len_input % 64 != 0)
+    //     pad_block(pt, len_input);
+
+    printf("\n%s", pt);
+    printf("%ln\n", process_round_keys((unsigned long)key, r_k));
+
+    for (int i = 0; i < len_input; i += 64)
+    {
+        if (len_input > 64) {
+            ft_bzero(block, 64);
+            ft_memcpy(input + i, block, 64);
+            encrypt_block(block, r_k);
+        }
+        
+        if (len_input < 64 || i + 64 > len_input) {
+            pad_block(block + (len_input % 64), 64 - (len_input % 64));
+            encrypt_block(block, r_k);
+        }
+    }
+    printf("\n%s", pt);
+    base64_process_encode(pt);
 }
 
 
