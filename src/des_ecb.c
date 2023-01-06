@@ -238,16 +238,16 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
     unsigned long curr_round;
 
 
-    printf("======================\n\n");
-    printf("key before perm => ");
-    print_long(key);
+    // printf("======================\n\n");
+    // printf("key before perm => ");
+    // print_long(key);
 
     permutation(&key, PERMUTATION_INIT_KEY, 64, 56);
 
 
-    printf("======================\n\n");
-    printf("key after perm => ");
-    print_long(key);
+    // printf("======================\n\n");
+    // printf("key after perm => ");
+    // print_long(key);
 
     // unsigned long lol = swap64(key)
     // print_bits(&key, 7);
@@ -271,7 +271,7 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
     for (int i = 0; i < 16; i++)
     {
         curr_round = 0;
-        // ft_bzero(&curr_round, 64);
+
         // shift_left left of key
         shift_left(&left, i, 28);
 
@@ -292,23 +292,17 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
         concat = (left << 28) | right;
 
 
-        if (i == 0 || i == 1)
-        {
-            printf("%d left  =>\t", i);
-            print_long(left);
-            printf("%d right =>\t", i);
-            print_long(right);
-            printf("%d concat =>\t", i);
-            print_long(concat);
-            printf("\n=====================================\n\n\n");
-        }
-        // printf("conca =>\n");
-        // print_long(concat);
-        // break;
-        // print_bit(concat);
-        // break;
-        // key_permutation with concatenation
-        // ft_memcpy(round_k+i, &concat, 56);
+        // if (i == 0 || i == 1)
+        // {
+        //     printf("%d left  =>\t", i);
+        //     print_long(left);
+        //     printf("%d right =>\t", i);
+        //     print_long(right);
+        //     printf("%d concat =>\t", i);
+        //     print_long(concat);
+        //     printf("\n=====================================\n\n\n");
+        // }
+
         curr_round = concat;
         permutation(&curr_round, COMPRESS_KEY_TAB, 56, 48);
         round_k[i] = curr_round;
