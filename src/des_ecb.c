@@ -137,14 +137,15 @@ void	swap_val(unsigned long *a, unsigned long *b)
 	*b = temp;
 }
 
-void permutation(unsigned long *input, unsigned long *arr, unsigned int n)
+void permutation(unsigned long *input, unsigned long *arr, unsigned int from_s, unsigned int to_s)
 {
     // Process permutation according arr table and little endian
     unsigned long tmp = 0;
 
-    for (int i = 0; i < n; i++)
-        tmp |= ((*input >> (n - arr[i])) & 1) << n - i - 1;
+    for (int i = 0; i < to_s; i++)
+        tmp |= ((*input >> (from_s - arr[i])) & 1) << (to_s - i - 1);
 
+    *input = 0;
     *input = tmp;
 }
 
@@ -156,10 +157,11 @@ void    print_long(unsigned long n) {
     printf("\n");
 }
 
-unsigned int shift_left(unsigned int *input, unsigned int n, unsigned int len)
+
+unsigned int shift_left(unsigned long *input, unsigned int n, unsigned int len)
 {
     // Process shift_left according ROTATE_TAB
-     *input = (*input << ROTATE_TAB[n]) | (*input >> (len - ROTATE_TAB[n]));
+     *input = ((*input << ROTATE_TAB[n]) | (*input >> (len - ROTATE_TAB[n]))) & 0x0FFFFFFFUL;
 }
 
 // ============== END OF DES UTILS ===============
@@ -192,7 +194,7 @@ unsigned long encrypt_block(unsigned char *block, unsigned long *key)
         // the right half of the block is taken
 
         // 1- Expansion Permutation
-       permutation(&right, EXPANSION_TAB, 48);
+    //    permutation(&right, EXPANSION_TAB, 48);
 
         // 2- Key mixing
         xor_round = right ^ key[i];
@@ -209,7 +211,7 @@ unsigned long encrypt_block(unsigned char *block, unsigned long *key)
         }
 
         // 4 - Permutation (P)
-        permutation(&sbox, PERMUTATION_INIT_BLOCK, 32);
+        // permutation(&sbox, PERMUTATION_INIT_BLOCK, 32);
 
         left = sbox;
         swap_val(&right, &left);
@@ -231,35 +233,36 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
     // TODO REVIEW THIS FUNCTION
     // get 56 bits of keys
     // split to have left and right
-    unsigned int left = 0, right = 0;
+    unsigned long left = 0, right = 0;
     unsigned long concat;
     unsigned long curr_round;
 
 
     printf("======================\n\n");
-    printf("key before perm =>");
-    print_bits(&key, 8);
+    printf("key before perm => ");
+    print_long(key);
 
-    permutation(&key, PERMUTATION_INIT_KEY, 56);
+    permutation(&key, PERMUTATION_INIT_KEY, 64, 56);
 
 
     printf("======================\n\n");
-    printf("key after perm =>\n");
+    printf("key after perm => ");
     print_long(key);
-    printf("00000000 11111111 00000000 11111111 00001111 11110000 00001111 11110000\n");
+
+    // unsigned long lol = swap64(key)
+    // print_bits(&key, 7);
+    // printf("00000000 11110000 11001100 10101010 00001010 10101100 11001111 00000000\n");
 
     // LEFT IS CARREY
-    left = (key & 0x00000000FFFFFFFFUL);
- 
+    left = (key >> 28) & 0x0FFFFFFFUL;
+    
     // RIGHT IS CARREY
-    right = key & 0x00000000FFFFFFFFUL;
+    right = key & 0x0FFFFFFFUL;
 
 
     printf("======================\n\n");
     printf("Left =>\n");
     print_long(left);
-    // printf("\n00000000 00000000 00000000 00000000 00001111 11110000 00001111 11110000\n");
-    // printf("======================\n\n");
     printf("Right =>\n");
     print_long(right);
     printf("\n\n");
@@ -267,12 +270,15 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
 
     for (int i = 0; i < 16; i++)
     {
+        curr_round = 0;
         // ft_bzero(&curr_round, 64);
         // shift_left left of key
         shift_left(&left, i, 28);
 
         // shift_left right of key
         shift_left(&right, i, 28);
+
+
 
         // printf("left =>  ");
         // print_bits(&left, 28);
@@ -283,13 +289,28 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
         // printf("\n");
 
         // concate twice
-        concat = (left << 4) | (right >> 4);
-        // printf("conca => ");
+        concat = (left << 28) | right;
+
+
+        if (i == 0 || i == 1)
+        {
+            printf("%d left  =>\t", i);
+            print_long(left);
+            printf("%d right =>\t", i);
+            print_long(right);
+            printf("%d concat =>\t", i);
+            print_long(concat);
+            printf("\n=====================================\n\n\n");
+        }
+        // printf("conca =>\n");
+        // print_long(concat);
+        // break;
         // print_bit(concat);
         // break;
         // key_permutation with concatenation
         // ft_memcpy(round_k+i, &concat, 56);
-        permutation(&curr_round, COMPRESS_KEY_TAB, 48);
+        curr_round = concat;
+        permutation(&curr_round, COMPRESS_KEY_TAB, 56, 48);
         round_k[i] = curr_round;
     }
 
@@ -322,7 +343,8 @@ void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, ch
     //  ======== Process key =========
 
     char pt[] = "lolipopa";
-    char key[] = "AAAAAAAAAAAAAAAA";
+    char key[] = "0123456789ABCDEF";
+    // char key[] = "AAAAAAAAAAAAAAFF";
     unsigned long r_k[16];
     unsigned char block[64];
     unsigned long lol;
@@ -336,7 +358,7 @@ void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, ch
     printf("key_long_hex = %lu\n", key_long_hex);
 
     process_round_keys(key_long_hex, r_k);
-    // display_key(r_k);
+    display_key(r_k);
 
     // for (int i = 0; i < len_input; i += 8)
     // {
