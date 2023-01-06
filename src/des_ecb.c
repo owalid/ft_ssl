@@ -53,7 +53,7 @@ unsigned long S_BOX[8][4][16] = { // used to obscure the relationship between th
     }
 };
 
-unsigned long PERMUTATION_INIT_KEY[] = {
+unsigned long PERMUTATION_COMPRESSION_KEY[] = {
     14, 17, 11, 24, 1, 5,
     3, 28, 15, 6, 21, 10,
     23, 19, 12, 4, 26, 8,
@@ -62,6 +62,18 @@ unsigned long PERMUTATION_INIT_KEY[] = {
     30, 40, 51, 45, 33, 48,
     44, 49, 39, 56, 34, 53,
     46, 42, 50, 36, 29, 32
+};
+
+
+unsigned long PERMUTATION_INIT_KEY[] = {
+    57, 49, 41, 33, 25, 17, 9,
+    1, 58, 50, 42, 34, 26, 18,
+    10, 2, 59, 51, 43, 35, 27,
+    19, 11, 3, 60, 52, 44, 36,
+    63, 55, 47, 39, 31, 23, 15,
+    7, 62, 54, 46, 38, 30, 22,
+    14, 6, 61, 53, 45, 37, 29,
+    21, 13, 5, 28, 20, 12, 4
 };
 
 unsigned long PERMUTATION_INIT_BLOCK[] = {
@@ -127,12 +139,21 @@ void	swap_val(unsigned long *a, unsigned long *b)
 
 void permutation(unsigned long *input, unsigned long *arr, unsigned int n)
 {
-    unsigned long input_cpy = *input;
+    // Process permutation according arr table and little endian
+    unsigned long tmp = 0;
 
     for (int i = 0; i < n; i++)
-    {
-        *input |= input_cpy << arr[i];
+        tmp |= ((*input >> (n - arr[i])) & 1) << n - i - 1;
+
+    *input = tmp;
+}
+
+void    print_long(unsigned long n) {
+    for (int index = 0; index < 64; index++) {
+        if (!(index % 8) && index) printf(" ");
+        printf("%d", (n >> (63 - index)) & 1);
     }
+    printf("\n");
 }
 
 unsigned int shift_left(unsigned int *input, unsigned int n, unsigned int len)
@@ -210,28 +231,66 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
     // TODO REVIEW THIS FUNCTION
     // get 56 bits of keys
     // split to have left and right
-    unsigned int left, right;
+    unsigned int left = 0, right = 0;
     unsigned long concat;
+    unsigned long curr_round;
+
+
+    printf("======================\n\n");
+    printf("key before perm =>");
+    print_bits(&key, 8);
 
     permutation(&key, PERMUTATION_INIT_KEY, 56);
 
-    left = key >> 4;
-    right = key & (0b11110000);
+
+    printf("======================\n\n");
+    printf("key after perm =>\n");
+    print_long(key);
+    printf("00000000 11111111 00000000 11111111 00001111 11110000 00001111 11110000\n");
+
+    // LEFT IS CARREY
+    left = (key & 0x00000000FFFFFFFFUL);
+ 
+    // RIGHT IS CARREY
+    right = key & 0x00000000FFFFFFFFUL;
+
+
+    printf("======================\n\n");
+    printf("Left =>\n");
+    print_long(left);
+    // printf("\n00000000 00000000 00000000 00000000 00001111 11110000 00001111 11110000\n");
+    // printf("======================\n\n");
+    printf("Right =>\n");
+    print_long(right);
+    printf("\n\n");
+
 
     for (int i = 0; i < 16; i++)
     {
+        // ft_bzero(&curr_round, 64);
         // shift_left left of key
         shift_left(&left, i, 28);
 
         // shift_left right of key
         shift_left(&right, i, 28);
 
+        // printf("left =>  ");
+        // print_bits(&left, 28);
+        // printf("\n");
+
+        // printf("right => ");
+        // print_bits(&right, 28);
+        // printf("\n");
+
         // concate twice
-        concat = (left << 4) | (right);
-        
+        concat = (left << 4) | (right >> 4);
+        // printf("conca => ");
+        // print_bit(concat);
+        // break;
         // key_permutation with concatenation
-        ft_memcpy(round_k+i, &concat, 56);
-        permutation(&round_k[i], COMPRESS_KEY_TAB, 48);
+        // ft_memcpy(round_k+i, &concat, 56);
+        permutation(&curr_round, COMPRESS_KEY_TAB, 48);
+        round_k[i] = curr_round;
     }
 
     return round_k;
@@ -240,55 +299,66 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
 
 void    pad_block(unsigned char *input, int len_input)
 {
-    int diff = 64 - (len_input % 64);
-    // printf("\ndiff: %d\ni: %d\n", diff, len_input%64);
-    for (int i = diff; i < len_input%64; i++)
+    int diff = 64 - ((len_input*8) % 64);
+    // printf("\ndiff: %d\ni: %d\n", diff, (len_input*8)%64);
+    for (int i = diff; i < (len_input*8)%64; i++)
         input[i] = diff;
+}
+
+void display_key(unsigned long *r_k)
+{
+    for (int i=0; i < 16; i++)
+        printf("r_k[%d]\t= %lu\n", i, r_k[i]);
 }
 
 void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name)
 {
 
+    // unsigned long r_k[16];
+    // ft_bzero(r_k, 16*8);
+    // display_key(r_k);
+
+
     //  ======== Process key =========
 
-    unsigned char pt[64];
-    unsigned char key[8];
+    char pt[] = "lolipopa";
+    char key[] = "AAAAAAAAAAAAAAAA";
     unsigned long r_k[16];
     unsigned char block[64];
     unsigned long lol;
 
-    ft_bzero(pt, 64);
-    ft_bzero(key, 8);
-
-    ft_memcpy(pt, "lol", 4);
-    ft_memcpy(key, "lolololo", 8);
-
     int len_input = ft_strlen(pt);
 
-    // if (len_input % 64 != 0)
-    //     pad_block(pt, len_input);
+    unsigned long key_long_hex = ft_hextoi(key);
 
-    printf("\n%s", pt);
-    // printf("%ln\n", process_round_keys((unsigned long)key, r_k));
+    ft_bzero(r_k, 16*8);
 
-    for (int i = 0; i < len_input; i += 64)
-    {
-        if (len_input > 64) {
-            ft_bzero(block, 64);
-            ft_memcpy(input + i, block, 64);
-            lol = encrypt_block(block, r_k);
-        }
+    printf("key_long_hex = %lu\n", key_long_hex);
+
+    process_round_keys(key_long_hex, r_k);
+    // display_key(r_k);
+
+    // for (int i = 0; i < len_input; i += 8)
+    // {
+    //     if (len_input >= 8) {
+    //         printf("here");
+    //         printf("\n%s\n", pt);
+    //         ft_bzero(block, 8);
+    //         ft_memcpy(input + i, block, 8);
+    //         lol = encrypt_block(block, r_k);
+    //     }
         
-        if (len_input < 64 || i + 64 > len_input) {
-            // printf("size of input => %d\nlen => %d", len_input, 64 - (len_input % 64));
-            pad_block(block + (len_input % 64), 64 - (len_input % 64));
-            // print_bits(block, 64);
-            lol = encrypt_block(block, r_k);
-        }
-    }
+    //     if (len_input < 8 || i + 8 > len_input) {
+    //         // printf("size of input => %d\nlen => %d", len_input, 64 - (len_input % 64));
+    //         pad_block(block + (len_input % 64), 64 - (len_input % 64));
+    //         // print_bits(block, 64);
+    //         lol = encrypt_block(block, r_k);
+    //     }
+    // }
     // printf("\n%s\n", pt);
-    // printf("\n%lu\n", block);
-    base64_process_encode(pt);
+    // printf("\n%hhn\n", block);
+    // printf("\n%lu\n", lol);
+    // base64_process_encode(lol);
 }
 
 
