@@ -12,13 +12,15 @@ unsigned char  what_in_my_b64(unsigned char b64_c)
     }
 }
 
-unsigned char* b64_to_three_bytes(unsigned char *raw_input, unsigned char *output, ssize_t readed)
+void b64_to_three_bytes(char *raw_input, ssize_t readed)
 {
     // raw_input size is 4
     // output size is 3
     
     char input[4];
+    char output[4];
 
+    ft_bzero(output, 4);
     ft_bzero(input, 4);
     ft_memcpy(input, raw_input, 4);
 
@@ -34,15 +36,15 @@ unsigned char* b64_to_three_bytes(unsigned char *raw_input, unsigned char *outpu
     output[1] = input[1] << 4 | input[2] >> 2; 
     output[2] = input[2] << 6 | (input[3]);
 
-    return output;
 }
 
-char* three_bytes_to_b64(char *raw_input, char *output, ssize_t readed)
+void three_bytes_to_b64(char *raw_input, ssize_t readed, int print)
 {
     // raw_input size is between 1 to 3
     // output size is 4
 
     char input[3];
+    char output[4];
 
     ft_memcpy(input, raw_input, 3);
     ft_bzero(output, 4);
@@ -66,7 +68,8 @@ char* three_bytes_to_b64(char *raw_input, char *output, ssize_t readed)
         output[3] = b64_charset[input[2] & 0b00111111];
     }
     
-    return output;
+    if (print == 1)
+        ft_putstr(output);
 }
 
 void    base64_process_dispatch(t_ft_ssl_mode *ssl_mode, int fd, int char_size)
@@ -76,8 +79,8 @@ void    base64_process_dispatch(t_ft_ssl_mode *ssl_mode, int fd, int char_size)
 
     while ((readed = utils_read(fd, tmp, char_size)) > 0)
     {
-        if (char_size == 3) three_bytes_to_b64(tmp, output, readed);
-        else b64_to_three_bytes(tmp, output, readed);
+        if (char_size == 4) b64_to_three_bytes(tmp, readed);
+        else three_bytes_to_b64(tmp, readed, 0);
         ft_putstr(output);    
     }
 

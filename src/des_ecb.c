@@ -473,7 +473,9 @@ void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, ch
     unsigned long r_k[16];
     unsigned long block;
     unsigned long result;
-
+    char tmp_block[3];
+    char buffer[12];
+    int buffer_size;
     int len_input = ft_strlen(pt);
 
     unsigned long key_long_hex = ft_hextoi(key);
@@ -494,6 +496,33 @@ void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, ch
             ft_memcpy(&block, pt + i, 8);
             // printf("\nPT = |%s|\n", pt);
             result = encrypt_block(swap64(block), r_k);
+            result = swap64(result);
+
+            for (int i = 0; i < 8; i += 3)
+            {
+                ft_bzero(tmp_block, 3);
+                ft_memcpy(tmp_block, &result + i, 3);
+                three_bytes_to_b64(tmp_block, 3, 1);
+            }
+
+            if (buffer_size == 1)
+            {
+                ft_memcpy(buffer, &result + 6, 2);
+                three_bytes_to_b64(buffer, 3, 1);
+                buffer_size = 0;
+                ft_bzero(buffer, 3);
+            } else if (buffer_size == 2)
+            {
+                ft_memcpy(buffer, &result + 6, 1);
+                three_bytes_to_b64(buffer, 3, 1);
+                buffer_size = 0;
+                ft_bzero(buffer, 3);
+                ft_memcpy(buffer, &result+7, 1);
+                buffer_size = 1;
+            } else if (buffer_size == 0) {
+                ft_memcpy(buffer, &result + 6, 2);
+                buffer_size = 2;
+            }
         }
         
         // if (len_input < 8 || i + 8 > len_input) {
@@ -505,9 +534,15 @@ void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, ch
     // printf("\n%s\n", pt);
     // printf("\n%hhn\n", block);
     // printf("\n%lu\n", lol);
-    result = swap64(result);
+    // result = swap64(result);
+
+    // while(&result)
+    // {
+    //     b64_to_three_bytes(char *raw_input, char *output, ssize_t readed, 1);
+    // }
+
     // printf("CT = %lx\n", result);
-    // printf("%s",(char*)&result);
+    printf("%s",(char*)&result);
     // base64_process_encode((unsigned char*)&result);
 }
 
