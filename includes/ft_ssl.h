@@ -35,6 +35,14 @@ typedef struct		s_ft_ssl_mode
 	int			quiet_mode;
 	int			reverse_mode;
 	int			std_mode;
+	int			input_file;
+	int			output_file;
+	int			decode_mode;
+	int			encode_mode;
+	int			key;
+	int			password;
+	int			salt;
+	int			iv;
 }					t_ft_ssl_mode;
 
 typedef struct		s_ft_ssl_op
@@ -72,7 +80,7 @@ void    			sha512_process_firsts_blocks(void *raw_w, void *raw_hash);
 
 // base64.c
 void    			base64_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
-void				base64_process_encode(char *input);
+// void				base64_process_encode(char *input);
 
 // ecb.c
 void    			des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
@@ -86,6 +94,7 @@ void print_bit(unsigned char n);
 // utils.c
 unsigned int        swap32(unsigned int num);
 size_t              swap64(size_t val);
+ssize_t 			utils_read(int fd, char *data, size_t size_block);
 
 unsigned int        left_rotate(unsigned int n, unsigned int d);
 

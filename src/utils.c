@@ -18,6 +18,25 @@ void print_bits(unsigned char *str, size_t len) {
 }
 
 
+ssize_t utils_read(int fd, char *data, size_t size_block) {
+    unsigned char buffer[128];
+    ssize_t len;
+    size_t size = 0;
+
+    ft_bzero(data, size_block);
+    while ((len = read(fd, buffer, size_block - size)) > 0) {
+        ft_memcpy(data + size, buffer, len);
+        size += len;
+        if (size == size_block) {
+            return (size);
+        }
+    }
+    if (len < 0) {
+        return -1;
+    }
+    return size;
+}
+
 
 void preprocess_final_output(t_ft_ssl_mode *ssl_mode, char *algo_name, int input_type, char *input, t_fn_print_hash fn_print_hash, void *hash, size_t size)
 {

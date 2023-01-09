@@ -192,11 +192,11 @@ unsigned long encrypt_block(unsigned long block, unsigned long *key)
     // ft_bzero(tmp_input, 64);
     // ft_memcpy(tmp_input, block, 64);
 
-    printf("block init\n");
-    print_long(block);
+    // printf("block init\n");
+    // print_long(block);
     
     permutation(&block, PERMUTATION_INIT_BLOCK, 64, 64);
-    print_long(block);
+    // print_long(block);
     
     // printf("block init\n");
     // print_long(block);
@@ -337,12 +337,12 @@ unsigned long encrypt_block(unsigned long block, unsigned long *key)
     // 5 - Combine left and right
     end_block = ((left << 32) | right);
 
-    printf("\n\n[end_block]=\t");
-    print_long(end_block);
+    // printf("\n\n[end_block]=\t");
+    // print_long(end_block);
     permutation(&end_block, FINAL_PERM_TAB, 64, 64); 
 
-    printf("[permuted end]=\t");
-    print_long(end_block);
+    // printf("[permuted end]=\t");
+    // print_long(end_block);
     return end_block;
     // return big_block;
     // ft_memcpy(big_block, left, 28);
@@ -352,7 +352,6 @@ unsigned long encrypt_block(unsigned long block, unsigned long *key)
 
 unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
 {
-    // TODO REVIEW THIS FUNCTION
     // get 56 bits of keys
     // split to have left and right
     unsigned long left = 0, right = 0;
@@ -448,57 +447,68 @@ void display_key(unsigned long *r_k)
         printf("r_k[%d]\t= %lu\n", i, r_k[i]);
 }
 
+// void atohexa(char *input, char *res)
+// {
+//     size_t len = ft_strlen(input);
+//     char *res = ft_strnew(len*2);
+
+//     for (int i=0; i < len; i++)
+//     {
+//         ft_memcpy(res+i, ft_itoa_base(input[i], 16), 2);
+//     }
+//     ft_bzero(input, len);
+//     ft_memcpy(input, res, len*2);
+//     free(res);
+// }
+
+
 void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name)
 {
-
-    // unsigned long r_k[16];
-    // ft_bzero(r_k, 16*8);
-    // display_key(r_k);
-
-
     //  ======== Process key =========
 
-    char pt[] = "6C6F6C69706F7061";
+    // char pt[] = "6C6F6C69706F7061";
+    char pt[] = "lolipopa";
     char key[] = "0123456789ABCDEF";
     // char key[] = "AAAAAAAAAAAAAAFF";
     unsigned long r_k[16];
-    unsigned char block[64];
-    unsigned long lol;
+    unsigned long block;
+    unsigned long result;
 
-    int len_input = ft_strlen(pt) / 2;
+    int len_input = ft_strlen(pt);
 
     unsigned long key_long_hex = ft_hextoi(key);
-    unsigned long tmp_block = ft_hextoi(pt);
 
     ft_bzero(r_k, 16*8);
 
-    printf("key_long_hex = %lu\n", key_long_hex);
-    printf("============================\n");
+    // printf("key_long_hex = %lu\n", key_long_hex);
+    // printf("============================\n");
     process_round_keys(key_long_hex, r_k);
     // display_key(r_k);
 
     for (int i = 0; i < len_input; i += 8)
     {
         if (len_input >= 8) {
-            printf("here");
-            printf("\n%s\n", pt);
-            ft_bzero(block, 8);
-            ft_memcpy(input + i, block, 8);
-            lol = encrypt_block(tmp_block, r_k);
-            printf("Cipher text: %lx\n", lol);
+            // printf("here\n");
+            // printf("\nPT = %s\n", pt);
+            block = 0;
+            ft_memcpy(&block, pt + i, 8);
+            // printf("\nPT = |%s|\n", pt);
+            result = encrypt_block(swap64(block), r_k);
         }
         
-        if (len_input < 8 || i + 8 > len_input) {
-            // printf("size of input => %d\nlen => %d", len_input, 64 - (len_input % 64));
-            pad_block(block + (len_input % 64), 64 - (len_input % 64));
-            // print_bits(block, 64);
-            lol = encrypt_block((unsigned long)block, r_k);
-        }
+        // if (len_input < 8 || i + 8 > len_input) {
+        //     pad_block(block + (len_input % 64), 64 - (len_input % 64));
+        //     result = encrypt_block(swap64(block), r_k);
+        // }
+        // printf("%lx\n", result);
     }
     // printf("\n%s\n", pt);
     // printf("\n%hhn\n", block);
     // printf("\n%lu\n", lol);
-    // base64_process_encode(lol);
+    result = swap64(result);
+    // printf("CT = %lx\n", result);
+    // printf("%s",(char*)&result);
+    // base64_process_encode((unsigned char*)&result);
 }
 
 
