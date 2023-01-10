@@ -28,6 +28,8 @@ void ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
             i++;
         } else if (ft_strcmp(argv[i], "-k") == 0) {
             i++;
+        } else if (ft_strcmp(argv[i], "-a") == 0) {
+            ssl_mode->des_b64 = 1;
         } else if (argv[i][0] == '-') {
             ft_putstr("option: '");
             ft_putstr(argv[i]);
@@ -105,14 +107,18 @@ int main(int argc, char **argv) {
                         exit(0);                        
                     }
                     if (ft_strcmp(argv[j], "-k") == 0) { // process as key
-                        if (ft_strlen(argv[j + 1]) < 16 && ft_strlen(argv[j + 1]) > 0)
-                            ft_putstr(WARNING_DES_KEY_TO_SHORT);
                         ssl_mode->key = ft_hextoi(argv[j + 1]);
+                        int len_key = ft_strlen(argv[j + 1]);
                         if (ssl_mode->key == -1)
                         {
                             ft_putstr(ERROR_DES_KEY_NO_HEX);
                             exit(1);
+                        } else if (len_key < 16 && len_key > 0)
+                        {
+                            ft_bzero(ssl_mode->key + len_key, 16 - len_key);
+                            ft_putstr(WARNING_DES_KEY_TO_SHORT);
                         }
+                        j++;
                     }
                 }
 

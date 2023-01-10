@@ -46,6 +46,7 @@ typedef struct		s_ft_ssl_mode
 	int			password;
 	int			salt;
 	int			iv;
+	int			des_b64;
 }					t_ft_ssl_mode;
 
 typedef struct		s_ft_ssl_op
