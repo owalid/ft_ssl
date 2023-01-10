@@ -14,6 +14,8 @@ size_t      ft_hextoi(char *str)
             result = result * 16 + (str[i] - 'a' + 10);
         else if (str[i] >= 'A' && str[i] <= 'F')
             result = result * 16 + (str[i] - 'A' + 10);
+        else
+            return -1;
     }
 
 	return (result);

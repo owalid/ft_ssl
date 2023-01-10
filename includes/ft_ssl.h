@@ -27,6 +27,9 @@ file Files to digest (optional; default is stdin).\n"
 # define ALGO_LIST "Message Digest algorithm:\n\
 md5, sha256, sha224, sha384, sha512.\n"
 
+# define WARNING_DES_KEY_TO_SHORT "Key warning: key hexa to short, padding with zero bytes to length"
+# define ERROR_DES_KEY_NO_HEX "Key error: non-hex digit"
+# define ERROR_DES_KEY_NO_PROVIDED "Key error: Key is required"
 # define DIR_READ "Read error in "
 
 
@@ -39,7 +42,7 @@ typedef struct		s_ft_ssl_mode
 	int			output_file;
 	int			decode_mode;
 	int			encode_mode;
-	int			key;
+	unsigned long key;
 	int			password;
 	int			salt;
 	int			iv;
