@@ -17,14 +17,29 @@ void print_bits(unsigned char *str, size_t len) {
 	printf("\n");
 }
 
+ssize_t delete_spaces(char *buffer, ssize_t len)
+{
+    for (int i = 0; i < len; i++)
+    {
+        if (ft_isspace(buffer[i]) == 1)
+        {
+            buffer[i] = buffer[i + 1];
+            i--;
+            len--;
+        }
+    }
+    return len;
+}
 
-ssize_t utils_read(int fd, char *data, size_t size_block) {
+ssize_t utils_read(int fd, char *data, size_t size_block, int decode_mode) {
     unsigned char buffer[128];
     ssize_t len = 0;
     size_t size = 0;
 
     ft_bzero(data, size_block);
     while ((len = read(fd, buffer, size_block - size)) > 0) {
+        if (decode_mode) // remove \n and spaces
+            len = delete_spaces(buffer, len);
         ft_memcpy(data + size, buffer, len);
         size += len;
         if (size == size_block) {

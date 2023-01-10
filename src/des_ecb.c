@@ -326,7 +326,7 @@ void        des_ecb_encrypt(t_ft_ssl_mode *ssl_mode, int fd, unsigned long *r_k)
     ft_bzero(tmp_blocks, 3*8);
     ft_bzero(buffer, 8);
 
-    while ((readed = utils_read(0, buffer, 8)) == 8)
+    while ((readed = utils_read(0, buffer, 8, 0)) == 8)
     {
         block = 0;
         ft_memcpy(&block, buffer, 8);
@@ -375,19 +375,19 @@ void        des_ecb_decrypt(t_ft_ssl_mode *ssl_mode, int fd, unsigned long *r_k)
     int last_blocks_size = 0;
     ssize_t last_block_size = 0;
 
-    // ft_bzero(tmp_blocks, 3*8);
     ft_bzero(tmp_buffer, 24);
     ft_bzero(buffer, 32);
 
     // reverse round key
     reverse_round_key(r_k);
-    // printf("\n\n\n");
-    // display_key(r_k);
 
     result = 0;
 
-    while ((readed = utils_read(0, buffer, 32)) == 32)
+    while ((readed = utils_read(0, buffer, 32, 1)) == 32)
     {
+        // ----
+        // with 24 we can constitute 3 blocks
+        // ----
         if (tmp_buffer[0] != 0)
         {
             for (int i = 0; i < 3; i++)
@@ -400,35 +400,15 @@ void        des_ecb_decrypt(t_ft_ssl_mode *ssl_mode, int fd, unsigned long *r_k)
 
         block = 0;
         ft_bzero(tmp_buffer, 24);
-        // write(1, &buffer, 4);
         b64_to_three_bytes(buffer, (char *)tmp_buffer, 32, 0);
-        // write(1, &tmp_buffer, 24);
-        
-        // ----
-        // with 24 we can constitute 3 blocks
-        // ----
-
-        // for (int i = 0; i < 3; i++)
-        // {
-        //     // printf("in for loop: i = %d\n", i);
-        //     result = encrypt_block(swap64(tmp_buffer[i]), r_k);
-        //     write(1, &result, 8);
-        // }
-
-        // ft_memcpy(&block, buffer, 8);
-        // b64_to_three_bytes()
-        // result = encrypt_block(swap64(block), r_k);
-        // tmp_blocks[cpt++] = result;
-        // if (cpt == 3)
-        //     print_cipher_b64(tmp_blocks, &cpt);
     }
-    // printf("readed ? %d", readed);
 
     // ----
     // with the rest we constitute n blocks who n < 3 (8 by block)
     // ----
     if (readed >= 0)
     {
+        // Check if is the last read
         if (tmp_buffer[0] != 0)
         {
             for (int i = 0; i < 3; i++)
@@ -445,35 +425,22 @@ void        des_ecb_decrypt(t_ft_ssl_mode *ssl_mode, int fd, unsigned long *r_k)
             } 
         }
 
-        // printf("last = %d\n", readed);
         block = 0;
         b64_to_three_bytes(buffer, (char *)tmp_buffer, readed, 0);
-        // write(1, &tmp_buffer, 24);
         last_blocks_size = (readed/8 - 1) == 0 ? 1 : (readed/8 - 1 );
-        // printf("readed = %d\n", readed);
-        // printf("last_blocks_size = %d\n", last_blocks_size);
         for (int i = 0; i < last_blocks_size; i++)
         {
-            // printf("%d\n", i);
             result = 0;
-            // ft_memcpy(&tmp_block, tmp_buffer + i, r_k);
             result = encrypt_block(swap64(tmp_buffer[i]), r_k);
 
-            // printf("\n%d is last ?", i + 1);
             if (i + 1 == last_blocks_size) { // process last block padding
-                // printf("\nin if for unpad ?");
                 last_block_size = unpad((unsigned char*)&result);
-                // printf("\n%llu", last_block_size);
                 write(1, &result, last_block_size);
             } else {
                 write(1, &result, 8);
             }
-            // printf("\nin for loop: i = %d\n", i);
-            // tmp_buffer + 8;
         }
     }
-    // b64_to_three_bytes(buffer, tmp_buffer, 32, 1);
-    // write(1, &tmp_buffer, 24);
 }
 
 void        des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name)

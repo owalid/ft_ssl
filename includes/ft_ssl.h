@@ -97,7 +97,7 @@ void print_bit(unsigned char n);
 // utils.c
 unsigned int        swap32(unsigned int num);
 size_t              swap64(size_t val);
-ssize_t 			utils_read(int fd, char *data, size_t size_block);
+ssize_t 			utils_read(int fd, char *data, size_t size_block, int decode_mode);
 
 unsigned int        left_rotate(unsigned int n, unsigned int d);
 

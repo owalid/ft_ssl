@@ -86,8 +86,8 @@ void    base64_process_dispatch(t_ft_ssl_mode *ssl_mode, int fd, int char_size)
 {
     unsigned char tmp[4], output[4];
     int readed = 0;
-
-    while ((readed = utils_read(fd, tmp, char_size)) > 0)
+    
+    while ((readed = utils_read(fd, tmp, char_size, ssl_mode->decode_mode)) > 0)
     {
         if (char_size == 4) b64_to_three_bytes(tmp, output, readed, 1); // decode
         else  three_bytes_to_b64(tmp, readed, 0); // encode
