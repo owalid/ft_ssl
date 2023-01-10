@@ -20,7 +20,7 @@ void print_bits(unsigned char *str, size_t len) {
 
 ssize_t utils_read(int fd, char *data, size_t size_block) {
     unsigned char buffer[128];
-    ssize_t len;
+    ssize_t len = 0;
     size_t size = 0;
 
     ft_bzero(data, size_block);
@@ -28,7 +28,7 @@ ssize_t utils_read(int fd, char *data, size_t size_block) {
         ft_memcpy(data + size, buffer, len);
         size += len;
         if (size == size_block) {
-            return (size);
+            return size;
         }
     }
     if (len < 0) {

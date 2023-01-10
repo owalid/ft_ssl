@@ -343,7 +343,7 @@ unsigned long encrypt_block(unsigned long block, unsigned long *key)
 
     // printf("[permuted end]=\t");
     // print_long(end_block);
-    return end_block;
+    return swap64(end_block);
     // return big_block;
     // ft_memcpy(big_block, left, 28);
     // ft_memcpy(big_block+28, big_right, 48);
@@ -433,12 +433,14 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
 }
 
 
-void    pad_block(unsigned char *input, int len_input)
+void    pad_block(unsigned char *input, ssize_t len_input)
 {
-    int diff = 64 - ((len_input*8) % 64);
-    // printf("\ndiff: %d\ni: %d\n", diff, (len_input*8)%64);
-    for (int i = diff; i < (len_input*8)%64; i++)
-        input[i] = diff;
+    // int diff = 64 - ((len_input*8) % 64);
+    int diff = 8 - (len_input % 8);
+    // int i = (len_input == 0) ? len_input : (len_input % 8) + 1;
+    // printf("\ndiff: %d\ni: %d\n", diff, i);
+    for (int i = 0; i < 8; i++)
+        input[i] = 8;
 }
 
 void display_key(unsigned long *r_k)
@@ -467,70 +469,110 @@ void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, ch
     //  ======== Process key =========
 
     // char pt[] = "6C6F6C69706F7061";
-    char pt[] = "lolipopa";
+    // char pt[] = "lolipopa";
     char key[] = "0123456789ABCDEF";
     // char key[] = "AAAAAAAAAAAAAAFF";
     unsigned long r_k[16];
     unsigned long block;
     unsigned long result;
     char tmp_block[3];
-    char buffer[12];
+
+    char buffer[8];
+    ssize_t readed = 0;
     int buffer_size;
-    int len_input = ft_strlen(pt);
+    // int len_input = ft_strlen(pt);
 
     unsigned long key_long_hex = ft_hextoi(key);
 
     ft_bzero(r_k, 16*8);
+    ft_bzero(buffer, 8);
 
     // printf("key_long_hex = %lu\n", key_long_hex);
     // printf("============================\n");
     process_round_keys(key_long_hex, r_k);
     // display_key(r_k);
 
-    for (int i = 0; i < len_input; i += 8)
+    while ((readed = utils_read(0, buffer, 8)) == 8)
     {
-        if (len_input >= 8) {
-            // printf("here\n");
-            // printf("\nPT = %s\n", pt);
-            block = 0;
-            ft_memcpy(&block, pt + i, 8);
-            // printf("\nPT = |%s|\n", pt);
-            result = encrypt_block(swap64(block), r_k);
-            result = swap64(result);
+        // printf("in while: \nreaded => %d\nstr => %s\n", (int)readed, buffer);
+        block = 0;
+        ft_memcpy(&block, buffer, 8);
+        result = encrypt_block(swap64(block), r_k);
+        // result = swap64(result);
+        // printf("%lx\n", result);
+        write(1, &result, 8);
+        // printf("%s",(char*)&result);
+    }
 
-            for (int i = 0; i < 8; i += 3)
-            {
-                ft_bzero(tmp_block, 3);
-                ft_memcpy(tmp_block, &result + i, 3);
-                three_bytes_to_b64(tmp_block, 3, 1);
-            }
+    // check readed and process padding
+    if (readed >= 0)
+    {
+        block = 0;
+        // pad_block(block + (len_input % 64), 64 - (len_input % 64));
+        // printf("padding process \n");
+        // printf("readed = %d\n", readed);
+        ft_bzero(buffer, 8);
+        pad_block(buffer, 0);
+        ft_memcpy(&block, buffer, 8);
+        result = encrypt_block(swap64(block), r_k);
+        // printf("%s",(char*)&result);
+        write(1, &result, 8);
+        // printf("%s",(char*)&result);
 
-            if (buffer_size == 1)
-            {
-                ft_memcpy(buffer, &result + 6, 2);
-                three_bytes_to_b64(buffer, 3, 1);
-                buffer_size = 0;
-                ft_bzero(buffer, 3);
-            } else if (buffer_size == 2)
-            {
-                ft_memcpy(buffer, &result + 6, 1);
-                three_bytes_to_b64(buffer, 3, 1);
-                buffer_size = 0;
-                ft_bzero(buffer, 3);
-                ft_memcpy(buffer, &result+7, 1);
-                buffer_size = 1;
-            } else if (buffer_size == 0) {
-                ft_memcpy(buffer, &result + 6, 2);
-                buffer_size = 2;
-            }
-        }
-        
-        // if (len_input < 8 || i + 8 > len_input) {
-        //     pad_block(block + (len_input % 64), 64 - (len_input % 64));
-        //     result = encrypt_block(swap64(block), r_k);
-        // }
         // printf("%lx\n", result);
     }
+    // else if (readed == 0) {
+    //     block = 0;
+    //     // printf("create new block with padding size 8");
+    //     ft_bzero(buffer, 8);
+    //     pad_block(buffer, 0);
+    //     ft_memcpy(&block, buffer, 8);
+    //     result = encrypt_block(swap64(block), r_k);
+    //     // printf("%s",(char*)&block);
+    //     printf("%s",(char*)&result);
+    //     // printf("%lx\n", result);
+    // }
+    // for (int i = 0; i < len_input; i += 8)
+    // {
+    //     if (len_input >= 8) {
+    //         block = 0;
+    //         ft_memcpy(&block, pt + i, 8);
+    //         result = encrypt_block(swap64(block), r_k);
+    //         result = swap64(result);
+
+    //         // for (int i = 0; i < 8; i += 3)
+    //         // {
+    //         //     ft_bzero(tmp_block, 3);
+    //         //     ft_memcpy(tmp_block, &result + i, 3);
+    //         //     three_bytes_to_b64(tmp_block, 3, 1);
+    //         // }
+
+    //         // if (buffer_size == 1)
+    //         // {
+    //         //     ft_memcpy(buffer, &result + 6, 2);
+    //         //     three_bytes_to_b64(buffer, 3, 1);
+    //         //     buffer_size = 0;
+    //         //     ft_bzero(buffer, 3);
+    //         // } else if (buffer_size == 2)
+    //         // {
+    //         //     ft_memcpy(buffer, &result + 6, 1);
+    //         //     three_bytes_to_b64(buffer, 3, 1);
+    //         //     buffer_size = 0;
+    //         //     ft_bzero(buffer, 3);
+    //         //     ft_memcpy(buffer, &result + 7, 1);
+    //         //     buffer_size = 1;
+    //         // } else if (buffer_size == 0) {
+    //         //     ft_memcpy(buffer, &result + 6, 2);
+    //         //     buffer_size = 2;
+    //         // }
+    //     }
+        
+    //     // if (len_input < 8 || i + 8 > len_input) {
+    //     //     pad_block(block + (len_input % 64), 64 - (len_input % 64));
+    //     //     result = encrypt_block(swap64(block), r_k);
+    //     // }
+    //     // printf("%lx\n", result);
+    // }
     // printf("\n%s\n", pt);
     // printf("\n%hhn\n", block);
     // printf("\n%lu\n", lol);
@@ -542,7 +584,7 @@ void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, ch
     // }
 
     // printf("CT = %lx\n", result);
-    printf("%s",(char*)&result);
+    // printf("%s",(char*)&result);
     // base64_process_encode((unsigned char*)&result);
 }
 

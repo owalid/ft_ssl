@@ -35,7 +35,8 @@ void b64_to_three_bytes(char *raw_input, ssize_t readed)
     output[0] = (input[0] << 2) | (input[1] >> 4);
     output[1] = input[1] << 4 | input[2] >> 2; 
     output[2] = input[2] << 6 | (input[3]);
-
+    write(1, &output, 8);
+    // ft_putstr(output);
 }
 
 void three_bytes_to_b64(char *raw_input, ssize_t readed, int print)
@@ -67,9 +68,8 @@ void three_bytes_to_b64(char *raw_input, ssize_t readed, int print)
         output[2] = b64_charset[(input[1] << 2 | input[2] >> 6) & 0b00111111];
         output[3] = b64_charset[input[2] & 0b00111111];
     }
-    
-    if (print == 1)
-        ft_putstr(output);
+    write(1, &output, 8);
+    // ft_putstr(output);
 }
 
 void    base64_process_dispatch(t_ft_ssl_mode *ssl_mode, int fd, int char_size)
