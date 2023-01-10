@@ -278,37 +278,21 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
 }
 
 
-void    pad_block(unsigned char *input, ssize_t len_input)
+void        pad_block(unsigned char *input, ssize_t len_input)
 {
-    // int diff = 64 - ((len_input*8) % 64);
-    int diff = 8 - (len_input % 8);
-    int i = (len_input == 0) ? len_input : (len_input % 8) + 1;
-    // printf("\ndiff: %d\ni: %d\n", diff, i);
-    for (; i < diff; i++)
-        input[i] = 8;
+    int diff = 8 - len_input;
+    int i = len_input % 8;
+    for (; i < 8; i++)
+        input[i] = diff;
 }
 
-void display_key(unsigned long *r_k)
+void        display_key(unsigned long *r_k)
 {
     for (int i=0; i < 16; i++)
         printf("r_k[%d]\t= %lu\n", i, r_k[i]);
 }
 
-// void atohexa(char *input, char *res)
-// {
-//     size_t len = ft_strlen(input);
-//     char *res = ft_strnew(len*2);
-
-//     for (int i=0; i < len; i++)
-//     {
-//         ft_memcpy(res+i, ft_itoa_base(input[i], 16), 2);
-//     }
-//     ft_bzero(input, len);
-//     ft_memcpy(input, res, len*2);
-//     free(res);
-// }
-
-void    print_cipher_b64(unsigned long* blocks, int* len_block)
+void        print_cipher_b64(unsigned long* blocks, int* len_block)
 {
     // printf("len_block: %d\n", *len_block);
     // 8 char in an unsigned long (8*8)
@@ -322,12 +306,20 @@ void    print_cipher_b64(unsigned long* blocks, int* len_block)
     *len_block = 0;
 }
 
-void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name)
+void        reverse_round_key(unsigned long *r_k)
+{
+    unsigned long tmp_r_k[16];
+
+    ft_bzero(tmp_r_k, 16*8);
+    ft_memcpy(tmp_r_k, r_k, 16);
+
+    for (int i = 15, j = 0; j > 16; i--, j++)
+        r_k[i] = tmp_r_k[j];
+}
+
+void        des_ecb_encrypt(t_ft_ssl_mode *ssl_mode, int fd, unsigned long *r_k)
 {
     //  ======== Process key =========
-
-    char key[] = "0123456789ABCDEF";
-    unsigned long r_k[16];
     unsigned long block;
     unsigned long result;
     unsigned long tmp_blocks[3]; // bc 3 * 8 = 24 is a multiple of 3 (for b64)
@@ -336,15 +328,8 @@ void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, ch
     ssize_t readed = 0;
     int buffer_size;
 
-    unsigned long key_long_hex = ft_hextoi(key);
-
-    ft_bzero(r_k, 16*8);
     ft_bzero(tmp_blocks, 3*8);
     ft_bzero(buffer, 8);
-
-    // printf("key_long_hex = %lu\n", key_long_hex);
-    // printf("============================\n");
-    process_round_keys(key_long_hex, r_k);
 
     while ((readed = utils_read(0, buffer, 8)) == 8)
     {
@@ -354,25 +339,42 @@ void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, ch
         tmp_blocks[cpt++] = result;
         if (cpt == 3)
             print_cipher_b64(tmp_blocks, &cpt);
-
-        // write(1, &result, 8);
     }
 
     // check readed and process padding
     if (readed >= 0)
     {
         block = 0;
-        ft_bzero(buffer, 8);
-        pad_block(buffer, 0);
+        pad_block(buffer, readed);
         ft_memcpy(&block, buffer, 8);
         result = encrypt_block(swap64(block), r_k);
         tmp_blocks[cpt++] = result;
-        // write(1, &result, 8);
     }
     print_cipher_b64(tmp_blocks, &cpt);
 }
 
+void        des_ecb_decrypt(t_ft_ssl_mode *ssl_mode, int fd, unsigned long *r_k)
+{
+    // reverse round key
+    reverse_round_key(r_k);
+    
 
-// d3d7bc       3196ea83    8d6f08      1d9ac9      744e4d
-// 19Mxv        OqWj        YMIb        5odd        MlNT    g==
-//  3            3          3           3           3       1
+}
+
+void        des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name)
+{
+    int fd = (ssl_mode->input_file != 0) ? open(input, O_RDONLY) : 0;
+    char key[] = "0123456789ABCDEF";
+    unsigned long r_k[16];
+
+    ft_bzero(r_k, 16*8);
+    unsigned long key_long_hex = ft_hextoi(key);
+
+    // TODO CHECK ERROR FOR KEY_LONG_HEX
+
+    // process round key
+    process_round_keys(key_long_hex, r_k);
+
+    if (ssl_mode->decode_mode == 1) des_ecb_decrypt(ssl_mode, fd, r_k);
+    else des_ecb_encrypt(ssl_mode, fd, r_k);
+}
