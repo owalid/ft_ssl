@@ -185,169 +185,58 @@ unsigned long encrypt_block(unsigned long block, unsigned long *key)
     unsigned long end_block, right, big_right, left, sbox, xor_round, tmp;
     int row, col;
 
-    // print_long(block)
     // permutation before block process
     unsigned long tmp_xor_round = 0;
 
-    // ft_bzero(tmp_input, 64);
-    // ft_memcpy(tmp_input, block, 64);
 
-    // printf("block init\n");
-    // print_long(block);
-    
     permutation(&block, PERMUTATION_INIT_BLOCK, 64, 64);
-    // print_long(block);
-    
-    // printf("block init\n");
-    // print_long(block);
-    // for (int i = 0; i < 64; i++)
-    //     block[i] = tmp_input[PERMUTATION_INIT_BLOCK[i] - 1];
+
 
     // the block is split into 2 halves
     left = (block >> 32) & 0x0FFFFFFFFUL;
     right = block & 0x0FFFFFFFFUL;
-    // ft_memcpy(&left, block, 32);
-    // ft_memcpy(&right, block + 32, 32);
 
-    // printf("\n\n");
-    // printf("left before\n");
-    // print_long(left);
-
-    // printf("right before\n");
-    // print_long(right);
-    // printf("\n\n");
 
     for (int i = 0; i < 16; i++)
     {
         // the right half of the block is taken
 
-        // 1- Expansion Permutation
-        
-
-        // 2- Key mixing
+        // 1 & 2-  Expansion Permutation & Key mixing
         xor_round = right;
 
         permutation(&xor_round, EXPANSION_TAB, 32, 48);
 
         xor_round ^= key[i];
 
-        // if (i == 0)
-        // {
-        //     printf("rigth expanded=\t");
-        //     print_long(right);
-        //     printf("xor_round=\t");
-        //     print_long(xor_round);
-        // }
-
-        // tmp_xor_round = xor_round;
         sbox = 0;
         // 3 - Substitution (S1, S2,...,S8)
         for (int f = 0; f < 8; f++)
         {
             // select current bits
-            // tmp_xor_round = (xor_round >> (48-((f+1)*6)) & 0x0FFUL) >> 2;
-            // tmp_xor_round = ((xor_round >> (((f+1)*6)) & 0x0FFUL)) & 0b00111111;
-
             // GET ROW (extremite b1, b6)
             row = (xor_round & 0b00100000) >> 4 | (xor_round & (0b00000001));
             // GET COL (middle b2 -> b5)
             col = (xor_round & 0b00011110) >> 1;
 
-            // sbox |= S_BOX[7-f][row][col] << (28 - (4*(7-f)));
-            // printf("%d %d %ld\n", row, col, S_BOX[7-f][row][col]);
             sbox |= S_BOX[7-f][row][col] << (4*f);
-            // sbox |= S_BOX[7-f][row][col];
-            // sbox <<= 4;
-
-            // if (i == 0 && (f == 0 || f == 1))
-            // if (i == 0 && (f == 0 || f == 1 || f == 2 || f == 3 || f == 4 || f == 5 || f == 6))
-            // {
-            //     printf("\n\n======\ti = %d\tf = %d\t (f+1)*6 = %d\t======\t\n", i, f, (f+1)*6);
-            //     printf("xor_round=\t");
-            //     print_long(xor_round);
-            //     printf("tmp_xor_round=\t");
-            //     print_long(tmp_xor_round);
-                
-
-            //     printf("\n");
-            //     printf("row = %lu\nrow_bits=", row);
-            //     print_long(row);
-            //     printf("\n");
-            //     printf("col = %lu\ncol_bits=", col);
-            //     print_long(col);
-            //     printf("\n");
-            // }
-
             xor_round >>= 6;
-
         }
-
-        // if (i == 0 || i == 1 || i == 2)
-        // {
-        //     printf("\n===================\t\t [i = %d] \t\t==========================\n", i);
-        // }
-
-        // printf("sbox=\t\t\t");
-        // print_long(sbox);
-
-        // if (i == 0)
-        // {
-        //     printf("sbox=\t\t\t");
-        //     print_long(sbox);
-        // }
 
         // 4 - Permutation (P)
         permutation(&sbox, P_TAB, 32, 32);
 
-        // left &= 0x0FFFFFFFFUL;
-
-        // if (i == 0 || i == 1 || i == 2)
-        // {
-        //     printf("[AFTER PERMUTE] sbox=\t");
-        //     print_long(sbox);
-        //     printf("[LEFT BEFORE]: left=\t");
-        //     print_long(left);
-        // }
         left ^= sbox;
 
-
-        // if (i == 0 || i == 1 || i == 2)
-        // {
-        //     printf("[xor] left=\t\t");
-        //     print_long(left);
-        //     // printf("\n\n");
-        //     printf("right=\t\t\t");
-        //     print_long(right);
-        //     printf("\n\n");
-        // }
-
         if (i != 15)
-        {
             swap_val(&right, &left);
-            // left &= 0x0FFFFFFFFUL;
-            // right &= 0x0FFFFFFFFUL;
-
-            // right = ;
-            // left = right;
-        }
-    //     // print_bits(&sbox, 64);
     }
 
-    // // end_block = left+right;
     // 5 - Combine left and right
     end_block = ((left << 32) | right);
 
-    // printf("\n\n[end_block]=\t");
-    // print_long(end_block);
     permutation(&end_block, FINAL_PERM_TAB, 64, 64); 
 
-    // printf("[permuted end]=\t");
-    // print_long(end_block);
     return swap64(end_block);
-    // return big_block;
-    // ft_memcpy(big_block, left, 28);
-    // ft_memcpy(big_block+28, big_right, 48);
-
 }
 
 unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
@@ -359,35 +248,13 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
     unsigned long curr_round;
 
 
-    // printf("======================\n\n");
-    // printf("key before perm => ");
-    // print_long(key);
-
     permutation(&key, PERMUTATION_INIT_KEY, 64, 56);
-
-
-    // printf("======================\n\n");
-    // printf("key after perm => ");
-    // print_long(key);
-
-    // unsigned long lol = swap64(key)
-    // print_bits(&key, 7);
-    // printf("00000000 11110000 11001100 10101010 00001010 10101100 11001111 00000000\n");
 
     // LEFT IS CARREY
     left = (key >> 28) & 0x0FFFFFFFUL;
     
     // RIGHT IS CARREY
     right = key & 0x0FFFFFFFUL;
-
-
-    // printf("======================\n\n");
-    // printf("Left =>\n");
-    // print_long(left);
-    // printf("Right =>\n");
-    // print_long(right);
-    // printf("\n\n");
-
 
     for (int i = 0; i < 16; i++)
     {
@@ -399,30 +266,8 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
         // shift_left right of key
         shift_left(&right, i, 28);
 
-
-
-        // printf("left =>  ");
-        // print_bits(&left, 28);
-        // printf("\n");
-
-        // printf("right => ");
-        // print_bits(&right, 28);
-        // printf("\n");
-
         // concate twice
         concat = (left << 28) | right;
-
-
-        // if (i == 0 || i == 1)
-        // {
-        //     printf("%d left  =>\t", i);
-        //     print_long(left);
-        //     printf("%d right =>\t", i);
-        //     print_long(right);
-        //     printf("%d concat =>\t", i);
-        //     print_long(concat);
-        //     printf("\n=====================================\n\n\n");
-        // }
 
         curr_round = concat;
         permutation(&curr_round, COMPRESS_KEY_TAB, 56, 48);
@@ -437,9 +282,9 @@ void    pad_block(unsigned char *input, ssize_t len_input)
 {
     // int diff = 64 - ((len_input*8) % 64);
     int diff = 8 - (len_input % 8);
-    // int i = (len_input == 0) ? len_input : (len_input % 8) + 1;
+    int i = (len_input == 0) ? len_input : (len_input % 8) + 1;
     // printf("\ndiff: %d\ni: %d\n", diff, i);
-    for (int i = 0; i < 8; i++)
+    for (; i < diff; i++)
         input[i] = 8;
 }
 
@@ -463,132 +308,71 @@ void display_key(unsigned long *r_k)
 //     free(res);
 // }
 
+void    print_cipher_b64(unsigned long* blocks, int* len_block)
+{
+    // printf("len_block: %d\n", *len_block);
+    // 8 char in an unsigned long (8*8)
+    // for (int i = 0; i < *len_block; i++)
+    // {
+    //     unsigned long lol = blocks[i];
+    //     write(1, &lol, 8);
+    // }
+    three_bytes_to_b64((char *)blocks, (*len_block)*8, 1);
+    ft_bzero(blocks, 3*8);
+    *len_block = 0;
+}
 
 void    des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name)
 {
     //  ======== Process key =========
 
-    // char pt[] = "6C6F6C69706F7061";
-    // char pt[] = "lolipopa";
     char key[] = "0123456789ABCDEF";
-    // char key[] = "AAAAAAAAAAAAAAFF";
     unsigned long r_k[16];
     unsigned long block;
     unsigned long result;
-    char tmp_block[3];
-
+    unsigned long tmp_blocks[3]; // bc 3 * 8 = 24 is a multiple of 3 (for b64)
+    int cpt = 0;
     char buffer[8];
     ssize_t readed = 0;
     int buffer_size;
-    // int len_input = ft_strlen(pt);
 
     unsigned long key_long_hex = ft_hextoi(key);
 
     ft_bzero(r_k, 16*8);
+    ft_bzero(tmp_blocks, 3*8);
     ft_bzero(buffer, 8);
 
     // printf("key_long_hex = %lu\n", key_long_hex);
     // printf("============================\n");
     process_round_keys(key_long_hex, r_k);
-    // display_key(r_k);
 
     while ((readed = utils_read(0, buffer, 8)) == 8)
     {
-        // printf("in while: \nreaded => %d\nstr => %s\n", (int)readed, buffer);
         block = 0;
         ft_memcpy(&block, buffer, 8);
         result = encrypt_block(swap64(block), r_k);
-        // result = swap64(result);
-        // printf("%lx\n", result);
-        write(1, &result, 8);
-        // printf("%s",(char*)&result);
+        tmp_blocks[cpt++] = result;
+        if (cpt == 3)
+            print_cipher_b64(tmp_blocks, &cpt);
+
+        // write(1, &result, 8);
     }
 
     // check readed and process padding
     if (readed >= 0)
     {
         block = 0;
-        // pad_block(block + (len_input % 64), 64 - (len_input % 64));
-        // printf("padding process \n");
-        // printf("readed = %d\n", readed);
         ft_bzero(buffer, 8);
         pad_block(buffer, 0);
         ft_memcpy(&block, buffer, 8);
         result = encrypt_block(swap64(block), r_k);
-        // printf("%s",(char*)&result);
-        write(1, &result, 8);
-        // printf("%s",(char*)&result);
-
-        // printf("%lx\n", result);
+        tmp_blocks[cpt++] = result;
+        // write(1, &result, 8);
     }
-    // else if (readed == 0) {
-    //     block = 0;
-    //     // printf("create new block with padding size 8");
-    //     ft_bzero(buffer, 8);
-    //     pad_block(buffer, 0);
-    //     ft_memcpy(&block, buffer, 8);
-    //     result = encrypt_block(swap64(block), r_k);
-    //     // printf("%s",(char*)&block);
-    //     printf("%s",(char*)&result);
-    //     // printf("%lx\n", result);
-    // }
-    // for (int i = 0; i < len_input; i += 8)
-    // {
-    //     if (len_input >= 8) {
-    //         block = 0;
-    //         ft_memcpy(&block, pt + i, 8);
-    //         result = encrypt_block(swap64(block), r_k);
-    //         result = swap64(result);
-
-    //         // for (int i = 0; i < 8; i += 3)
-    //         // {
-    //         //     ft_bzero(tmp_block, 3);
-    //         //     ft_memcpy(tmp_block, &result + i, 3);
-    //         //     three_bytes_to_b64(tmp_block, 3, 1);
-    //         // }
-
-    //         // if (buffer_size == 1)
-    //         // {
-    //         //     ft_memcpy(buffer, &result + 6, 2);
-    //         //     three_bytes_to_b64(buffer, 3, 1);
-    //         //     buffer_size = 0;
-    //         //     ft_bzero(buffer, 3);
-    //         // } else if (buffer_size == 2)
-    //         // {
-    //         //     ft_memcpy(buffer, &result + 6, 1);
-    //         //     three_bytes_to_b64(buffer, 3, 1);
-    //         //     buffer_size = 0;
-    //         //     ft_bzero(buffer, 3);
-    //         //     ft_memcpy(buffer, &result + 7, 1);
-    //         //     buffer_size = 1;
-    //         // } else if (buffer_size == 0) {
-    //         //     ft_memcpy(buffer, &result + 6, 2);
-    //         //     buffer_size = 2;
-    //         // }
-    //     }
-        
-    //     // if (len_input < 8 || i + 8 > len_input) {
-    //     //     pad_block(block + (len_input % 64), 64 - (len_input % 64));
-    //     //     result = encrypt_block(swap64(block), r_k);
-    //     // }
-    //     // printf("%lx\n", result);
-    // }
-    // printf("\n%s\n", pt);
-    // printf("\n%hhn\n", block);
-    // printf("\n%lu\n", lol);
-    // result = swap64(result);
-
-    // while(&result)
-    // {
-    //     b64_to_three_bytes(char *raw_input, char *output, ssize_t readed, 1);
-    // }
-
-    // printf("CT = %lx\n", result);
-    // printf("%s",(char*)&result);
-    // base64_process_encode((unsigned char*)&result);
+    print_cipher_b64(tmp_blocks, &cpt);
 }
 
 
-// key => lolololo
-// pt => lol
-// result => 56f74dec963f7bbf
+// d3d7bc       3196ea83    8d6f08      1d9ac9      744e4d
+// 19Mxv        OqWj        YMIb        5odd        MlNT    g==
+//  3            3          3           3           3       1
