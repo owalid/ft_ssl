@@ -296,11 +296,6 @@ void        print_cipher_b64(unsigned long* blocks, int* len_block)
 {
     // printf("len_block: %d\n", *len_block);
     // 8 char in an unsigned long (8*8)
-    // for (int i = 0; i < *len_block; i++)
-    // {
-    //     unsigned long lol = blocks[i];
-    //     write(1, &lol, 8);
-    // }
     three_bytes_to_b64((char *)blocks, (*len_block)*8, 1);
     ft_bzero(blocks, 3*8);
     *len_block = 0;
@@ -309,11 +304,11 @@ void        print_cipher_b64(unsigned long* blocks, int* len_block)
 void        reverse_round_key(unsigned long *r_k)
 {
     unsigned long tmp_r_k[16];
-
     ft_bzero(tmp_r_k, 16*8);
-    ft_memcpy(tmp_r_k, r_k, 16);
 
-    for (int i = 15, j = 0; j > 16; i--, j++)
+    for (int i = 0; i < 16; i++)
+        tmp_r_k[i] = r_k[i];
+    for (int i = 15, j = 0; j < 16; i--, j++)
         r_k[i] = tmp_r_k[j];
 }
 
@@ -353,12 +348,132 @@ void        des_ecb_encrypt(t_ft_ssl_mode *ssl_mode, int fd, unsigned long *r_k)
     print_cipher_b64(tmp_blocks, &cpt);
 }
 
+ssize_t     unpad(unsigned char *plain_block)
+{
+    ssize_t result = 6;
+
+    for (;result > 0; result--)
+    {
+        if (plain_block[7] != plain_block[result])
+            return result;
+        else
+            plain_block[result] = 0;
+    }
+    return result;
+}
+
 void        des_ecb_decrypt(t_ft_ssl_mode *ssl_mode, int fd, unsigned long *r_k)
 {
+    unsigned long block;
+    unsigned long result;
+    unsigned long tmp_block = 0;
+    int cpt = 0;
+    char buffer[32];
+    unsigned long tmp_buffer[3]; // 3 * 8 = 24
+    ssize_t readed = 0;
+    int buffer_size;
+    int last_blocks_size = 0;
+    ssize_t last_block_size = 0;
+
+    // ft_bzero(tmp_blocks, 3*8);
+    ft_bzero(tmp_buffer, 24);
+    ft_bzero(buffer, 32);
+
     // reverse round key
     reverse_round_key(r_k);
-    
+    // printf("\n\n\n");
+    // display_key(r_k);
 
+    result = 0;
+
+    while ((readed = utils_read(0, buffer, 32)) == 32)
+    {
+        if (tmp_buffer[0] != 0)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                printf("in for loop: i = %d\n", i);
+                result = encrypt_block(swap64(tmp_buffer[i]), r_k);
+                write(1, &result, 8);
+            }
+        }
+
+        block = 0;
+        ft_bzero(tmp_buffer, 24);
+        // write(1, &buffer, 4);
+        b64_to_three_bytes(buffer, (char *)tmp_buffer, 32, 0);
+        // write(1, &tmp_buffer, 24);
+        
+        // ----
+        // with 24 we can constitute 3 blocks
+        // ----
+
+        // for (int i = 0; i < 3; i++)
+        // {
+        //     // printf("in for loop: i = %d\n", i);
+        //     result = encrypt_block(swap64(tmp_buffer[i]), r_k);
+        //     write(1, &result, 8);
+        // }
+
+        // ft_memcpy(&block, buffer, 8);
+        // b64_to_three_bytes()
+        // result = encrypt_block(swap64(block), r_k);
+        // tmp_blocks[cpt++] = result;
+        // if (cpt == 3)
+        //     print_cipher_b64(tmp_blocks, &cpt);
+    }
+    // printf("readed ? %d", readed);
+
+    // ----
+    // with the rest we constitute n blocks who n < 3 (8 by block)
+    // ----
+    if (readed >= 0)
+    {
+        if (tmp_buffer[0] != 0)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                // printf("in for loop: i = %d\n", i);
+                result = encrypt_block(swap64(tmp_buffer[i]), r_k);
+
+                if (i == 2 && readed == 0)
+                {
+                    last_block_size = unpad((unsigned char*)&result);
+                    write(1, &result, last_block_size);
+                    return;
+                } else write(1, &result, 8);
+            } 
+        }
+
+        // printf("last = %d\n", readed);
+        block = 0;
+        b64_to_three_bytes(buffer, (char *)tmp_buffer, readed, 0);
+        // write(1, &tmp_buffer, 24);
+        last_blocks_size = (readed/8 - 1) == 0 ? 1 : (readed/8 - 1 );
+        // printf("readed = %d\n", readed);
+        // printf("last_blocks_size = %d\n", last_blocks_size);
+        for (int i = 0; i < last_blocks_size; i++)
+        {
+            // printf("%d\n", i);
+            result = 0;
+            // ft_memcpy(&tmp_block, tmp_buffer + i, r_k);
+            result = encrypt_block(swap64(tmp_buffer[i]), r_k);
+
+            // printf("\n%d is last ?", i + 1);
+            if (i + 1 == last_blocks_size) { // process last block padding
+                // printf("\nin if for unpad ?");
+                last_block_size = unpad((unsigned char*)&result);
+                // printf("\n%llu", last_block_size);
+                write(1, &result, last_block_size);
+            } else {
+                write(1, &result, 8);
+            }
+            // printf("\nin for loop: i = %d\n", i);
+            // tmp_buffer + 8;
+        }
+    }
+    // b64_to_three_bytes(buffer, tmp_buffer, 32, 1);
+    // write(1, &tmp_buffer, 24);
 }
 
 void        des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name)
@@ -375,6 +490,12 @@ void        des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type
     // process round key
     process_round_keys(key_long_hex, r_k);
 
+    // display_key(r_k);
+
     if (ssl_mode->decode_mode == 1) des_ecb_decrypt(ssl_mode, fd, r_k);
     else des_ecb_encrypt(ssl_mode, fd, r_k);
 }
+
+
+// 19MxvOqWjYMIb5oddMlNTg==
+// 19MxvOqWjYNHeFUfjsEQanFDEiqjQsHb

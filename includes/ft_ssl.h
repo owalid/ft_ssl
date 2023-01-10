@@ -81,6 +81,8 @@ void    			sha512_process_firsts_blocks(void *raw_w, void *raw_hash);
 // base64.c
 void    			base64_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
 void 				three_bytes_to_b64(char *raw_input, ssize_t readed, int print);
+void 				b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int print);
+
 
 
 // ecb.c
