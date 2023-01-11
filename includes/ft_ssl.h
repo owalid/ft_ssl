@@ -15,8 +15,9 @@
 
 # define ERROR_FILE "No such file or directory: "
 # define ERROR_STR_OPT "Option -s should have an string as parameters.\n"
-# define ERROR_DES_KEY_NO_HEX "Key error: non-hex digit"
+# define ERROR_DES_NO_HEX "non-hex digit"
 # define ERROR_DES_KEY_NO_PROVIDED "Key error: Key is required"
+# define ERROR_DES_SALT_NO_PROVIDED "Salt error: Salt is required"
 # define ERROR_DIR_READ "Read error in "
 # define ERROR_OUTPUT_FILE_NOT_FOUND "Error output file"
 # define ERROR_INPUT_FILE_NOT_FOUND "Error output file"
@@ -25,8 +26,8 @@
 // ---
 // WARNING
 // ---
-# define WARNING_DES_KEY_TO_SHORT "Warning: key hexa to short, padding with zero bytes to length\n"
-# define WARNING_DES_KEY_TO_LONG "Warning: key string to long, ignoring excess\n"
+# define WARNING_DES_KEY_TO_SHORT "Warning: hexa string too short, padding with zero bytes to length\n"
+# define WARNING_DES_KEY_TO_LONG "Warning: hexa string too long, ignoring excess\n"
 
 // ---
 // OTHERS
@@ -60,8 +61,8 @@ typedef struct		s_ft_ssl_mode
 	int				decode_mode;
 	int				encode_mode;
 	unsigned long	key;
-	int				password;
-	int				salt;
+	int				have_password;
+	int				have_salt;
 	int				iv;
 	int				des_b64;
 }					t_ft_ssl_mode;
@@ -103,6 +104,10 @@ void    			sha512_process_firsts_blocks(void *raw_w, void *raw_hash);
 void    			base64_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
 void 				three_bytes_to_b64(char *raw_input, ssize_t readed, int print, int fd);
 ssize_t 			b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int print, int fd);
+
+
+// === PBKDF ===
+unsigned long    	process_pbkdf(char *pass, char *raw_salt, int stdin_mode);
 
 
 

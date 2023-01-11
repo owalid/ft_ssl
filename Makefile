@@ -5,7 +5,8 @@ SRC		= main.c \
 			base64.c \
 			process.c \
 			des_ecb.c \
-			utils.c
+			utils.c \
+			pbkdf.c
 
 OBJ		= $(addprefix $(OBJDIR),$(SRC:.c=.o))
 

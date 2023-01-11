@@ -34,7 +34,7 @@ ssize_t b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int prin
             {
                 input[i] = 0;
                 result_size--;
-            }else
+            } else
                 input[i] = what_in_my_b64(input[i]);
         }
 
