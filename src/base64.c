@@ -12,7 +12,7 @@ unsigned char  what_in_my_b64(int b64_c)
     }
 }
 
-void b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int print)
+ssize_t b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int print)
 {
     // raw_input size is 4
     // output size is 3
@@ -20,6 +20,7 @@ void b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int print)
     unsigned char input[4];
     unsigned char output[4];
     int i = 0, j = 0;
+    ssize_t result_size = readed;
 
     for (; i < readed; i += 4, j += 3)
     {
@@ -30,8 +31,10 @@ void b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int print)
         for (int i = 0; i < 4; i++)
         {
             if (input[i] == b64_charset[64])
+            {
                 input[i] = 0;
-            else
+                result_size--;
+            }else
                 input[i] = what_in_my_b64(input[i]);
         }
 
@@ -42,6 +45,7 @@ void b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int print)
         if (print == 1) write(1, &output, 3);
         else ft_memcpy(dest + j, output, 3);
     }
+    return result_size;
 }
 
 void three_bytes_to_b64(char *raw_input, ssize_t readed, int print)
