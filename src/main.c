@@ -13,21 +13,14 @@ void ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
             ssl_mode->reverse_mode = 1;
         } else if (ft_strcmp(argv[i], "-p") == 0) {
             ssl_mode->std_mode = 1;
-        } else if (ft_strcmp(argv[i], "-s") == 0) {
+        } else if (ft_strcmp(argv[i], "-s") == 0 || ft_strcmp(argv[i], "-i") == 0
+                    || ft_strcmp(argv[i], "-o") == 0 || ft_strcmp(argv[i], "-k") == 0) { // need to be process after
             i++;
             continue;
         } else if (ft_strcmp(argv[i], "-d") == 0) {
             ssl_mode->decode_mode = 1;
         } else if (ft_strcmp(argv[i], "-e") == 0) {
             ssl_mode->encode_mode = 1;
-        } else if (ft_strcmp(argv[i], "-i") == 0) {
-            ssl_mode->input_file = i+1;
-            i++;
-        } else if (ft_strcmp(argv[i], "-o") == 0) {
-            ssl_mode->output_file = i+1;
-            i++;
-        } else if (ft_strcmp(argv[i], "-k") == 0) {
-            i++;
         } else if (ft_strcmp(argv[i], "-a") == 0) {
             ssl_mode->des_b64 = 1;
         } else if (argv[i][0] == '-') {
@@ -99,37 +92,84 @@ int main(int argc, char **argv) {
             if (ft_strcmp(argv[1], g_ftssl_des_op[i].name) == 0 && argc >= 2) {
                 ft_search_modes(argv, argc, ssl_mode); // extract modes options
                 flag = 1;
+                int flag_key = 0;
 
                 for (int j = 2; j < argc; j++) {
-                    if (ft_strcmp(argv[j], "-k") == 0 && argc < j + 1)
-                    {
-                        ft_putstr(ERROR_DES_KEY_NO_PROVIDED);
-                        exit(0);                        
-                    }
-                    if (ft_strcmp(argv[j], "-k") == 0) { // process as key
-                        ssl_mode->key = ft_hextoi(argv[j + 1]);
+                    if (ft_strcmp(argv[j], "-k") == 0 && flag_key == 0) { // process as key
+                        if (argc < j + 1)
+                        {
+                            ft_putstr(ERROR_DES_KEY_NO_PROVIDED);
+                            exit(0);  
+                        }
+
+                        // generate key and padd if the len of argv[j+1] is < 16
+                        char tmp_key[17]; // 17 for \0
+                        ssize_t result_hex = 0;
                         int len_key = ft_strlen(argv[j + 1]);
-                        if (ssl_mode->key == -1)
+                        ft_bzero(tmp_key, 17);
+                        ft_memset(tmp_key, '0', 16);
+                        ft_memcpy(tmp_key, argv[j + 1], (len_key > 16) ? 16 : len_key); // ignoring excess after len 16
+
+                        result_hex = ft_hextol(tmp_key);
+                        if (result_hex < -1 || len_key < 0)
                         {
                             ft_putstr(ERROR_DES_KEY_NO_HEX);
                             exit(1);
-                        } else if (len_key < 16 && len_key > 0)
+                        } else if (len_key < 16) ft_putstr(WARNING_DES_KEY_TO_SHORT);
+                        else if (len_key > 16) ft_putstr(WARNING_DES_KEY_TO_LONG);
+
+                        ssl_mode->key = result_hex;
+                        j++;
+                        flag_key = 1;
+                    } else if (ft_strcmp(argv[j], "-o") == 0 && ssl_mode->output_fd == 0) { // process output file
+                        if (argv[j + 1])
                         {
-                            ft_bzero(ssl_mode->key + len_key, 16 - len_key);
-                            ft_putstr(WARNING_DES_KEY_TO_SHORT);
+                            ssl_mode->output_fd = open(argv[j + 1], O_WRONLY | O_CREAT, 0777);
+                            if (ssl_mode->output_fd == -1)
+                            {
+                                ft_putstr(ERROR_FILE);
+                                ft_putstr(argv[j + 1]);
+                                ft_putchar('\n');
+                            }
+                        } else {
+                            ft_putstr(ERROR_OUTPUT_FILE_NOT_FOUND);
+                            exit(1);
+                        }
+                        j++;
+                    } else if (ft_strcmp(argv[j], "-i") == 0 && ssl_mode->output_fd == 0) { // process input file
+                        if (argv[j + 1])
+                        {
+                            ssl_mode->input_fd = open(argv[j + 1], O_RDONLY);
+                            if (ssl_mode->input_fd == -1)
+                            {
+                                ft_putstr(ERROR_FILE);
+                                ft_putstr(argv[j + 1]);
+                                ft_putchar('\n');
+                            }
+                        } else {
+                            ft_putstr(ERROR_INPUT_FILE_NOT_FOUND);
+                            exit(1);
                         }
                         j++;
                     }
                 }
 
-                if (ssl_mode->key == 0 && ft_strstr(argv[1], "des-ecb"))
-                {
-                    ft_putstr(ERROR_DES_KEY_NO_PROVIDED);
-                    exit(0);
-                }
+                // if (ssl_mode->key == 0 && ft_strstr(argv[1], "des-ecb"))
+                // {
+                //     ft_putstr(ERROR_DES_KEY_NO_PROVIDED);
+                //     exit(0);
+                // }
+
+                ssl_mode->output_fd = (ssl_mode->output_fd == 0) ? 1 : ssl_mode->output_fd == 0;
                 // t_ft_ssl_mode ssl_mode[1];
                 // ft_bzero(&ssl_mode, sizeof(t_ft_ssl_mode));
                 g_ftssl_des_op[i].ft_ssl_process(argv[2], ssl_mode, 0, g_ftssl_digest_op[i].name);
+
+                // TODO MAKE THESE LINE IN FUNCTION EXIT_MAIN_PROCESS
+                if (ssl_mode->input_fd > 0)
+                    close(ssl_mode->input_fd);
+                if (ssl_mode->output_fd > 1)
+                    close(ssl_mode->output_fd);
             }
         }
         if (flag == 0) { // error if digest algorithm not found

@@ -294,19 +294,19 @@ void        display_key(unsigned long *r_k)
         printf("r_k[%d]\t= %lu\n", i, r_k[i]);
 }
 
-void        print_cipher_b64(unsigned long* blocks, int* len_block)
+void        print_cipher_b64(unsigned long* blocks, int* len_block, int fd)
 {
     // 8 char in an unsigned long (8*8)
-    three_bytes_to_b64((char *)blocks, (*len_block)*8, 1);
+    three_bytes_to_b64((char *)blocks, (*len_block)*8, 1, fd);
     ft_bzero(blocks, 3*8);
     *len_block = 0;
 }
 
 
-void    print_cipher_raw(unsigned long* blocks, int *len_block)
+void    print_cipher_raw(unsigned long* blocks, int *len_block, int fd)
 { 
     for (int i = 0; i < *len_block; i++)
-        write(1, &blocks[i], 8);
+        write(fd, &blocks[i], 8);
 
     ft_bzero(blocks, 3*8);
     *len_block = 0;
@@ -323,7 +323,7 @@ void        reverse_round_key(unsigned long *r_k)
         r_k[i] = tmp_r_k[j];
 }
 
-void        des_ecb_encrypt(t_ft_ssl_mode *ssl_mode, int fd, unsigned long *r_k)
+void        des_ecb_encrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k)
 {
     //  ======== Process key =========
     unsigned long block;
@@ -337,16 +337,22 @@ void        des_ecb_encrypt(t_ft_ssl_mode *ssl_mode, int fd, unsigned long *r_k)
     ft_bzero(buff_blocks, 3*8);
     ft_bzero(buffer, 8);
 
-    while ((readed = utils_read(0, buffer, 8, 0)) == 8)
+    while ((readed = utils_read(ssl_mode->input_fd, buffer, 8, 0)) == 8)
     {
         block = 0;
         ft_memcpy(&block, buffer, 8);
         result = encrypt_block(swap64(block), r_k);
         ft_memcpy(&buff_blocks[cpt++], &result, 8);
         if (cpt == 3) {
-            if (ssl_mode->des_b64 == 1) print_cipher_b64(buff_blocks, &cpt);
-            else print_cipher_raw(buff_blocks, &cpt);
+            if (ssl_mode->des_b64 == 1) print_cipher_b64(buff_blocks, &cpt, ssl_mode->output_fd);
+            else print_cipher_raw(buff_blocks, &cpt, ssl_mode->output_fd);
         }
+    }
+    
+    if (readed < 0) {
+        ft_putstr(ERROR_READ_GLOBAL);
+        ft_putchar('\n');
+        exit(2);
     }
 
     // check readed and process padding
@@ -358,8 +364,8 @@ void        des_ecb_encrypt(t_ft_ssl_mode *ssl_mode, int fd, unsigned long *r_k)
         result = encrypt_block(swap64(block), r_k);
         ft_memcpy(&buff_blocks[cpt++], &result, 8);
     }
-    if (ssl_mode->des_b64 == 1) print_cipher_b64(buff_blocks, &cpt);
-    else print_cipher_raw(buff_blocks, &cpt);
+    if (ssl_mode->des_b64 == 1) print_cipher_b64(buff_blocks, &cpt, ssl_mode->output_fd);
+    else print_cipher_raw(buff_blocks, &cpt, ssl_mode->output_fd);
 }
 
 ssize_t     unpad(unsigned char *plain_block)
@@ -378,7 +384,7 @@ ssize_t     unpad(unsigned char *plain_block)
     return result + 1;
 }
 
-void        des_ecb_decrypt(t_ft_ssl_mode *ssl_mode, int fd, unsigned long *r_k)
+void        des_ecb_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k)
 {
     unsigned long block;
     unsigned long result;
@@ -399,7 +405,7 @@ void        des_ecb_decrypt(t_ft_ssl_mode *ssl_mode, int fd, unsigned long *r_k)
 
     result = 0;
 
-    while ((readed = utils_read(0, buffer, 32, ssl_mode->des_b64)) == 32)
+    while ((readed = utils_read(ssl_mode->input_fd, buffer, 32, ssl_mode->des_b64)) == 32)
     {
         // ----
         // with 24 we can constitute 3 blocks
@@ -409,20 +415,24 @@ void        des_ecb_decrypt(t_ft_ssl_mode *ssl_mode, int fd, unsigned long *r_k)
         {
             for (int i = 0; i < 4 - ssl_mode->des_b64; i++)
             {
-                // printf("wesh alors");
-                // write(1, &tmp_buffer[i], 8);
                 result = encrypt_block(swap64(tmp_buffer[i]), r_k);
-                write(1, &result, 8);
+                write(ssl_mode->output_fd, &result, 8);
             }
         }
 
         ft_bzero(tmp_buffer, 32);
-        if (ssl_mode->des_b64 == 1) b64_to_three_bytes(buffer, (char *)tmp_buffer, 32, 0); // 8 * 3 = 24
+        if (ssl_mode->des_b64 == 1) b64_to_three_bytes(buffer, (char *)tmp_buffer, 32, 0, 0); // 8 * 3 = 24
         else {
             for (int i = 0; i < 4; i++) // 8 * 4 = 32
                 ft_memcpy(&tmp_buffer[i], buffer + (i*8), 8);
         }
         flag_buffer_filled = 1;
+    }
+
+    if (readed < 0) {
+        ft_putstr(ERROR_READ_GLOBAL);
+        ft_putchar('\n');
+        exit(2);
     }
 
     // ----
@@ -440,15 +450,15 @@ void        des_ecb_decrypt(t_ft_ssl_mode *ssl_mode, int fd, unsigned long *r_k)
                 if (i == (4 - ssl_mode->des_b64) - 1 && readed == 0) // -1 to get last block
                 {
                     last_block_size = unpad((unsigned char*)&result);
-                    write(1, &result, last_block_size);
+                    write(ssl_mode->output_fd, &result, last_block_size);
                     return;
-                } else write(1, &result, 8);
+                } else write(ssl_mode->output_fd, &result, 8);
             }
             ft_bzero(tmp_buffer, 4*8);
         }
 
         
-        if (ssl_mode->des_b64 == 1) b64_to_three_bytes(buffer, (char *)tmp_buffer, readed, 0);
+        if (ssl_mode->des_b64 == 1) b64_to_three_bytes(buffer, (char *)tmp_buffer, readed, 0, 0);
         else {
             int j = 0;
             for (int i = 0; i < readed; j++, i += 8)
@@ -464,15 +474,14 @@ void        des_ecb_decrypt(t_ft_ssl_mode *ssl_mode, int fd, unsigned long *r_k)
             
             if (i + 1 == last_blocks_size) { // process last block padding
                 last_block_size = unpad((unsigned char*)&result);
-                write(1, &result, last_block_size);
-            } else write(1, &result, 8);
+                write(ssl_mode->output_fd, &result, last_block_size);
+            } else write(ssl_mode->output_fd, &result, 8);
         }
     }
 }
 
 void        des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name)
 {
-    int fd = (ssl_mode->input_file != 0) ? open(input, O_RDONLY) : 0;
     unsigned long r_k[16];
 
     ft_bzero(r_k, 16*8);
@@ -482,6 +491,6 @@ void        des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type
 
     // display_key(r_k);
 
-    if (ssl_mode->decode_mode == 1) des_ecb_decrypt(ssl_mode, fd, r_k);
-    else des_ecb_encrypt(ssl_mode, fd, r_k);
+    if (ssl_mode->decode_mode == 1) des_ecb_decrypt(ssl_mode, r_k);
+    else des_ecb_encrypt(ssl_mode, r_k);
 }

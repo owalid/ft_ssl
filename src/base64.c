@@ -12,7 +12,7 @@ unsigned char  what_in_my_b64(int b64_c)
     }
 }
 
-ssize_t b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int print)
+ssize_t b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int print, int fd)
 {
     // raw_input size is 4
     // output size is 3
@@ -42,13 +42,13 @@ ssize_t b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int prin
         output[1] = input[1] << 4 | input[2] >> 2; 
         output[2] = input[2] << 6 | (input[3]);
 
-        if (print == 1) write(1, &output, 3);
+        if (print == 1 && fd > 0) write(fd, &output, 3);
         else ft_memcpy(dest + j, output, 3);
     }
     return result_size;
 }
 
-void three_bytes_to_b64(char *raw_input, ssize_t readed, int print)
+void three_bytes_to_b64(char *raw_input, ssize_t readed, int print, int fd)
 {
     // raw_input size is between 1 to 3
     // output size is 4
@@ -82,19 +82,25 @@ void three_bytes_to_b64(char *raw_input, ssize_t readed, int print)
             output[3] = b64_charset[input[2] & 0b00111111];
         }
 
-        write(1, &output, 4);
+        write(fd, &output, 4);
     }
 }
 
-void    base64_process_dispatch(t_ft_ssl_mode *ssl_mode, int fd, int char_size)
+void    base64_process_dispatch(t_ft_ssl_mode *ssl_mode, int char_size)
 {
     unsigned char tmp[4], output[4];
     int readed = 0;
     
-    while ((readed = utils_read(fd, tmp, char_size, ssl_mode->decode_mode)) > 0)
+    while ((readed = utils_read(ssl_mode->input_fd, tmp, char_size, ssl_mode->decode_mode)) > 0)
     {
-        if (char_size == 4) b64_to_three_bytes(tmp, output, readed, 1); // decode
-        else  three_bytes_to_b64(tmp, readed, 0); // encode
+        if (char_size == 4) b64_to_three_bytes(tmp, output, readed, 1, ssl_mode->output_fd); // decode
+        else  three_bytes_to_b64(tmp, readed, 0, ssl_mode->output_fd); // encode
+    }
+
+    if (readed < 0) {
+        ft_putstr(ERROR_READ_GLOBAL);
+        ft_putchar('\n');
+        exit(2);
     }
 
     putchar('\n');
@@ -103,8 +109,6 @@ void    base64_process_dispatch(t_ft_ssl_mode *ssl_mode, int fd, int char_size)
 
 void    base64_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name)
 {
-    int fd = (ssl_mode->input_file != 0) ? open(input, O_RDONLY) : 0; 
-
-    if (ssl_mode->decode_mode == 1) base64_process_dispatch(ssl_mode, fd, 4); // decode
-    else  base64_process_dispatch(ssl_mode, fd, 3); // encode
+    if (ssl_mode->decode_mode == 1) base64_process_dispatch(ssl_mode, 4); // decode
+    else  base64_process_dispatch(ssl_mode, 3); // encode
 }

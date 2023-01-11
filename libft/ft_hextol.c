@@ -1,7 +1,7 @@
 #include "libft.h"
 
 
-size_t      ft_hextoi(char *str)
+ssize_t      ft_hextol(char *str)
 {
 	size_t		    result = 0;
     int             len_str = ft_strlen(str);
