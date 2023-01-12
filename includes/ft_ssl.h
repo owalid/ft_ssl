@@ -121,7 +121,24 @@ void    			des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type,
 
 
 // des_cbc.c
-void        		des_cbc_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
+void        		des_cbc_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);\
+
+
+// === CIPHER PROCESS ===
+void        		des_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mode);
+void        		des_encrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mode);
+unsigned long* 		process_round_keys(unsigned long key, unsigned long *round_k);
+
+
+// === DES UTILS ===
+
+ssize_t     unpad(unsigned char *plain_block);
+void        pad_block(unsigned char *input, ssize_t len_input);
+void        display_key(unsigned long *r_k);
+void        print_cipher_b64(unsigned long* blocks, int* len_block, int fd);
+void    	print_cipher_raw(unsigned long* blocks, int *len_block, int fd);
+void        reverse_round_key(unsigned long *r_k);
+
 
 // TODO REMOVE ONLY DEBUG
 

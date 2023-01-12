@@ -2,10 +2,9 @@ NAME	= ft_ssl
 
 SRC		= main.c \
 			md5.c sha224.c sha256.c sha384.c sha512.c \
-			base64.c \
-			process.c \
-			des_ecb.c des_cbc.c \
-			utils.c \
+			digest_process.c cipher_process.c \
+			base64.c des_ecb.c des_cbc.c \
+			utils.c cipher_utils.c \
 			pbkdf.c
 
 OBJ		= $(addprefix $(OBJDIR),$(SRC:.c=.o))

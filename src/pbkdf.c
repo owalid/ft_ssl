@@ -28,10 +28,9 @@ unsigned long   process_rounds(char *password, unsigned long salt, int dk_len)
         ft_memcpy(concat_str + size_password + 8, &l, 4);
 
         last_u = simple_sha512(concat_str);
-
         t_i = last_u;
 
-        for (int i = 0; i < 4096; i++)
+        for (int i = 0; i < 4096; i++) // process F function
         {
             // concatenate password with last_u
             ft_bzero(concat_str, total_len_concat);
@@ -64,7 +63,6 @@ unsigned long    process_pbkdf(char *pass, char *raw_salt, int stdin_mode)
     srand(time(NULL));
     ft_bzero(salt_str, 17);
 
-    // printf("%s\n", raw_salt);
     if (raw_salt != 0)
     {
         ft_memcpy(salt_str, raw_salt, 16);
@@ -76,7 +74,6 @@ unsigned long    process_pbkdf(char *pass, char *raw_salt, int stdin_mode)
 
     if (stdin_mode)
     {
-        // todo need to read
         char tmp_password[4096];
         char *stdin_password = tmp_password;
 
@@ -87,14 +84,7 @@ unsigned long    process_pbkdf(char *pass, char *raw_salt, int stdin_mode)
 
         derived_key = process_rounds(stdin_password, salt_number, tdk_len);
         free(stdin_password);
-    } else {
-        len_pass = ft_strlen(pass);
-        tdk_len = ((len_pass / 128) == 0) ? 1 : (len_pass / 128); // get len of blocks for sha512
-        derived_key = process_rounds(pass, salt_number, tdk_len);
-        return derived_key;
-    }
 
-    if (stdin_mode) {
         // display as 
         // salt=...
         // key=...
@@ -104,5 +94,11 @@ unsigned long    process_pbkdf(char *pass, char *raw_salt, int stdin_mode)
         print_hash_64(derived_key, 0);
         ft_putchar('\n');
         exit(0);
+    } else {
+        len_pass = ft_strlen(pass);
+        tdk_len = ((len_pass / 128) == 0) ? 1 : (len_pass / 128); // get len of blocks for sha512
+        derived_key = process_rounds(pass, salt_number, tdk_len);
+     
+        return derived_key;
     }
 }

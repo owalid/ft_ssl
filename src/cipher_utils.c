@@ -1,0 +1,62 @@
+# include "ft_ssl.h"
+# include "libft.h"
+
+ssize_t     unpad(unsigned char *plain_block)
+{
+    ssize_t result = 6;
+    char last_char = plain_block[7];
+    plain_block[7] = 0;
+
+    for (;result >= 0; result--)
+    {
+        if (last_char != plain_block[result])
+            return result + 1;
+        else
+            plain_block[result] = 0;
+    }
+    return result + 1;
+}
+
+void        pad_block(unsigned char *input, ssize_t len_input)
+{
+    int diff = 8 - len_input;
+    int i = len_input % 8;
+    for (; i < 8; i++)
+        input[i] = diff;
+}
+
+void        display_key(unsigned long *r_k)
+{
+    for (int i=0; i < 16; i++)
+        printf("r_k[%d]\t= %lu\n", i, r_k[i]);
+}
+
+void        print_cipher_b64(unsigned long* blocks, int* len_block, int fd)
+{
+    // 8 char in an unsigned long (8*8)
+    three_bytes_to_b64((char *)blocks, (*len_block)*8, 1, fd);
+    ft_bzero(blocks, 3*8);
+    *len_block = 0;
+}
+
+
+void    print_cipher_raw(unsigned long* blocks, int *len_block, int fd)
+{ 
+    for (int i = 0; i < *len_block; i++)
+        write(fd, &blocks[i], 8);
+
+    ft_bzero(blocks, 3*8);
+    *len_block = 0;
+}
+
+void        reverse_round_key(unsigned long *r_k)
+{
+    // use in description
+    unsigned long tmp_r_k[16];
+    ft_bzero(tmp_r_k, 16*8);
+
+    for (int i = 0; i < 16; i++)
+        tmp_r_k[i] = r_k[i];
+    for (int i = 15, j = 0; j < 16; i--, j++)
+        r_k[i] = tmp_r_k[j];
+}
