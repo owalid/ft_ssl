@@ -313,12 +313,17 @@ void        des_encrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
     // check readed and process padding
     if (readed >= 0)
     {
-        // TODO NEED TO XOR WITH IV BEFORE PADDING
         block = 0;
-        pad_block(buffer, readed);
-        ft_memcpy(&block, buffer, 8);
-        if (cbc_mode) result = encrypt_block(swap64(block) ^ ssl_mode->iv, r_k);
-        else result = encrypt_block(swap64(block), r_k);
+        if (cbc_mode)
+        {         // TODO REDO THIS PART
+            ft_memcpy(&block, buffer, 8);
+            block ^= ssl_mode->iv;
+            pad_block((char*)&block, readed);
+        } else {
+            pad_block(buffer, readed);
+            ft_memcpy(&block, buffer, 8);
+        }
+        result = encrypt_block(swap64(block), r_k);
         ssl_mode->iv = result;
         ft_memcpy(&buff_blocks[cpt++], &result, 8);
     }
