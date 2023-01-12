@@ -200,7 +200,6 @@ int main(int argc, char **argv) {
                 if (ssl_mode->key == 0)
                     ssl_mode->key = process_pbkdf(argv[password_index], (ssl_mode->have_salt == 1) ? tmp_salt : NULL, (ssl_mode->have_password == 0 || ssl_mode->have_salt == 0));
 
-                printf("\nssl->key: %lu\n", ssl_mode->key);
                 ssl_mode->output_fd = (ssl_mode->output_fd == 0) ? 1 : ssl_mode->output_fd;
                 g_ftssl_des_op[i].ft_ssl_process(argv[2], ssl_mode, 0, g_ftssl_digest_op[i].name);
 

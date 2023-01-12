@@ -44,7 +44,7 @@ unsigned long   process_rounds(char *password, unsigned long salt, int dk_len)
         result += t_i;
     }
     free(concat_str);
-    
+
     return result;
 }
 
@@ -90,10 +90,7 @@ unsigned long    process_pbkdf(char *pass, char *raw_salt, int stdin_mode)
     } else {
         len_pass = ft_strlen(pass);
         tdk_len = ((len_pass / 128) == 0) ? 1 : (len_pass / 128); // get len of blocks for sha512
-        printf("\ntdk_len: %u|", tdk_len);
-        printf("len_pass: %d", len_pass);
         derived_key = process_rounds(pass, salt_number, tdk_len);
-        // print_hash_64(derived_key, 0);
         return derived_key;
     }
 
