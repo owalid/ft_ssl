@@ -36,7 +36,7 @@ unsigned long   process_rounds(char *password, unsigned long salt, int dk_len)
             // concatenate password with last_u
             ft_bzero(concat_str, total_len_concat);
             ft_memcpy(concat_str, password, size_password);
-            ft_memcpy(concat_str + size_password, &last_u, 64);
+            ft_memcpy(concat_str + size_password, &last_u, 8);
             last_u = simple_sha512(concat_str);
             t_i ^= last_u;
         }

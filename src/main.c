@@ -14,7 +14,8 @@ void ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
         } else if (ft_strcmp(argv[i], "-p") == 0) {
             ssl_mode->std_mode = 1;
         } else if (ft_strcmp(argv[i], "-s") == 0 || ft_strcmp(argv[i], "-i") == 0
-                    || ft_strcmp(argv[i], "-o") == 0 || ft_strcmp(argv[i], "-k") == 0) { // need to be process after
+                    || ft_strcmp(argv[i], "-o") == 0 || ft_strcmp(argv[i], "-k") == 0
+                    || ft_strcmp(argv[i], "-v") == 0) { // need to be process after
             i++;
             continue;
         } else if (ft_strcmp(argv[i], "-d") == 0) {
@@ -56,7 +57,7 @@ int main(int argc, char **argv) {
     int flag = 0;
     int s_flag = 0; // check if we have already an -s options
     int op_dig_size = sizeof(g_ftssl_digest_op) / sizeof(g_ftssl_digest_op[0]); // get size of array of digest algorithms
-    int op_des_size = sizeof(g_ftssl_des_op) / sizeof(g_ftssl_des_op[0]); // get size of array of digest algorithms
+    int op_des_size = sizeof(g_ftssl_des_op) / sizeof(g_ftssl_des_op[0]); // get size of array of ciphers algorithms
 
     t_ft_ssl_mode ssl_mode[1];
     ft_bzero(&ssl_mode, sizeof(t_ft_ssl_mode));
@@ -116,6 +117,7 @@ int main(int argc, char **argv) {
                 int should_read_stdin_pass = 0;
                 int password_index = 0;
                 char tmp_salt[17]; // 17 for \0
+                char tmp_iv[17]; // 17 for \0
 
 
                 for (int j = 2; j < argc; j++) {
@@ -168,14 +170,10 @@ int main(int argc, char **argv) {
                         j++;
                     } else if (ft_strcmp(argv[j], "-p") == 0) {
                         ssl_mode->have_password = 1;
-                        if (!argv[j + 1])
-                        {
-                            // read in stdin
+                        if (!argv[j + 1]) // read in stdin
                             should_read_stdin_pass = 1;
-                        } else {
-                            // process as password
+                        else // process as password
                             password_index = j + 1;
-                        }
                     } else if (ft_strcmp(argv[j], "-s") == 0) {
                         if (argc > j + 1)
                         {
@@ -189,14 +187,24 @@ int main(int argc, char **argv) {
                             exit(0);
                         }
                         j++;
+                    } else if (ft_strcmp(argv[j], "-v") == 0) {
+                        if (!argv[j + 1])
+                        {
+                            ft_putstr(ERROR_DES_IV_NO_PROVIDED);
+                            exit(0);
+                        }
+
+                        // generate iv and padd if the len of argv[j + 1] is < 16
+                        ssl_mode->iv = gen_key_padding(argv[j + 1], tmp_iv);
+                        j++;
                     }
                 }
 
-                // if (ssl_mode->key == 0 && ft_strstr(argv[1], "des-ecb"))
-                // {
-                //     ft_putstr(ERROR_DES_KEY_NO_PROVIDED);
-                //     exit(0);
-                // }
+                if (ssl_mode->iv == 0 && (ft_strcmp(argv[1], "des-cbc") == 0 || ft_strcmp(argv[1], "des") == 0))
+                {
+                    ft_putstr(ERROR_DES_IV_NO_PROVIDED);
+                    exit(0);
+                }
                 if (ssl_mode->key == 0)
                     ssl_mode->key = process_pbkdf(argv[password_index], (ssl_mode->have_salt == 1) ? tmp_salt : NULL, (ssl_mode->have_password == 0 || ssl_mode->have_salt == 0));
 

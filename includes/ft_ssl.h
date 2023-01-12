@@ -19,6 +19,7 @@
 # define ERROR_DES_NO_HEX "non-hex digit"
 # define ERROR_DES_KEY_NO_PROVIDED "Key error: Key is required"
 # define ERROR_DES_SALT_NO_PROVIDED "Salt error: Salt is required"
+# define ERROR_DES_IV_NO_PROVIDED "IV error: Initial vector is required"
 # define ERROR_DIR_READ "Read error in "
 # define ERROR_OUTPUT_FILE_NOT_FOUND "Error output file"
 # define ERROR_INPUT_FILE_NOT_FOUND "Error output file"
@@ -36,6 +37,8 @@
 # define USAGE "Usage: ft_ssl algorithm [options] [file...]\n\n\
 Message Digest algorithm:\n\
 md5, sha256, sha224, sha384, sha512.\n\n\
+Cipher commands:\n\
+base64, des, des-ecb, des-cbc\n\n\
 General options: \n\
 -help Display this summary\n\
 -list List digests\n\n\
@@ -64,7 +67,7 @@ typedef struct		s_ft_ssl_mode
 	unsigned long	key;
 	int				have_password;
 	int				have_salt;
-	int				iv;
+	unsigned long	iv;
 	int				des_b64;
 }					t_ft_ssl_mode;
 
@@ -100,6 +103,12 @@ void    			sha512_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, 
 void    			sha512_process_firsts_blocks(void *raw_w, void *raw_hash);
 unsigned long 		simple_sha512(char *input);
 
+
+// === PBKDF ===
+
+unsigned long    	process_pbkdf(char *pass, char *raw_salt, int stdin_mode);
+
+
 // === DES ===
 
 // base64.c
@@ -107,15 +116,12 @@ void    			base64_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, 
 void 				three_bytes_to_b64(char *raw_input, ssize_t readed, int print, int fd);
 ssize_t 			b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int print, int fd);
 
-
-// === PBKDF ===
-unsigned long    	process_pbkdf(char *pass, char *raw_salt, int stdin_mode);
-
-
-
-// ecb.c
+// des_ecb.c
 void    			des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
 
+
+// des_cbc.c
+void        		des_cbc_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
 
 // TODO REMOVE ONLY DEBUG
 
