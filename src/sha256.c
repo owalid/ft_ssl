@@ -79,3 +79,33 @@ void    sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, cha
     if (res == 1)
         preprocess_final_output(ssl_mode, algo_name, input_type, input, print_hash_32, vars, 8);
 }
+
+
+unsigned long simple_sha256(char *input)
+{
+    // , char *hash_str
+    unsigned int vars_int[] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
+    unsigned long res = 0;
+    char hash_str[65];
+    ft_bzero(hash_str, 65);
+
+    fn_process(input, 0, 64, vars_int, 1, sha256_process_firsts_blocks, NULL, NULL);
+    char *str;
+
+    for (int i = 0; i < 8; i++)
+    {
+        str = ft_utoa_base(vars_int[i], 16);
+        ft_memcpy(hash_str + i * 8, str, 8);
+        free(str);
+    }
+
+    res = ft_hextol(hash_str);
+    return res;
+}
+
+// unsigned long hmac_sha256(char *input, unsigned long key)
+// {
+
+// }
+
+// 6a09e667bb67ae853c6ef372a54ff53a510e527f9b05688c1f83d9ab5be0cd19

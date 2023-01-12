@@ -4,7 +4,8 @@
 
 # include <fcntl.h>
 # include <stdio.h>
-
+# include <stdlib.h>
+# include <time.h>
 
 // ---
 // ERRORS
@@ -90,6 +91,7 @@ void    			sha224_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, 
 // sha256.c
 void    			sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
 void    			sha256_process_firsts_blocks(void *raw_w, void *raw_hash);
+unsigned long 		simple_sha256(char *input);
 
 // sha384.c
 void    			sha384_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);

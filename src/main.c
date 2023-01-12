@@ -42,7 +42,7 @@ unsigned long gen_key_padding(char *raw_k, char *dest_key)
 
     result_hex = ft_hextol(dest_key);
 
-     if (result_hex < -1 || len_key < 0)
+    if (result_hex == -1 || len_key < 0)
     {
         ft_putstr(ERROR_DES_NO_HEX);
         exit(1);
@@ -177,18 +177,18 @@ int main(int argc, char **argv) {
                             password_index = j + 1;
                         }
                     } else if (ft_strcmp(argv[j], "-s") == 0) {
-                        if (argc < j + 1)
+                        if (argc > j + 1)
                         {
+                            // generate salt and padd if the len of argv[j + 1] is < 16
+                            ssize_t result_hex_salt = 0;
+                            int len_key = ft_strlen(argv[j + 1]);
+                            result_hex_salt = gen_key_padding(argv[j + 1], tmp_salt);
+                            ssl_mode->have_salt = 1;
+                        } else {
                             ft_putstr(ERROR_DES_SALT_NO_PROVIDED);
-                            exit(0);  
+                            exit(0);
                         }
-                        ssl_mode->have_salt = 1;
-
-                        // generate salt and padd if the len of argv[j + 1] is < 16
-                        ssize_t result_hex_salt = 0;
-                        int len_key = ft_strlen(argv[j + 1]);
-
-                        result_hex_salt = gen_key_padding(argv[j + 1], tmp_salt);
+                        j++;
                     }
                 }
 
@@ -198,12 +198,10 @@ int main(int argc, char **argv) {
                 //     exit(0);
                 // }
                 if (ssl_mode->have_password)
-                    ssl_mode->key = process_pbkdf(argv[password_index], tmp_salt, should_read_stdin_pass);
+                    ssl_mode->key = process_pbkdf(argv[password_index], (ssl_mode->have_salt == 1) ? tmp_salt : NULL, should_read_stdin_pass);
 
-                ssl_mode->output_fd = (ssl_mode->output_fd == 0) ? 1 : ssl_mode->output_fd;
-                // t_ft_ssl_mode ssl_mode[1];
-                // ft_bzero(&ssl_mode, sizeof(t_ft_ssl_mode));
-                g_ftssl_des_op[i].ft_ssl_process(argv[2], ssl_mode, 0, g_ftssl_digest_op[i].name);
+                // ssl_mode->output_fd = (ssl_mode->output_fd == 0) ? 1 : ssl_mode->output_fd;
+                // g_ftssl_des_op[i].ft_ssl_process(argv[2], ssl_mode, 0, g_ftssl_digest_op[i].name);
 
                 // TODO MAKE THESE LINE IN FUNCTION EXIT_MAIN_PROCESS
                 if (ssl_mode->input_fd > 0)
