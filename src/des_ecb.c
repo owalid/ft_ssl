@@ -160,13 +160,13 @@ void permutation(unsigned long *input, unsigned long *arr, unsigned int from_s, 
     *input = tmp;
 }
 
-void    print_long(unsigned long n) {
-    for (int index = 0; index < 64; index++) {
-        if (!(index % 8) && index) printf(" ");
-        printf("%d", (n >> (63 - index)) & 1);
-    }
-    printf("\n");
-}
+// void    print_long(unsigned long n) {
+//     for (int index = 0; index < 64; index++) {
+//         if (!(index % 8) && index) printf(" ");
+//         printf("%d", (n >> (63 - index)) & 1);
+//     }
+//     printf("\n");
+// }
 
 
 unsigned int shift_left(unsigned long *input, unsigned int n, unsigned int len)

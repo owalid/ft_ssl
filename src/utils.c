@@ -112,20 +112,29 @@ void print_hash_32(void *hash, size_t size)
     }
 }
 
+void print_hash_64(unsigned long hash, int lower)
+{
+    char *str;
+    if (lower)
+        str = ft_strlowcase(ft_utoa_base(hash, 16));
+    else
+        str = ft_utoa_base(hash, 16);
 
-void print_hash_64(void* hash, size_t size)
+    int len = ft_strlen(str);
+    for (int i = 0; i < 16 - len; i++)
+        ft_putchar('0');
+    ft_putstr(str);
+    free(str);
+}
+
+void print_hashes_64(void* hash, size_t size)
 {
     char *str;
     int len;
     unsigned long *hashh = (unsigned long*)hash;
 
     for (int i = 0; (size_t)i < size; i++) {
-        str = ft_strlowcase(ft_utoa_base(hashh[i], 16));
-        len = ft_strlen(str);
-        for (int i = 0; i < 16 - len; i++)
-            ft_putchar('0');
-        ft_putstr(str);
-        free(str);
+        print_hash_64(hashh[i], 1);
     }
 }
 

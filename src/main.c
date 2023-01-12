@@ -71,42 +71,42 @@ int main(int argc, char **argv) {
         }
     }
     if (argc >= 2) {
-        // for (int i = 0; i < op_dig_size; i++) {
-        //     if (ft_strcmp(argv[1], g_ftssl_digest_op[i].name) == 0) { // get name of digest algorithm
-        //         flag = 1;
-        //         // printf("lol");
-        //         ft_search_modes(argv, argc, ssl_mode); // extract modes options
-        //         int flag_process = 0;
-        //         int j = 2;
+        for (int i = 0; i < op_dig_size; i++) {
+            if (ft_strcmp(argv[1], g_ftssl_digest_op[i].name) == 0) { // get name of digest algorithm
+                flag = 1;
+                // printf("lol");
+                ft_search_modes(argv, argc, ssl_mode); // extract modes options
+                int flag_process = 0;
+                int j = 2;
 
-        //         for (; j < argc; j++) {
-        //             if (ft_strcmp(argv[j], "--") == 0) { // stop options and process the rest as files
-        //                 j++;
-        //                 break;
-        //             }
-        //             if (argv[j][0] != '-') // check if is a file 
-        //                 break;
-        //             if (ft_strcmp(argv[j], "-s") == 0) { // process as string
-        //                 if (argc < (j + 1) || !argv[j+1]) {
-        //                     ft_putstr(ERROR_STR_OPT);
-        //                     exit(1);
-        //                 }
-        //                 if (s_flag == 0) {
-        //                     g_ftssl_digest_op[i].ft_ssl_process(argv[j + 1], ssl_mode, 0, g_ftssl_digest_op[i].name);
-        //                     flag_process = 1;
-        //                     s_flag = 1;
-        //                 }
-        //                 j++; // pass -s and string
-        //             }
-        //         }
-        //         for (; j < argc; j++) { // process as files
-        //             g_ftssl_digest_op[i].ft_ssl_process(argv[j], ssl_mode, 1, g_ftssl_digest_op[i].name);
-        //             flag_process = 1;
-        //         }
-        //         if (flag_process == 0 || ssl_mode->std_mode == 1) // if no processed and std mode is activated
-        //             g_ftssl_digest_op[i].ft_ssl_process(NULL, ssl_mode, 2, g_ftssl_digest_op[i].name);
-        //     }
-        // }
+                for (; j < argc; j++) {
+                    if (ft_strcmp(argv[j], "--") == 0) { // stop options and process the rest as files
+                        j++;
+                        break;
+                    }
+                    if (argv[j][0] != '-') // check if is a file 
+                        break;
+                    if (ft_strcmp(argv[j], "-s") == 0) { // process as string
+                        if (argc < (j + 1) || !argv[j+1]) {
+                            ft_putstr(ERROR_STR_OPT);
+                            exit(1);
+                        }
+                        if (s_flag == 0) {
+                            g_ftssl_digest_op[i].ft_ssl_process(argv[j + 1], ssl_mode, 0, g_ftssl_digest_op[i].name);
+                            flag_process = 1;
+                            s_flag = 1;
+                        }
+                        j++; // pass -s and string
+                    }
+                }
+                for (; j < argc; j++) { // process as files
+                    g_ftssl_digest_op[i].ft_ssl_process(argv[j], ssl_mode, 1, g_ftssl_digest_op[i].name);
+                    flag_process = 1;
+                }
+                if (flag_process == 0 || ssl_mode->std_mode == 1) // if no processed and std mode is activated
+                    g_ftssl_digest_op[i].ft_ssl_process(NULL, ssl_mode, 2, g_ftssl_digest_op[i].name);
+            }
+        }
 
         for (int i = 0; i < op_des_size; i++) {
             if (ft_strcmp(argv[1], g_ftssl_des_op[i].name) == 0 && argc >= 2) {
@@ -197,11 +197,12 @@ int main(int argc, char **argv) {
                 //     ft_putstr(ERROR_DES_KEY_NO_PROVIDED);
                 //     exit(0);
                 // }
-                if (ssl_mode->have_password)
-                    ssl_mode->key = process_pbkdf(argv[password_index], (ssl_mode->have_salt == 1) ? tmp_salt : NULL, should_read_stdin_pass);
+                if (ssl_mode->key == 0)
+                    ssl_mode->key = process_pbkdf(argv[password_index], (ssl_mode->have_salt == 1) ? tmp_salt : NULL, (ssl_mode->have_password == 0 || ssl_mode->have_salt == 0));
 
-                // ssl_mode->output_fd = (ssl_mode->output_fd == 0) ? 1 : ssl_mode->output_fd;
-                // g_ftssl_des_op[i].ft_ssl_process(argv[2], ssl_mode, 0, g_ftssl_digest_op[i].name);
+                printf("\nssl->key: %lu\n", ssl_mode->key);
+                ssl_mode->output_fd = (ssl_mode->output_fd == 0) ? 1 : ssl_mode->output_fd;
+                g_ftssl_des_op[i].ft_ssl_process(argv[2], ssl_mode, 0, g_ftssl_digest_op[i].name);
 
                 // TODO MAKE THESE LINE IN FUNCTION EXIT_MAIN_PROCESS
                 if (ssl_mode->input_fd > 0)

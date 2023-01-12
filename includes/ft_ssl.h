@@ -91,7 +91,6 @@ void    			sha224_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, 
 // sha256.c
 void    			sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
 void    			sha256_process_firsts_blocks(void *raw_w, void *raw_hash);
-unsigned long 		simple_sha256(char *input);
 
 // sha384.c
 void    			sha384_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
@@ -99,6 +98,7 @@ void    			sha384_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, 
 // sha512.c
 void    			sha512_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
 void    			sha512_process_firsts_blocks(void *raw_w, void *raw_hash);
+unsigned long 		simple_sha512(char *input);
 
 // === DES ===
 
@@ -133,7 +133,8 @@ unsigned long       right_rotate_64(unsigned long n, unsigned long d);
 unsigned int        right_rotate_32(unsigned int n, unsigned int d);
 
 void				print_hash_32(void* hash, size_t size);
-void 				print_hash_64(void* hash, size_t size);
+void 				print_hashes_64(void* hash, size_t size);
+void 				print_hash_64(unsigned long hash, int lower);
 
 void 				preprocess_final_output(t_ft_ssl_mode *ssl_mode, char *algo_name, int input_type, char *input, t_fn_print_hash fn_print_hash, void *hash, size_t size);
 
