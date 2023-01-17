@@ -275,7 +275,7 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
 
 
 
-void        des_encrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mode)
+void        des_encrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mode, t_fn_encrypt_block fn_encrypt_block)
 {
 
     //  ======== Process key =========
@@ -294,9 +294,7 @@ void        des_encrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
     {
         block = 0;
         ft_memcpy(&block, buffer, 8);
-        if (cbc_mode) result = encrypt_block(block ^ ssl_mode->iv, r_k);
-        else result = encrypt_block(block, r_k);
-        ssl_mode->iv = result;
+        result = fn_encrypt_block(block, &ssl_mode->iv, r_k);
         ft_memcpy(&buff_blocks[cpt++], &result, 8);
         if (cpt == 3) {
             if (ssl_mode->des_b64 == 1) print_cipher_b64(buff_blocks, &cpt, ssl_mode->output_fd);
@@ -316,9 +314,7 @@ void        des_encrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
         block = 0;
         pad_block(buffer, readed);
         ft_memcpy(&block, buffer, 8);
-        if (cbc_mode)
-            block ^= ssl_mode->iv;
-        result = encrypt_block(block, r_k);
+        result = fn_encrypt_block(block, &ssl_mode->iv, r_k);
         ssl_mode->iv = swap64(result);
         ft_memcpy(&buff_blocks[cpt++], &result, 8);
     }
@@ -327,7 +323,7 @@ void        des_encrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
 }
 
 
-void        des_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mode)
+void        des_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mode, t_fn_decrypt_block fn_decrypt_block)
 {
     unsigned long block;
     unsigned long result;
@@ -358,9 +354,7 @@ void        des_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
         {
             for (int i = 0; i < 4 - ssl_mode->des_b64; i++)
             {
-                if (cbc_mode) result = encrypt_block(tmp_buffer[i] ^ ssl_mode->iv, r_k);
-                else result = encrypt_block(tmp_buffer[i], r_k);
-                ssl_mode->iv = result;
+                result = fn_decrypt_block(tmp_buffer[i], &ssl_mode->iv, r_k);
                 write(ssl_mode->output_fd, &result, 8);
             }
         }
@@ -392,10 +386,7 @@ void        des_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
             for (int i = 0; i < 4 - ssl_mode->des_b64; i++)
             {
                 result = 0;
-                result = encrypt_block(tmp_buffer[i], r_k);
-                if (cbc_mode)
-                    result ^= ssl_mode->iv;
-                ssl_mode->iv = result;
+                result = fn_decrypt_block(tmp_buffer[i], &ssl_mode->iv, r_k);
 
                 if (i == (4 - ssl_mode->des_b64) - 1 && readed == 0) // -1 to get last block
                 {
@@ -422,14 +413,8 @@ void        des_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
         last_blocks_size = ((readed/8) - 1) <= 0 ? 1 : (readed/8) - ssl_mode->des_b64;
         for (int i = 0; i < last_blocks_size; i++)
         {
-            result = 0;
-            result = encrypt_block(tmp_buffer[i], r_k);
-            if (cbc_mode)
-                result ^= ssl_mode->iv;
-            ssl_mode->iv = result;
+            result = fn_decrypt_block(tmp_buffer[i], &ssl_mode->iv, r_k);
             if (i + 1 == last_blocks_size) { // process last block unpadding
-                if (cbc_mode)
-                    result ^= ssl_mode->iv;
                 last_block_size = unpad((unsigned char*)&result);
                 write(ssl_mode->output_fd, &result, last_block_size);
             } else write(ssl_mode->output_fd, &result, 8);
