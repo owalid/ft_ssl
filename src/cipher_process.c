@@ -290,7 +290,7 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         result = fn_encrypt_block(block, ssl_mode, r_k);
         ft_memcpy(&buff_blocks[cpt++], &result, 8);
         if (cpt == 3) {
-            if (ssl_mode->des_b64 == 1) print_cipher_b64(buff_blocks, &cpt, ssl_mode->output_fd);
+            if (ssl_mode->des_b64 == 1) print_cipher_b64(buff_blocks, &cpt, ssl_mode->output_fd, 0);
             else print_cipher_raw(buff_blocks, &cpt, ssl_mode->output_fd, 0);
         }
     }
@@ -320,9 +320,12 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
     // printf("cpt: %d", cpt);
 
     // for (int i = 0; i < 2; i++)
-    //     printf("%s", &buff_blocks[i]);
+    // write(1, &buff_blocks[0], 8);
+    // write(1, &buff_blocks[0], 2);
 
-    if (ssl_mode->des_b64 == 1) print_cipher_b64(buff_blocks, &cpt, ssl_mode->output_fd);
+        // printf("%s", &buff_blocks[i]);
+    // cpt--;
+    if (ssl_mode->des_b64 == 1) print_cipher_b64(buff_blocks, &cpt, ssl_mode->output_fd, (!ssl_mode->should_padd) ? readed : 0);
     else print_cipher_raw(buff_blocks, &cpt, ssl_mode->output_fd, (!ssl_mode->should_padd) ? readed : 0);
 }
 
@@ -372,6 +375,7 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         print_errors(ERROR_READ_GLOBAL, ssl_mode);
 
     // printf("readed: %d", readed);
+    // printf("readed: %d", readed);
 
     // ----
     // with the rest we constitute n blocks who n < 3 (8 by block)
@@ -382,6 +386,7 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         // Process the last read from tmp_buffer[] before process the rest 
         if (tmp_buffer[0] != 0)
         {
+            // printf("here\n");
             for (int i = 0; i < 4 - ssl_mode->des_b64; i++)
             {
                 result = 0;
@@ -400,19 +405,26 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
 
         // --- 
         // Process the new read from buffer[]
+        ft_bzero(tmp_buffer, 4*8);
         if (ssl_mode->des_b64 == 1) b64_to_three_bytes(buffer, (char *)tmp_buffer, readed, 0, 0);
         else {
             int j = 0;
             for (int i = 0; i < readed; j++, i += 8)
                 ft_memcpy(&tmp_buffer[j], buffer + i, 8);
         }
+        // ft_bzero(tmp_buffer, 4*8);
+
+        // if (!ssl_mode->should_padd)
+        //     readed -= 2;
+        // printf("new readed: %d", readed);
 
         // ---
         // calculate last_block_size to apply unpad on last padding
         last_blocks_size = ((readed/8) - 1) <= 0 ? 1 : (readed/8) - ssl_mode->des_b64;
-
         if (readed%8 > 0 && readed > 8)
             last_blocks_size += 1;
+// printf("new last_blocks_size: %d", last_blocks_size);
+
 
         for (int i = 0; i < last_blocks_size; i++)
         {
@@ -425,6 +437,7 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
 
                 if (ssl_mode->should_padd)
                     last_block_size = unpad((unsigned char*)&result);
+                // printf("last_block_size: %d", last_block_size);
                 write(ssl_mode->output_fd, &result, last_block_size);
             } else write(ssl_mode->output_fd, &result, 8);
         }

@@ -31,11 +31,12 @@ void        display_key(unsigned long *r_k)
         printf("r_k[%d]\t= %lu\n", i, r_k[i]);
 }
 
-void        print_cipher_b64(unsigned long* blocks, int* len_block, int fd)
+void        print_cipher_b64(unsigned long* blocks, int* len_block, int fd, int last_block_len)
 {
+    last_block_len = (last_block_len == 0 || last_block_len == 8) ? 0 : 8 - last_block_len;
     // printf("len_block: %d", *len_block);
     // 8 char in an unsigned long (8*8)
-    three_bytes_to_b64((char *)blocks, (*len_block)*8, 1, fd);
+    three_bytes_to_b64((char *)blocks, ((*len_block)*8) - last_block_len, 1, fd);
     ft_bzero(blocks, 3*8);
     *len_block = 0;
 }
