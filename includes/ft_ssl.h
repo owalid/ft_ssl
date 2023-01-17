@@ -176,7 +176,7 @@ ssize_t     unpad(unsigned char *plain_block);
 void        pad_block(unsigned char *input, ssize_t len_input);
 void        display_key(unsigned long *r_k);
 void        print_cipher_b64(unsigned long* blocks, int* len_block, int fd);
-void    	print_cipher_raw(unsigned long* blocks, int *len_block, int fd);
+void    	print_cipher_raw(unsigned long* blocks, int *len_block, int fd, int len_last);
 void        reverse_round_key(unsigned long *r_k);
 
 

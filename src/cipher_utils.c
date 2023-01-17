@@ -33,6 +33,7 @@ void        display_key(unsigned long *r_k)
 
 void        print_cipher_b64(unsigned long* blocks, int* len_block, int fd)
 {
+    // printf("len_block: %d", *len_block);
     // 8 char in an unsigned long (8*8)
     three_bytes_to_b64((char *)blocks, (*len_block)*8, 1, fd);
     ft_bzero(blocks, 3*8);
@@ -40,10 +41,20 @@ void        print_cipher_b64(unsigned long* blocks, int* len_block, int fd)
 }
 
 
-void    print_cipher_raw(unsigned long* blocks, int *len_block, int fd)
-{ 
-    for (int i = 0; i < *len_block; i++)
+void    print_cipher_raw(unsigned long* blocks, int *len_block, int fd, int len_last)
+{
+    if (len_last == 0)
+        len_last = 8;
+    // printf("len_last: %d\n", len_last);
+    int i = 0;
+
+    for (; i < *len_block - 1; i++)
         write(fd, &blocks[i], 8);
+
+    // printf("i: %d", i);
+    // printf("blocks[i]: %lu", blocks[i+1]);
+
+    write(fd, &blocks[i], len_last);
 
     ft_bzero(blocks, 3*8);
     *len_block = 0;
