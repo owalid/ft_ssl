@@ -3,7 +3,7 @@ NAME	= ft_ssl
 SRC		= main.c \
 			md5.c sha224.c sha256.c sha384.c sha512.c \
 			digest_process.c cipher_process.c \
-			base64.c des_ecb.c des_cbc.c \
+			base64.c des_ecb.c des_cbc.c des_ofb.c des_cfb.c des_ctr.c \
 			utils.c cipher_utils.c \
 			pbkdf.c
 

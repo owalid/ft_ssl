@@ -3,7 +3,7 @@
 
 void    print_errors(char *msg, t_ft_ssl_mode *ssl_mode)
 {
-    ft_putstr(msg);
+    ft_putstr_fd(msg, 2);
     ft_putchar('\n');
 
     if (ssl_mode)

@@ -44,8 +44,14 @@ unsigned long gen_key_padding(char *raw_k, char *dest_key, t_ft_ssl_mode *ssl_mo
     result_hex = ft_hextol(dest_key);
 
     if (result_hex == -1 || len_key < 0) print_errors(ERROR_DES_NO_HEX, ssl_mode);
-    else if (len_key < 16) ft_putstr(WARNING_DES_KEY_TO_SHORT);
-    else if (len_key > 16) ft_putstr(WARNING_DES_KEY_TO_LONG);
+    else if (len_key < 16) {
+        ft_putstr_fd(WARNING_DES_KEY_TO_SHORT, 2);
+        ft_putchar_fd('\n', 2);
+    }
+    else if (len_key > 16) {
+        ft_putstr_fd(WARNING_DES_KEY_TO_LONG, 2);
+        ft_putchar_fd('\n', 2);
+    }
 
     return result_hex;
 }
@@ -195,6 +201,8 @@ int main(int argc, char **argv) {
                     
                 if (ssl_mode->key == 0 && ft_strcmp(argv[1], "base64") != 0)
                     ssl_mode->key = process_pbkdf(argv[password_index], (ssl_mode->have_salt == 1) ? tmp_salt : NULL, (ssl_mode->have_password == 0 || ssl_mode->have_salt == 0));
+                if (ft_strcmp(argv[1], "des-ofb") != 0 && ft_strcmp(argv[1], "des-cfb") != 0 && ft_strcmp(argv[1], "des-ctr") != 0)
+                    ssl_mode->should_padd = 1;
 
                 ssl_mode->output_fd = (ssl_mode->output_fd == 0) ? 1 : ssl_mode->output_fd;
                 if (g_ftssl_des_op[i].ft_ssl_cipher_process)

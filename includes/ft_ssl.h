@@ -77,12 +77,14 @@ typedef struct		s_ft_ssl_mode
 	int				have_salt;
 	unsigned long	iv;
 	int				des_b64;
+	int				should_padd;
+	int				counter;
 }					t_ft_ssl_mode;
 
 typedef 			void (*t_fn_process_firsts_blocks)(void *raw_w, void *raw_hash);
 typedef				void (*t_fn_print_hash)(void *hash, size_t size);
-typedef				unsigned long (*t_fn_encrypt_block)(unsigned long block, unsigned long *iv, unsigned long *round_key);
-typedef				unsigned long (*t_fn_decrypt_block)(unsigned long block, unsigned long *iv, unsigned long *round_key);
+typedef				unsigned long (*t_fn_encrypt_block)(unsigned long block, t_ft_ssl_mode *ssl_mode, unsigned long *round_key);
+typedef				unsigned long (*t_fn_decrypt_block)(unsigned long block, t_ft_ssl_mode *ssl_mode, unsigned long *round_key);
 typedef				void(*t_ft_ssl_basic_process)(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
 
 
@@ -138,21 +140,31 @@ void 				three_bytes_to_b64(char *raw_input, ssize_t readed, int print, int fd);
 ssize_t 			b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int print, int fd);
 
 // des_ecb.c
-void    			des_ecb_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
-unsigned long       encrypt_ecb_block(unsigned long block, unsigned long *iv, unsigned long *round_key);
-unsigned long       decrypt_ecb_block(unsigned long block, unsigned long *iv, unsigned long *round_key);
+unsigned long       encrypt_ecb_block(unsigned long block, t_ft_ssl_mode *ssl_mode, unsigned long *round_key);
+unsigned long       decrypt_ecb_block(unsigned long block, t_ft_ssl_mode *ssl_mode, unsigned long *round_key);
 
-
+// des_ofb.c
+unsigned long       encrypt_ofb_block(unsigned long block, t_ft_ssl_mode *ssl_mode, unsigned long *round_key);
+unsigned long       decrypt_ofb_block(unsigned long block, t_ft_ssl_mode *ssl_mode, unsigned long *round_key);
 
 // des_cbc.c
-void        		des_cbc_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
-unsigned long       encrypt_cbc_block(unsigned long block, unsigned long *iv, unsigned long *round_key);
-unsigned long       decrypt_cbc_block(unsigned long block, unsigned long *iv, unsigned long *round_key);
+unsigned long       encrypt_cbc_block(unsigned long block, t_ft_ssl_mode *ssl_mode, unsigned long *round_key);
+unsigned long       decrypt_cbc_block(unsigned long block, t_ft_ssl_mode *ssl_mode, unsigned long *round_key);
+
+// des_cfb.c
+unsigned long       encrypt_cfb_block(unsigned long block, t_ft_ssl_mode *ssl_mode, unsigned long *round_key);
+unsigned long       decrypt_cfb_block(unsigned long block, t_ft_ssl_mode *ssl_mode, unsigned long *round_key);
+
+// des_ctr.c
+unsigned long       encrypt_ctr_block(unsigned long block, t_ft_ssl_mode *ssl_mode, unsigned long *round_key);
+unsigned long       decrypt_ctr_block(unsigned long block, t_ft_ssl_mode *ssl_mode, unsigned long *round_key);
+
+
 
 // === CIPHER PROCESS ===
 void        		des_process(char *input, t_ft_ssl_mode *ssl_mode, t_fn_encrypt_block fn_encrypt_block, t_fn_decrypt_block fn_decrypt_block);
-void        		des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mode, t_fn_encrypt_block fn_encrypt_block);
-void        		des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mode, t_fn_encrypt_block fn_decrypt_block);
+void        		des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_fn_encrypt_block fn_encrypt_block);
+void        		des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_fn_encrypt_block fn_decrypt_block);
 unsigned long* 		process_round_keys(unsigned long key, unsigned long *round_k);
 unsigned long 		encrypt_block(unsigned long block, unsigned long *key);
 
