@@ -196,6 +196,7 @@ int main(int argc, char **argv) {
 
                         // generate iv and padd if the len of argv[j + 1] is < 16
                         ssl_mode->iv = gen_key_padding(argv[j + 1], tmp_iv);
+                        ssl_mode->iv = swap64(ssl_mode->iv);
                         j++;
                     }
                 }

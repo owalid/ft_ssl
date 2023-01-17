@@ -182,7 +182,7 @@ unsigned long encrypt_block(unsigned long block, unsigned long *key)
     // permutation before block process
     unsigned long tmp_xor_round = 0;
 
-    // block = swap64(block);
+    block = swap64(block);
 
 
     permutation(&block, PERMUTATION_INIT_BLOCK, 64, 64);
@@ -294,8 +294,8 @@ void        des_encrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
     {
         block = 0;
         ft_memcpy(&block, buffer, 8);
-        if (cbc_mode) result = encrypt_block(swap64(block) ^ ssl_mode->iv, r_k);
-        else result = encrypt_block(swap64(block), r_k);
+        if (cbc_mode) result = encrypt_block(block ^ ssl_mode->iv, r_k);
+        else result = encrypt_block(block, r_k);
         ssl_mode->iv = result;
         ft_memcpy(&buff_blocks[cpt++], &result, 8);
         if (cpt == 3) {
@@ -317,12 +317,9 @@ void        des_encrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
         pad_block(buffer, readed);
         ft_memcpy(&block, buffer, 8);
         if (cbc_mode)
-        {
-            block = swap64(block);
-            block ^= swap64(ssl_mode->iv);
-        }
+            block ^= ssl_mode->iv;
         result = encrypt_block(block, r_k);
-        ssl_mode->iv = result;
+        ssl_mode->iv = swap64(result);
         ft_memcpy(&buff_blocks[cpt++], &result, 8);
     }
     if (ssl_mode->des_b64 == 1) print_cipher_b64(buff_blocks, &cpt, ssl_mode->output_fd);
@@ -361,8 +358,8 @@ void        des_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
         {
             for (int i = 0; i < 4 - ssl_mode->des_b64; i++)
             {
-                if (cbc_mode) result = encrypt_block(swap64(tmp_buffer[i]) ^ ssl_mode->iv, r_k);
-                else result = encrypt_block(swap64(tmp_buffer[i]), r_k);
+                if (cbc_mode) result = encrypt_block(tmp_buffer[i] ^ ssl_mode->iv, r_k);
+                else result = encrypt_block(tmp_buffer[i], r_k);
                 ssl_mode->iv = result;
                 write(ssl_mode->output_fd, &result, 8);
             }
@@ -395,7 +392,7 @@ void        des_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
             for (int i = 0; i < 4 - ssl_mode->des_b64; i++)
             {
                 result = 0;
-                result = encrypt_block(swap64(tmp_buffer[i]), r_k);
+                result = encrypt_block(tmp_buffer[i], r_k);
                 if (cbc_mode)
                     result ^= ssl_mode->iv;
                 ssl_mode->iv = result;
@@ -426,9 +423,9 @@ void        des_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
         for (int i = 0; i < last_blocks_size; i++)
         {
             result = 0;
-            result = encrypt_block(swap64(tmp_buffer[i]), r_k);
+            result = encrypt_block(tmp_buffer[i], r_k);
             if (cbc_mode)
-                result ^= swap64(ssl_mode->iv);
+                result ^= ssl_mode->iv;
             ssl_mode->iv = result;
             if (i + 1 == last_blocks_size) { // process last block unpadding
                 if (cbc_mode)
