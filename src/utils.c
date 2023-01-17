@@ -1,6 +1,20 @@
 #include "ft_ssl.h"
 #include "libft.h"
 
+void    print_errors(char *msg, t_ft_ssl_mode *ssl_mode)
+{
+    ft_putstr(msg);
+    ft_putchar('\n');
+
+    if (ssl_mode)
+    {
+        if (ssl_mode->input_fd > 0)
+            close(ssl_mode->input_fd);
+        if (ssl_mode->output_fd > 1)
+            close(ssl_mode->output_fd);
+        exit(1);
+    }
+}
 
 void print_bit(unsigned char n) {
 	for (int i = 7; i >= 0; i--) {

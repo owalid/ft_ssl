@@ -12,10 +12,11 @@
 // ---
 
 # define ERROR_ALGO_1 "Error algorithm "
-# define ERROR_ALGO_2 " not found"
+# define ERROR_ALGO_2 " not found\n"
+# define ERROR_ALGO_3 "ft_ssl -list to list all algorithm available"
 
 # define ERROR_FILE "No such file or directory: "
-# define ERROR_STR_OPT "Option -s should have an string as parameters.\n"
+# define ERROR_STR_OPT "Option -s should have an string as parameters."
 # define ERROR_DES_NO_HEX "non-hex digit"
 # define ERROR_DES_KEY_NO_PROVIDED "Key error: Key is required"
 # define ERROR_DES_SALT_NO_PROVIDED "Salt error: Salt is required"
@@ -28,8 +29,8 @@
 // ---
 // WARNING
 // ---
-# define WARNING_DES_KEY_TO_SHORT "Warning: hexa string too short, padding with zero bytes to length\n"
-# define WARNING_DES_KEY_TO_LONG "Warning: hexa string too long, ignoring excess\n"
+# define WARNING_DES_KEY_TO_SHORT "Warning: hexa string too short, padding with zero bytes to length"
+# define WARNING_DES_KEY_TO_LONG "Warning: hexa string too long, ignoring excess"
 
 // ---
 // OTHERS
@@ -52,8 +53,15 @@ file Files to digest (optional; default is stdin).\n"
 
 
 # define ALGO_LIST "Message Digest algorithm:\n\
+md5, sha256, sha224, sha384, sha512.\n\n\
+Cipher commands:\n\
+base64, des, des-ecb, des-cbc\n"
+
+# define DGST_LIST "Message Digest algorithm:\n\
 md5, sha256, sha224, sha384, sha512.\n"
 
+# define CIPHER_LIST "Message Digest algorithm:\n\
+base64, des, des-ecb, des-cbc\n"
 
 typedef struct		s_ft_ssl_mode
 {
@@ -71,17 +79,28 @@ typedef struct		s_ft_ssl_mode
 	int				des_b64;
 }					t_ft_ssl_mode;
 
-typedef struct		s_ft_ssl_op
-{
-	char		*name;
-	void		(*ft_ssl_process)(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
-}					t_ft_ssl_op;
-
-
 typedef 			void (*t_fn_process_firsts_blocks)(void *raw_w, void *raw_hash);
 typedef				void (*t_fn_print_hash)(void *hash, size_t size);
 typedef				unsigned long (*t_fn_encrypt_block)(unsigned long block, unsigned long *iv, unsigned long *round_key);
 typedef				unsigned long (*t_fn_decrypt_block)(unsigned long block, unsigned long *iv, unsigned long *round_key);
+typedef				void(*t_ft_ssl_basic_process)(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
+
+
+typedef struct		s_ft_ssl_digest_op
+{
+	char					*name;
+	t_ft_ssl_basic_process	ft_ssl_dgst_process;
+}					t_ft_ssl_digest_op;
+
+
+typedef struct		s_ft_ssl_cipher_op
+{
+	char						*name;
+	t_ft_ssl_basic_process		ft_ssl_cipher_process;
+	t_fn_encrypt_block 			fn_encrypt_block;
+	t_fn_decrypt_block 			fn_decrypt_block;
+}					t_ft_ssl_cipher_op;
+
 
 
 //  === DIGEST ===
@@ -131,8 +150,9 @@ unsigned long       encrypt_cbc_block(unsigned long block, unsigned long *iv, un
 unsigned long       decrypt_cbc_block(unsigned long block, unsigned long *iv, unsigned long *round_key);
 
 // === CIPHER PROCESS ===
-void        		des_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mode, t_fn_encrypt_block fn_encrypt_block);
-void        		des_encrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mode, t_fn_encrypt_block fn_decrypt_block);
+void        		des_process(char *input, t_ft_ssl_mode *ssl_mode, t_fn_encrypt_block fn_encrypt_block, t_fn_decrypt_block fn_decrypt_block);
+void        		des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mode, t_fn_encrypt_block fn_encrypt_block);
+void        		des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mode, t_fn_encrypt_block fn_decrypt_block);
 unsigned long* 		process_round_keys(unsigned long key, unsigned long *round_k);
 unsigned long 		encrypt_block(unsigned long block, unsigned long *key);
 
@@ -146,6 +166,7 @@ void        display_key(unsigned long *r_k);
 void        print_cipher_b64(unsigned long* blocks, int* len_block, int fd);
 void    	print_cipher_raw(unsigned long* blocks, int *len_block, int fd);
 void        reverse_round_key(unsigned long *r_k);
+
 
 
 // TODO REMOVE ONLY DEBUG
@@ -168,6 +189,7 @@ void 				print_hashes_64(void* hash, size_t size);
 void 				print_hash_64(unsigned long hash, int lower);
 
 void 				preprocess_final_output(t_ft_ssl_mode *ssl_mode, char *algo_name, int input_type, char *input, t_fn_print_hash fn_print_hash, void *hash, size_t size);
+void    			print_errors(char *msg, t_ft_ssl_mode *ssl_mode);
 
 // process.c
 void				process_last_block(char *input, void *vars, size_t total_size, int should_swap, size_t byte_size, t_fn_process_firsts_blocks fn_process_firsts_blocks);

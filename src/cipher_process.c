@@ -176,15 +176,12 @@ unsigned int shift_left(unsigned long *input, unsigned int n, unsigned int len)
 
 unsigned long encrypt_block(unsigned long block, unsigned long *key)
 {
-    unsigned long end_block, right, big_right, left, sbox, xor_round, tmp;
-    int row, col;
-
-    // permutation before block process
-    unsigned long tmp_xor_round = 0;
+    unsigned long end_block = 0, right = 0, left = 0, sbox = 0, xor_round = 0, tmp = 0, tmp_xor_round = 0;
+    int row = 0, col = 0;
 
     block = swap64(block);
 
-
+    // permutation before block process
     permutation(&block, PERMUTATION_INIT_BLOCK, 64, 64);
 
 
@@ -239,9 +236,7 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
 {
     // get 56 bits of keys
     // split to have left and right
-    unsigned long left = 0, right = 0;
-    unsigned long concat;
-    unsigned long curr_round;
+    unsigned long left = 0, right = 0, concat = 0, curr_round = 0;
 
 
     permutation(&key, PERMUTATION_INIT_KEY, 64, 56);
@@ -275,17 +270,15 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
 
 
 
-void        des_encrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mode, t_fn_encrypt_block fn_encrypt_block)
+void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mode, t_fn_encrypt_block fn_encrypt_block)
 {
 
     //  ======== Process key =========
-    unsigned long block;
-    unsigned long result;
+    unsigned long block, result;
     unsigned long buff_blocks[3]; // bc 3 * 8 = 24 is a multiple of 3 (for b64)
     int cpt = 0;
     char buffer[8];
     ssize_t readed = 0;
-    int buffer_size;
 
     ft_bzero(buff_blocks, 3*8);
     ft_bzero(buffer, 8);
@@ -323,18 +316,13 @@ void        des_encrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
 }
 
 
-void        des_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mode, t_fn_decrypt_block fn_decrypt_block)
+void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mode, t_fn_decrypt_block fn_decrypt_block)
 {
-    unsigned long block;
     unsigned long result;
-    unsigned long tmp_block = 0;
     char buffer[32];
     unsigned long tmp_buffer[4]; // 3 * 8 = 24 and 4 * 8 = 32
-    ssize_t readed = 0;
-    int buffer_size;
-    int last_blocks_size = 0;
-    ssize_t last_block_size = 0;
-    int flag_buffer_filled = 0;
+    ssize_t readed = 0, last_block_size = 0;
+    int last_blocks_size = 0, flag_buffer_filled = 0;
 
     ft_bzero(tmp_buffer, 4*8);
     ft_bzero(buffer, 32);
@@ -409,6 +397,7 @@ void        des_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
                 ft_memcpy(&tmp_buffer[j], buffer + i, 8);
         }
 
+        // ---
         // calculate last_block_size to apply unpad on last padding
         last_blocks_size = ((readed/8) - 1) <= 0 ? 1 : (readed/8) - ssl_mode->des_b64;
         for (int i = 0; i < last_blocks_size; i++)
@@ -420,4 +409,18 @@ void        des_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
             } else write(ssl_mode->output_fd, &result, 8);
         }
     }
+}
+
+
+void        des_process(char *input, t_ft_ssl_mode *ssl_mode, t_fn_encrypt_block fn_encrypt_block, t_fn_decrypt_block fn_decrypt_block)
+{
+    unsigned long r_k[16];
+
+    ft_bzero(r_k, 16*8);
+
+    // process round key
+    process_round_keys(ssl_mode->key, r_k);
+
+    if (ssl_mode->decode_mode == 1) des_decrypt_process(ssl_mode, r_k, 1, fn_decrypt_block);
+    else des_encrypt_process(ssl_mode, r_k, 1, fn_encrypt_block);
 }
