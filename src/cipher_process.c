@@ -314,16 +314,14 @@ void        des_encrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
     if (readed >= 0)
     {
         block = 0;
+        pad_block(buffer, readed);
+        ft_memcpy(&block, buffer, 8);
         if (cbc_mode)
-        {         // TODO REDO THIS PART
-            ft_memcpy(&block, buffer, 8);
-            block ^= ssl_mode->iv;
-            pad_block((char*)&block, readed);
-        } else {
-            pad_block(buffer, readed);
-            ft_memcpy(&block, buffer, 8);
+        {
+            block = swap64(block);
+            block ^= swap64(ssl_mode->iv);
         }
-        result = encrypt_block(swap64(block), r_k);
+        result = encrypt_block(block, r_k);
         ssl_mode->iv = result;
         ft_memcpy(&buff_blocks[cpt++], &result, 8);
     }
@@ -363,7 +361,7 @@ void        des_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
         {
             for (int i = 0; i < 4 - ssl_mode->des_b64; i++)
             {
-                if (cbc_mode) result = encrypt_block(swap64(tmp_buffer[i] ^ ssl_mode->iv), r_k);
+                if (cbc_mode) result = encrypt_block(swap64(tmp_buffer[i]) ^ ssl_mode->iv, r_k);
                 else result = encrypt_block(swap64(tmp_buffer[i]), r_k);
                 ssl_mode->iv = result;
                 write(ssl_mode->output_fd, &result, 8);
@@ -390,25 +388,32 @@ void        des_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
     // ----
     if (readed >= 0)
     {
-        // Check if is the last read
+        // ---
+        // Process the last read from tmp_buffer[] before process the rest 
         if (tmp_buffer[0] != 0)
         {
             for (int i = 0; i < 4 - ssl_mode->des_b64; i++)
             {
-                if (cbc_mode) result = encrypt_block(swap64(tmp_buffer[i] ^ ssl_mode->iv), r_k);
-                else result = encrypt_block(swap64(tmp_buffer[i]), r_k);
+                result = 0;
+                result = encrypt_block(swap64(tmp_buffer[i]), r_k);
+                if (cbc_mode)
+                    result ^= ssl_mode->iv;
                 ssl_mode->iv = result;
+
                 if (i == (4 - ssl_mode->des_b64) - 1 && readed == 0) // -1 to get last block
                 {
+                    if (cbc_mode)
+                        result ^= ssl_mode->iv;
                     last_block_size = unpad((unsigned char*)&result);
                     write(ssl_mode->output_fd, &result, last_block_size);
-                    return;
+                    return; // quit function if we don't have readed
                 } else write(ssl_mode->output_fd, &result, 8);
             }
             ft_bzero(tmp_buffer, 4*8);
         }
 
-        
+        // --- 
+        // Process the new read from buffer[]
         if (ssl_mode->des_b64 == 1) b64_to_three_bytes(buffer, (char *)tmp_buffer, readed, 0, 0);
         else {
             int j = 0;
@@ -416,15 +421,18 @@ void        des_decrypt(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, int cbc_mod
                 ft_memcpy(&tmp_buffer[j], buffer + i, 8);
         }
 
+        // calculate last_block_size to apply unpad on last padding
         last_blocks_size = ((readed/8) - 1) <= 0 ? 1 : (readed/8) - ssl_mode->des_b64;
-      
         for (int i = 0; i < last_blocks_size; i++)
         {
             result = 0;
-            if (cbc_mode) result = encrypt_block(swap64(tmp_buffer[i] ^ ssl_mode->iv), r_k);
-            else result = encrypt_block(swap64(tmp_buffer[i]), r_k);
+            result = encrypt_block(swap64(tmp_buffer[i]), r_k);
+            if (cbc_mode)
+                result ^= swap64(ssl_mode->iv);
             ssl_mode->iv = result;
-            if (i + 1 == last_blocks_size) { // process last block padding
+            if (i + 1 == last_blocks_size) { // process last block unpadding
+                if (cbc_mode)
+                    result ^= ssl_mode->iv;
                 last_block_size = unpad((unsigned char*)&result);
                 write(ssl_mode->output_fd, &result, last_block_size);
             } else write(ssl_mode->output_fd, &result, 8);
