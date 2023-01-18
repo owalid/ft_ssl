@@ -37,20 +37,30 @@
 // OTHERS
 // ---
 # define USAGE "Usage: ft_ssl algorithm [options] [file...]\n\n\
-Message Digest algorithm:\n\
-md5, sha256, sha224, sha384, sha512.\n\n\
+Message Digest commands:\n\
+md5, sha224, sha256, sha384, sha512.\n\n\
 Cipher commands:\n\
 base64, des, des-ecb, des-cbc\n\n\
-General options: \n\
--help Display this summary\n\
--list List digests\n\n\
+Message Digest options:\n\
 Output options: \n\
--r reverse the format of the output.\n\
--p echo STDIN to STDOUT and append the checksum to STDOUT.\n\
--q quiet mode.\n\
--s print the sum of the given string.\n\n\
+-r\treverse the format of the output.\n\
+-p\techo STDIN to STDOUT and append the checksum to STDOUT.\n\
+-q\tquiet mode.\n\
+-s\tprint the sum of the given string.\n\
 Parameters:\n\
-file Files to digest (optional; default is stdin).\n"
+file Files to digest (optional; default is stdin).\n\n\n\
+Cipher options:\n\
+-a\tdecode/encode the input/output in base64, depending on the encrypt mode.\n\
+-d\tdecrypt mode.\n\
+-e\tencrypt mode (default).\n\
+-i\tinput file for message.\n\
+-o\toutput file for message.\n\
+-p\tpassword in ascii is the next argument.\n\
+-s\tthe salt in hex is the next argument.\n\
+-v\tinitialization vector in hex is the next argument.\n\n\
+General options: \n\
+-help\tDisplay this summary\n\
+-list\tList digests\n"
 
 
 # define ALGO_LIST "Message Digest algorithm:\n\
