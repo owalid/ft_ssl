@@ -376,7 +376,7 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         }
 
         ft_bzero(tmp_buffer, 32);
-        if (ssl_mode->des_b64 == 1) tmp_readed = b64_to_three_bytes(buffer, (char *)tmp_buffer, 32, 0, 0); // 8 * 3 = 24
+        if (ssl_mode->des_b64 == 1) tmp_readed = b64_to_three_bytes(buffer, (char *)tmp_buffer, 32, 0, 0, NULL); // 8 * 3 = 24
         else {
             for (int i = 0; i < 4; i++) // 8 * 4 = 32
                 ft_memcpy(&tmp_buffer[i], buffer + (i*8), 8);
@@ -426,7 +426,7 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
 
         // --- 
         // Process the new read from buffer[]
-        if (ssl_mode->des_b64 == 1) readed = b64_to_three_bytes(buffer, (char *)tmp_buffer, readed, 0, 0);
+        if (ssl_mode->des_b64 == 1) readed = b64_to_three_bytes(buffer, (char *)tmp_buffer, readed, 0, 0, NULL);
         else {
             int j = 0;
             for (int i = 0; i < readed; j++, i += 8)

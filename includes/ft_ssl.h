@@ -25,7 +25,7 @@
 # define ERROR_OUTPUT_FILE_NOT_FOUND "Error output file"
 # define ERROR_INPUT_FILE_NOT_FOUND "Error output file"
 # define ERROR_READ_GLOBAL "Error on read"
-
+# define ERROR_BASE64_BAD_INPUT "Error base64: invalid input"
 // ---
 // WARNING
 // ---
@@ -138,7 +138,7 @@ unsigned long    	process_pbkdf(char *pass, char *raw_salt, int stdin_mode);
 // base64.c
 void    			base64_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
 void 				three_bytes_to_b64(char *raw_input, ssize_t readed, int print, int fd);
-ssize_t 			b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int print, int fd);
+ssize_t 			b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int print, int fd, t_ft_ssl_mode *ssl_mode);
 
 // des_ecb.c
 unsigned long       encrypt_ecb_block(unsigned long block, t_ft_ssl_mode *ssl_mode, unsigned long *round_key);
