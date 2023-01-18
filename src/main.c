@@ -209,28 +209,16 @@ int main(int argc, char **argv) {
                     if (ssl_mode->have_key && g_ftssl_des_op[i].should_have_iv && !ssl_mode->have_iv)
                             print_errors(ERROR_DES_IV_NO_PROVIDED, ssl_mode);
                     
-                    process_pbkdf(argv[password_index], (ssl_mode->have_salt == 1) ? tmp_salt : NULL, ssl_mode, g_ftssl_des_op[i].should_have_iv);
-
-                    // if (!ssl_mode->have_key) // 
-                    // {
-                    //     if (!ssl_mode->have_password)
-                    // }
-
+                    if (!ssl_mode->have_key)
+                        process_pbkdf(argv[password_index], (ssl_mode->have_salt == 1) ? tmp_salt : NULL, ssl_mode, g_ftssl_des_op[i].should_have_iv);
                 }
-
-                // if (ssl_mode->iv == 0 && (ft_strcmp(argv[1], "des-cbc") == 0 || ft_strcmp(argv[1], "des") == 0))
-                //     print_errors(ERROR_DES_IV_NO_PROVIDED, ssl_mode);
                 
                 if (ssl_mode->iv != 0 && !g_ftssl_des_op[i].should_have_iv)
                 {
                     ft_putstr_fd(WARNING_IV_NOT_USED, 2);
                     ft_putchar_fd('\n', 2);
                 }
-                    
-                // if (ssl_mode->key == 0 && ft_strcmp(argv[1], "base64") != 0)
-                //     ssl_mode->key = process_pbkdf(argv[password_index], (ssl_mode->have_salt == 1) ? tmp_salt : NULL, (ssl_mode->have_password == 0 || ssl_mode->have_salt == 0));
                 
-                // if (ft_strcmp(argv[1], "des-ofb") != 0 && ft_strcmp(argv[1], "des-cfb") != 0 && ft_strcmp(argv[1], "des-ctr") != 0)
                 ssl_mode->should_padd = g_ftssl_des_op[i].should_pad;
 
                 if (ft_strcmp(argv[1], "base64") == 0)

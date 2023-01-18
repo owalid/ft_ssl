@@ -33,16 +33,17 @@ void print_bits(unsigned char *str, size_t len) {
 
 ssize_t delete_spaces(char *buffer, ssize_t len)
 {
-    for (int i = 0; i < len; i++)
+    int i = 0;
+    int offset = 0;
+    ssize_t all_offset = 0;
+
+    for (; i + offset < len; i++)
     {
-        if (ft_isspace(buffer[i]) == 1)
-        {
-            buffer[i] = buffer[i + 1];
-            i--;
-            len--;
-        }
+        while (ft_isspace(buffer[i + offset]))
+            offset++;
+        buffer[i] = buffer[i + offset];
     }
-    return len;
+    return i;
 }
 
 ssize_t utils_read(int fd, char *data, size_t size_block, t_ft_ssl_mode *ssl_mode) {
