@@ -1,4 +1,6 @@
 .vscode
+test*
+*test*
 lol*
 lul*
 mdr*
