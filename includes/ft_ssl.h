@@ -77,6 +77,8 @@ base64, des, des-ecb, des-cbc\n"
 
 typedef struct		s_ft_ssl_mode
 {
+	unsigned long	key;
+	unsigned long	iv;	
 	int				quiet_mode;
 	int				reverse_mode;
 	int				std_mode;
@@ -84,10 +86,10 @@ typedef struct		s_ft_ssl_mode
 	int				output_fd;
 	int				decode_mode;
 	int				encode_mode;
-	unsigned long	key;
 	int				have_password;
 	int				have_salt;
-	unsigned long	iv;
+	int				have_iv;
+	int				have_key;
 	int				des_b64;
 	int				should_padd;
 	int				counter;
@@ -113,6 +115,9 @@ typedef struct		s_ft_ssl_cipher_op
 	t_ft_ssl_basic_process		ft_ssl_cipher_process;
 	t_fn_encrypt_block 			fn_encrypt_block;
 	t_fn_decrypt_block 			fn_decrypt_block;
+	short						should_have_key;
+	short						should_have_iv;
+	short						should_pad;
 }					t_ft_ssl_cipher_op;
 
 
@@ -136,12 +141,12 @@ void    			sha384_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, 
 // sha512.c
 void    			sha512_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
 void    			sha512_process_firsts_blocks(void *raw_w, void *raw_hash);
-unsigned long 		simple_sha512(char *input);
+void 				simple_sha512(char *input, unsigned long *dest);
 
 
 // === PBKDF ===
 
-unsigned long    	process_pbkdf(char *pass, char *raw_salt, int stdin_mode);
+unsigned long    	process_pbkdf(char *pass, char *raw_salt, t_ft_ssl_mode *ssl_mode, int need_gen_iv);
 
 
 // === DES ===
@@ -202,7 +207,7 @@ void print_bit(unsigned char n);
 // utils.c
 unsigned int        swap32(unsigned int num);
 size_t              swap64(size_t val);
-ssize_t 			utils_read(int fd, char *data, size_t size_block, int decode_mode);
+ssize_t 			utils_read(int fd, char *data, size_t size_block, t_ft_ssl_mode *ssl_mode);
 
 unsigned int        left_rotate(unsigned int n, unsigned int d);
 

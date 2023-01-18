@@ -91,14 +91,13 @@ void    sha512_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, cha
 
 
 
-unsigned long simple_sha512(char *input)
+void simple_sha512(char *input, unsigned long *dest)
 {
      unsigned long vars[] = { 0x6a09e667f3bcc908, 0xbb67ae8584caa73b, 0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1, 
                             0x510e527fade682d1, 0x9b05688c2b3e6c1f, 0x1f83d9abfb41bd6b, 0x5be0cd19137e2179 };
 
     fn_process(input, 0, 128, vars, 1, sha512_process_firsts_blocks, NULL, NULL);
 
-    unsigned long result = vars[0];
-
-    return result;
+    dest[0] = vars[0];
+    dest[1] = vars[1];
 }

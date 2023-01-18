@@ -30,13 +30,13 @@ static t_ft_ssl_digest_op	g_ftssl_digest_op[] =
 
 static t_ft_ssl_cipher_op 		g_ftssl_des_op[] =
 {
-	{DES_BASE64, &base64_process, NULL, NULL},
-	{DES_ECB, NULL, &encrypt_ecb_block, &decrypt_ecb_block},
-	{DES, NULL, &encrypt_cbc_block, &decrypt_cbc_block},
-	{DES_CBC, NULL, &encrypt_cbc_block, &decrypt_cbc_block},
-	{DES_OFB, NULL, &encrypt_ofb_block, &decrypt_ofb_block},
-	{DES_CFB, NULL, &encrypt_cfb_block, &decrypt_cfb_block},
-	{DES_CTR, NULL, &encrypt_ctr_block, &decrypt_ctr_block},
+	{DES_BASE64, &base64_process, NULL, NULL, 0, 0, 1},
+	{DES_ECB, NULL, &encrypt_ecb_block, &decrypt_ecb_block, 1, 0, 1},
+	{DES, NULL, &encrypt_cbc_block, &decrypt_cbc_block, 1, 1, 1},
+	{DES_CBC, NULL, &encrypt_cbc_block, &decrypt_cbc_block, 1, 1, 1},
+	{DES_OFB, NULL, &encrypt_ofb_block, &decrypt_ofb_block, 1, 1, 0},
+	{DES_CFB, NULL, &encrypt_cfb_block, &decrypt_cfb_block, 1, 1, 0},
+	{DES_CTR, NULL, &encrypt_ctr_block, &decrypt_ctr_block, 1, 1, 0},
 };
 
 #endif

@@ -45,14 +45,14 @@ ssize_t delete_spaces(char *buffer, ssize_t len)
     return len;
 }
 
-ssize_t utils_read(int fd, char *data, size_t size_block, int decode_mode) {
+ssize_t utils_read(int fd, char *data, size_t size_block, t_ft_ssl_mode *ssl_mode) {
     unsigned char buffer[128];
     ssize_t len = 0;
     size_t size = 0;
 
     ft_bzero(data, size_block);
     while ((len = read(fd, buffer, size_block - size)) > 0) {
-        if (decode_mode) // remove \n and spaces
+        if (ssl_mode->decode_mode && ssl_mode->des_b64) // remove \n and spaces
             len = delete_spaces(buffer, len);
         ft_memcpy(data + size, buffer, len);
         size += len;
@@ -61,9 +61,8 @@ ssize_t utils_read(int fd, char *data, size_t size_block, int decode_mode) {
             size = 0;
         }
     }
-    if (len < 0) {
+    if (len < 0)
         return -1;
-    }
 
     return size;
 }

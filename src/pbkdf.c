@@ -8,13 +8,13 @@ void    generate_salt(char *salt)
         salt[i] = rand() % 256;
 }
 
-unsigned long   process_rounds(char *password, unsigned long salt, int dk_len)
+void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned long *key, unsigned long *iv)
 {
-    unsigned long t_i = 0;
-    unsigned long result = 0;
+    unsigned long t_i[2];
+    unsigned long result[2];
     unsigned long last_u = 0;
     int size_password = ft_strlen(password);
-    int total_len_concat = size_password + 4 + 8; // size password + 1 int + 1 long
+    int total_len_concat = size_password + 4 + 8*2; // size password + 1 int + 2 long
     char *concat_str = ft_strnew(total_len_concat);
 
     dk_len = (dk_len == 0) ? 1 : dk_len;
@@ -27,30 +27,36 @@ unsigned long   process_rounds(char *password, unsigned long salt, int dk_len)
         ft_memcpy(concat_str + size_password, &salt, 8);
         ft_memcpy(concat_str + size_password + 8, &l, 4);
 
-        last_u = simple_sha512(concat_str);
-        t_i = last_u;
+        simple_sha512(concat_str, result);
+        t_i[0] = result[0];
+        t_i[1] = result[1];
 
         for (int i = 0; i < 4096; i++) // process F function
         {
             // concatenate password with last_u
             ft_bzero(concat_str, total_len_concat);
             ft_memcpy(concat_str, password, size_password);
-            ft_memcpy(concat_str + size_password, &last_u, 8);
-            last_u = simple_sha512(concat_str);
-            t_i ^= last_u;
+            ft_memcpy(concat_str + size_password, &result[0], 8);
+            ft_memcpy(concat_str + size_password + 8, &result[1], 8);
+            simple_sha512(concat_str, result);
+            t_i[0] ^= result[0];
+            t_i[1] ^= result[1];
         }
         
-        result += t_i;
+        result[0] += t_i[0];
+        result[1] += t_i[1];
     }
     free(concat_str);
 
-    return result;
+    *key = result[0];
+    *iv = result[1];
 }
 
 // DK = PBKDF2(PRF, Password, Salt, c, dkLen)
-unsigned long    process_pbkdf(char *pass, char *raw_salt, int stdin_mode)
+unsigned long    process_pbkdf(char *pass, char *raw_salt, t_ft_ssl_mode *ssl_mode, int need_gen_iv)
 {
     char salt_str[17];
+    unsigned long tmp_key = 0, tmp_iv = 0;
     unsigned long salt_number = 0;
     unsigned long result = 0;
     unsigned long last_u = 0;
@@ -72,7 +78,7 @@ unsigned long    process_pbkdf(char *pass, char *raw_salt, int stdin_mode)
         ft_memcpy(&salt_number, salt_str, 16);
     }
 
-    if (stdin_mode)
+    if (!ssl_mode->have_password) // if not have password read as stdin
     {
         char tmp_password[4096];
         char *stdin_password = tmp_password;
@@ -82,23 +88,35 @@ unsigned long    process_pbkdf(char *pass, char *raw_salt, int stdin_mode)
         len_pass = ft_strlen(stdin_password);
         tdk_len = ((len_pass / 128) == 0) ? 1 : (len_pass / 128); // get len of blocks for sha512
 
-        derived_key = process_rounds(stdin_password, salt_number, tdk_len);
-        free(stdin_password);
+        process_rounds(stdin_password, salt_number, tdk_len, &tmp_key, &tmp_iv);
 
         // display as 
         // salt=...
         // key=...
+        // iv=...
         ft_putstr("salt=");
         print_hash_64(salt_number, 0);
         ft_putstr("\nkey=");
-        print_hash_64(derived_key, 0);
-        ft_putchar('\n');
+        print_hash_64(tmp_key, 0);
+        if (need_gen_iv)
+        {
+            if (!ssl_mode->have_iv)
+                ssl_mode->iv = tmp_iv;
+
+            ft_putstr("\niv=");
+            print_hash_64(ssl_mode->iv, 0);
+            ft_putchar('\n');
+        }
+        free(stdin_password);
         exit(0);
     } else {
         len_pass = ft_strlen(pass);
         tdk_len = ((len_pass / 128) == 0) ? 1 : (len_pass / 128); // get len of blocks for sha512
-        derived_key = process_rounds(pass, salt_number, tdk_len);
-     
+        process_rounds(pass, salt_number, tdk_len, &ssl_mode->key, &tmp_iv);
+
+        if (need_gen_iv && !ssl_mode->have_iv)
+            ssl_mode->iv = tmp_iv;
+
         return derived_key;
     }
 }

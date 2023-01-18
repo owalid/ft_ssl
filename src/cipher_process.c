@@ -283,7 +283,7 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
     ft_bzero(buff_blocks, 3*8);
     ft_bzero(buffer, 8);
 
-    while ((readed = utils_read(ssl_mode->input_fd, buffer, 8, 0)) == 8)
+    while ((readed = utils_read(ssl_mode->input_fd, buffer, 8, ssl_mode)) == 8)
     {
         block = 0;
         ft_memcpy(&block, buffer, 8);
@@ -344,7 +344,7 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
 
     result = 0;
 
-    while ((readed = utils_read(ssl_mode->input_fd, buffer, 32, ssl_mode->des_b64)) == 32)
+    while ((readed = utils_read(ssl_mode->input_fd, buffer, 32, ssl_mode)) == 32)
     {
         // ----
         // with 24 we can constitute 3 blocks
@@ -399,7 +399,7 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
             ft_bzero(tmp_buffer, 4*8);
         }
 
-        if (readed == 0 && !ssl_mode->should_padd)
+        if (readed == 0 && (!ssl_mode->should_padd || ssl_mode->des_b64))
             return;
 
         // --- 
