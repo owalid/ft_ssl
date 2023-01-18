@@ -87,34 +87,3 @@ void    print_long(unsigned long n) {
     }
     printf("\n");
 }
-
-// unsigned long simple_sha256(char *input)
-// {
-//     unsigned int vars_int[] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
-
-//     fn_process(input, 0, 64, vars_int, 1, sha256_process_firsts_blocks, NULL, NULL);
-
-//     unsigned long result = 0;
-//     result = (vars_int[1] << 32) | vars_int[0];
-//     // result = vars_int[1] << 32 | vars_int[0];
-
-//     // printf("0: %d|", vars_int[0]);
-//     // printf("1: %d\n", vars_int[1]);
-//     // print_bit(&vars_int[0]);
-//     // print_bit(&vars_int[1]);
-
-//     print_bits(&vars_int[0], 4);
-//     print_bits(&vars_int[1], 4);
-//     print_long(result);
-//     print_bits(&result, 8);
-//     return result;
-// }
-
-// unsigned long hmac_sha256(char *input, unsigned long key)
-// {
-
-// }
-
-// 6a09e667bb67ae853c6ef372a54ff53a510e527f9b05688c1f83d9ab5be0cd19
-
-// 482356C4

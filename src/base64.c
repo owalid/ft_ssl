@@ -40,7 +40,6 @@ ssize_t b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int prin
             } else
                 input[i] = what_in_my_b64(input[i]);
             
-            // printf("input[i] : %d", input[i]);
             if (input[i] == -1 && print)
                 print_errors(ERROR_BASE64_BAD_INPUT, ssl_mode);
         }
@@ -66,13 +65,6 @@ void three_bytes_to_b64(char *raw_input, ssize_t readed, int print, int fd)
 
     for (int i = 0; i < readed; i += 3)
     {
-        // printf("i: %d\n", i);
-        // if (i > 8)
-        // {      
-        //     printf("%c", input[0]);
-        //     printf("%c", input[1]);
-        //     printf("%c", input[2]);
-        // }
         ft_bzero(output, 4);
         ft_bzero(input, 3);
 
@@ -114,8 +106,6 @@ void    base64_process_dispatch(t_ft_ssl_mode *ssl_mode, int char_size)
 
     if (readed < 0)
         print_errors(ERROR_READ_GLOBAL, ssl_mode);
-
-    // putchar('\n');
 }
 
 

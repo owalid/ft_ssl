@@ -84,7 +84,6 @@ int main(int argc, char **argv) {
         for (int i = 0; i < op_dig_size; i++) {
             if (ft_strcmp(argv[1], g_ftssl_digest_op[i].name) == 0) { // get name of digest algorithm
                 flag = 1;
-                // printf("lol");
                 ft_search_modes(argv, argc, ssl_mode); // extract modes options
                 int flag_process = 0;
                 int j = 2;

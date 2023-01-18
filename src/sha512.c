@@ -99,6 +99,6 @@ unsigned long simple_sha512(char *input)
     fn_process(input, 0, 128, vars, 1, sha512_process_firsts_blocks, NULL, NULL);
 
     unsigned long result = vars[0];
-    // printf("result: %lu", result);
+
     return result;
 }

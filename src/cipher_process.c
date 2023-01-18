@@ -289,16 +289,11 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         ft_memcpy(&block, buffer, 8);
         result = fn_encrypt_block(block, ssl_mode, r_k);
         ft_memcpy(&buff_blocks[cpt++], &result, 8);
-        // dprintf(2, "\nreaded (in while) = %d\n", readed);
         if (cpt == 3) {
             if (ssl_mode->des_b64 == 1) print_cipher_b64(buff_blocks, &cpt, ssl_mode->output_fd, 0);
             else print_cipher_raw(buff_blocks, &cpt, ssl_mode->output_fd, 0);
         }
     }
-
-    // dprintf(2, "\nreaded (after while) = %d\n", readed);
-    // printf("readed: %d", readed);
-    // printf("cpt: %d", cpt);
     
     if (readed < 0)
         print_errors(ERROR_READ_GLOBAL, ssl_mode);
@@ -328,15 +323,6 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         if (ssl_mode->des_b64 == 1) print_cipher_b64(buff_blocks, &cpt, ssl_mode->output_fd, readed);
         else print_cipher_raw(buff_blocks, &cpt, ssl_mode->output_fd, readed);
     }
-    // printf("cpt: %d", cpt);
-
-    // for (int i = 0; i < 2; i++)
-    // write(1, &buff_blocks[0], 8);
-    // write(1, &buff_blocks[0], 2);
-
-        // printf("%s", &buff_blocks[i]);
-    // cpt--;
-    
 }
 
 
@@ -364,10 +350,8 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         // with 24 we can constitute 3 blocks
         // ----
 
-        // dprintf(2, "\nreaded (in while) = %d\n", readed);
         if (flag_buffer_filled)
         {
-            // dprintf(2, "flag_buffer_filled ?");
             for (int i = 0; i < 4 - ssl_mode->des_b64; i++)
             {
                 result = fn_decrypt_block(tmp_buffer[i], ssl_mode, r_k);
@@ -384,8 +368,6 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         flag_buffer_filled = 1;
     }
 
-    // dprintf(2, "\nreaded (end of while) = %d\n", readed);
-
     if (readed < 0)
         print_errors(ERROR_READ_GLOBAL, ssl_mode);
 
@@ -394,7 +376,6 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
     // ----
     if (readed >= 0)
     {
-        // dprintf(2, "\nin if readed \n");
         // ---
         // Process the last read from tmp_buffer[] before process the rest 
         if (tmp_buffer[0] != 0)
@@ -411,7 +392,6 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
                     else
                         last_block_size = (tmp_readed % 8 == 0) ? 8 : tmp_readed % 8;
                     
-                    // dprintf(2, "last_block_size = %d", last_block_size);
                     write(ssl_mode->output_fd, &result, last_block_size);
                     return; // quit function if we don't have readed
                 } else write(ssl_mode->output_fd, &result, 8);
@@ -421,8 +401,6 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
 
         if (readed == 0 && !ssl_mode->should_padd)
             return;
-
-        // dprintf(2, "\nold readed = %d\n", readed);
 
         // --- 
         // Process the new read from buffer[]
@@ -436,11 +414,9 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         // calculate last_block_size to apply unpad on last padding
         last_blocks_size = ((readed/8) - 1) <= 0 ? 1 : (readed/8);
 
-        // dprintf(2, "\nnew readed = %d\n", readed);
         if (readed%8 > 0 && readed > 8 && !ssl_mode->should_padd)
             last_blocks_size += 1;
 
-        // dprintf(2, "\nlast_blocks_size = %d", last_blocks_size);
         for (int i = 0; i < last_blocks_size; i++)
         {
             result = fn_decrypt_block(tmp_buffer[i], ssl_mode, r_k);
@@ -449,9 +425,6 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
                     last_block_size = unpad((unsigned char*)&result);
                 else
                     last_block_size = readed % 8;
-                //     last_block_size = (readed / 4) * 3;
-                //     last_block_size = 8;
-                // dprintf(2, "\nlast_block_size = %d\n", last_block_size);
                 write(ssl_mode->output_fd, &result, last_block_size);
             } else write(ssl_mode->output_fd, &result, 8);
         }

@@ -64,8 +64,7 @@ ssize_t utils_read(int fd, char *data, size_t size_block, int decode_mode) {
     if (len < 0) {
         return -1;
     }
-    // dprintf(2, "\nwesh alors: len in read = %lu\n", len);
-    // dprintf(2, "\nwesh alors: size in read = %lu\n", size);
+
     return size;
 }
 
