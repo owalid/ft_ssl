@@ -20,10 +20,12 @@ ssize_t b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int prin
     unsigned char input[4];
     unsigned char output[4];
     int i = 0, j = 0;
-    ssize_t result_size = readed;
+    int size = 3;
+    ssize_t result_size = 0;
 
     for (; i < readed; i += 4, j += 3)
     {
+        size = 3;
         ft_bzero(output, 4);
         ft_bzero(input, 4);
         ft_memcpy(input, raw_input + i, 4);
@@ -32,9 +34,8 @@ ssize_t b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int prin
         {
             if (input[i] == b64_charset[64])
             {
-                // printf("here lol\n");
                 input[i] = 0;
-                result_size--;
+                size--;
             } else
                 input[i] = what_in_my_b64(input[i]);
         }
@@ -43,8 +44,9 @@ ssize_t b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int prin
         output[1] = input[1] << 4 | input[2] >> 2; 
         output[2] = input[2] << 6 | (input[3]);
 
-        if (print == 1 && fd > 0) write(fd, &output, 3);
-        else ft_memcpy(dest + j, output, 3);
+        if (print == 1 && fd > 0) write(fd, &output, size);
+        else ft_memcpy(dest + j, output, size);
+        result_size += size;
     }
     return result_size;
 }
@@ -108,7 +110,7 @@ void    base64_process_dispatch(t_ft_ssl_mode *ssl_mode, int char_size)
     if (readed < 0)
         print_errors(ERROR_READ_GLOBAL, ssl_mode);
 
-    putchar('\n');
+    // putchar('\n');
 }
 
 
