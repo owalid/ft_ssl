@@ -1,4 +1,6 @@
 .vscode
+*.log
+error.md
 test*
 *test*
 lol*

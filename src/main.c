@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
                 ft_search_modes(argv, argc, ssl_mode); // extract modes options
                 flag = 1;
                 int flag_key = 0;
-                int should_read_stdin_pass = 0;
+                int should_read_stdin_pass = 1;
                 int password_index = 0;
                 char tmp_salt[17]; // 17 for \0
                 char tmp_iv[17]; // 17 for \0
@@ -147,9 +147,8 @@ int main(int argc, char **argv) {
                             ssl_mode->output_fd = open(argv[j + 1], O_WRONLY | O_CREAT, 0777);
                             if (ssl_mode->output_fd == -1)
                             {
-                                ft_putstr(ERROR_FILE);
-                                ft_putstr(argv[j + 1]);
-                                ft_putchar('\n');
+                                ft_putstr_fd(ERROR_FILE, 2);
+                                print_errors(argv[j + 1], ssl_mode);
                             }
                         } else
                             print_errors(ERROR_OUTPUT_FILE_NOT_FOUND, ssl_mode);
@@ -159,20 +158,19 @@ int main(int argc, char **argv) {
                         {
                             ssl_mode->input_fd = open(argv[j + 1], O_RDONLY);
                             if (ssl_mode->input_fd == -1)
-                            {
-                                ft_putstr(ERROR_FILE);
-                                ft_putstr(argv[j + 1]);
-                                ft_putchar('\n');
+                            {   
+                                ft_putstr_fd(ERROR_FILE, 2);
+                                print_errors(argv[j + 1], ssl_mode);
                             }
                         } else
                             print_errors(ERROR_INPUT_FILE_NOT_FOUND, ssl_mode);
                         j++;
                     } else if (ft_strcmp(argv[j], "-p") == 0) {
                         ssl_mode->have_password = 1;
-                        if (!argv[j + 1]) // read in stdin
-                            should_read_stdin_pass = 1;
-                        else // process as password
-                            password_index = j + 1;
+                        should_read_stdin_pass = 1;
+                        password_index = j + 1;
+                        if (!argv[j + 1])
+                            print_errors(ERROR_PASSWORD_REQUIRED, ssl_mode);
                     } else if (ft_strcmp(argv[j], "-s") == 0) {
                         if (argc > j + 1)
                         {

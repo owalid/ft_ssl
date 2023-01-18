@@ -26,6 +26,7 @@
 # define ERROR_INPUT_FILE_NOT_FOUND "Error output file"
 # define ERROR_READ_GLOBAL "Error on read"
 # define ERROR_BASE64_BAD_INPUT "Error base64: invalid input"
+# define ERROR_PASSWORD_REQUIRED "Password error: password is required with -p option"
 // ---
 // WARNING
 // ---
