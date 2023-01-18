@@ -33,9 +33,7 @@ void print_bits(unsigned char *str, size_t len) {
 
 ssize_t delete_spaces(char *buffer, ssize_t len)
 {
-    int i = 0;
-    int offset = 0;
-    ssize_t all_offset = 0;
+    ssize_t i = 0, offset = 0;
 
     for (; i + offset < len; i++)
     {
@@ -43,6 +41,9 @@ ssize_t delete_spaces(char *buffer, ssize_t len)
             offset++;
         buffer[i] = buffer[i + offset];
     }
+
+    if (i + offset > len) i--;
+    
     return i;
 }
 
@@ -55,6 +56,7 @@ ssize_t utils_read(int fd, char *data, size_t size_block, t_ft_ssl_mode *ssl_mod
     while ((len = read(fd, buffer, size_block - size)) > 0) {
         if (ssl_mode->decode_mode && ssl_mode->des_b64) // remove \n and spaces
             len = delete_spaces(buffer, len);
+
         ft_memcpy(data + size, buffer, len);
         size += len;
         if (size == size_block) {

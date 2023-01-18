@@ -40,7 +40,7 @@ ssize_t b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int prin
             } else
                 input[i] = what_in_my_b64(input[i]);
             
-            if (input[i] == -1 && print)
+            if (input[i] == -1)
             {
                 print_errors(ERROR_BASE64_BAD_INPUT, ssl_mode);
             }
