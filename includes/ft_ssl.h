@@ -31,6 +31,7 @@
 // ---
 # define WARNING_DES_KEY_TO_SHORT "Warning: hexa string too short, padding with zero bytes to length"
 # define WARNING_DES_KEY_TO_LONG "Warning: hexa string too long, ignoring excess"
+# define WARNING_IV_NOT_USED "Warning: iv not used by this cipher"
 
 // ---
 // OTHERS

@@ -198,6 +198,12 @@ int main(int argc, char **argv) {
 
                 if (ssl_mode->iv == 0 && (ft_strcmp(argv[1], "des-cbc") == 0 || ft_strcmp(argv[1], "des") == 0))
                     print_errors(ERROR_DES_IV_NO_PROVIDED, ssl_mode);
+                
+                if (ssl_mode->iv != 0 && ft_strcmp(argv[1], "des-ecb") == 0)
+                {
+                    ft_putstr_fd(WARNING_IV_NOT_USED, 2);
+                    ft_putchar_fd('\n', 2);
+                }
                     
                 if (ssl_mode->key == 0 && ft_strcmp(argv[1], "base64") != 0)
                     ssl_mode->key = process_pbkdf(argv[password_index], (ssl_mode->have_salt == 1) ? tmp_salt : NULL, (ssl_mode->have_password == 0 || ssl_mode->have_salt == 0));

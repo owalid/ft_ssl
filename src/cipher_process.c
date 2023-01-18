@@ -374,9 +374,6 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
     if (readed < 0)
         print_errors(ERROR_READ_GLOBAL, ssl_mode);
 
-    // printf("readed: %d", readed);
-    // printf("readed: %d", readed);
-
     // ----
     // with the rest we constitute n blocks who n < 3 (8 by block)
     // ----
@@ -386,14 +383,13 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         // Process the last read from tmp_buffer[] before process the rest 
         if (tmp_buffer[0] != 0)
         {
-            // printf("here\n");
             for (int i = 0; i < 4 - ssl_mode->des_b64; i++)
             {
                 result = 0;
                 result = fn_decrypt_block(tmp_buffer[i], ssl_mode, r_k);
+
                 if (i == (4 - ssl_mode->des_b64) - 1 && readed == 0) // -1 to get last block
                 {
-                    last_block_size = 8;
                     if (ssl_mode->should_padd)
                         last_block_size = unpad((unsigned char*)&result);
                     write(ssl_mode->output_fd, &result, last_block_size);
@@ -405,39 +401,29 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
 
         // --- 
         // Process the new read from buffer[]
-        ft_bzero(tmp_buffer, 4*8);
         if (ssl_mode->des_b64 == 1) b64_to_three_bytes(buffer, (char *)tmp_buffer, readed, 0, 0);
         else {
             int j = 0;
             for (int i = 0; i < readed; j++, i += 8)
                 ft_memcpy(&tmp_buffer[j], buffer + i, 8);
         }
-        // ft_bzero(tmp_buffer, 4*8);
 
-        // if (!ssl_mode->should_padd)
-        //     readed -= 2;
-        // printf("new readed: %d", readed);
-
-        // ---
         // calculate last_block_size to apply unpad on last padding
         last_blocks_size = ((readed/8) - 1) <= 0 ? 1 : (readed/8) - ssl_mode->des_b64;
-        if (readed%8 > 0 && readed > 8)
-            last_blocks_size += 1;
-// printf("new last_blocks_size: %d", last_blocks_size);
 
+        if (readed%8 > 0 && readed > 8 && !ssl_mode->should_padd)
+            last_blocks_size += 1;
 
         for (int i = 0; i < last_blocks_size; i++)
         {
             result = fn_decrypt_block(tmp_buffer[i], ssl_mode, r_k);
             if (i + 1 == last_blocks_size) { // process last block unpadding
-                if (readed%8 > 0 && !ssl_mode->should_padd)
-                    last_block_size = readed%8;    
-                else
-                    last_block_size = 8;
-
                 if (ssl_mode->should_padd)
                     last_block_size = unpad((unsigned char*)&result);
-                // printf("last_block_size: %d", last_block_size);
+                else if (readed % 8 > 0 && !ssl_mode->should_padd)
+                    last_block_size = readed % 8;
+                else
+                    last_block_size = 8;
                 write(ssl_mode->output_fd, &result, last_block_size);
             } else write(ssl_mode->output_fd, &result, 8);
         }
