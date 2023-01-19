@@ -1,6 +1,67 @@
 #include "ft_ssl.h"
 #include "libft.h"
 
+void    print_errors(char *msg, t_ft_ssl_mode *ssl_mode)
+{
+    ft_putstr_fd(msg, 2);
+    ft_putchar('\n');
+
+    if (ssl_mode)
+    {
+        if (ssl_mode->input_fd > 2)
+            close(ssl_mode->input_fd);
+        if (ssl_mode->output_fd > 2)
+            close(ssl_mode->output_fd);
+        exit(1);
+    }
+}
+
+ssize_t delete_spaces(char *buffer, ssize_t len)
+{
+    ssize_t i = 0, offset = 0;
+    char tmp_buffer[128];
+
+    ft_bzero(tmp_buffer, 128);
+    ft_memcpy(tmp_buffer, buffer, len);
+    for (; i + offset < len; i++)
+    {
+        while (ft_isspace(tmp_buffer[i + offset]) && tmp_buffer[i + offset] != ' ')
+            offset++;
+        tmp_buffer[i] = tmp_buffer[i + offset];
+    }
+
+    if (i + offset > len) i--;
+
+    ft_strcpy(buffer, tmp_buffer);
+    
+    return i;
+}
+
+ssize_t utils_read(int fd, char *data, size_t size_block, t_ft_ssl_mode *ssl_mode) {
+    unsigned char buffer[128];
+    ssize_t len = 0;
+    size_t size = 0;
+
+    ft_bzero(data, size_block);
+    while ((len = read(fd, buffer, size_block - size)) > 0) {
+        if (ssl_mode->decode_mode && ssl_mode->des_b64) // remove \n and spaces
+            len = delete_spaces(buffer, len);
+
+        ft_memcpy(data + size, buffer, len);
+        size += len;
+        if (size == size_block) {
+            return size;
+            size = 0;
+        }
+    }
+    if (len < 0)
+        return -1;
+
+    return size;
+}
+
+
+
 void preprocess_final_output(t_ft_ssl_mode *ssl_mode, char *algo_name, int input_type, char *input, t_fn_print_hash fn_print_hash, void *hash, size_t size)
 {
     int should_print_std = (input_type == 2 && ssl_mode->quiet_mode == 0 && ssl_mode->std_mode == 1) ? 1 : 0;
@@ -60,20 +121,29 @@ void print_hash_32(void *hash, size_t size)
     }
 }
 
+void print_hash_64(unsigned long hash, int lower)
+{
+    char *str;
+    if (lower)
+        str = ft_strlowcase(ft_utoa_base(hash, 16));
+    else
+        str = ft_utoa_base(hash, 16);
 
-void print_hash_64(void* hash, size_t size)
+    int len = ft_strlen(str);
+    for (int i = 0; i < 16 - len; i++)
+        ft_putchar('0');
+    ft_putstr(str);
+    free(str);
+}
+
+void print_hashes_64(void* hash, size_t size)
 {
     char *str;
     int len;
     unsigned long *hashh = (unsigned long*)hash;
 
     for (int i = 0; (size_t)i < size; i++) {
-        str = ft_strlowcase(ft_utoa_base(hashh[i], 16));
-        len = ft_strlen(str);
-        for (int i = 0; i < 16 - len; i++)
-            ft_putchar('0');
-        ft_putstr(str);
-        free(str);
+        print_hash_64(hashh[i], 1);
     }
 }
 

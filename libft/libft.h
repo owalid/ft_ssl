@@ -6,7 +6,7 @@
 /*   By: oel-ayad <oel-ayad@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/09 11:12:24 by oel-ayad          #+#    #+#             */
-/*   Updated: 2022/12/26 21:00:21 by oel-ayad         ###   ########.fr       */
+/*   Updated: 2023/01/11 17:06:49 by oel-ayad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ char				*ft_strjoin(char const *s1, char const *s2);
 char				*ft_strtrim(char const *s);
 char				**ft_strsplit(char const *s, char c);
 char				*ft_itoa(int nb);
+ssize_t      		ft_hextol(char *str);
 char				*ft_utoa_base(unsigned long long n, int b);
 void				ft_putchar(char c);
 void				ft_putstr(const char *s);

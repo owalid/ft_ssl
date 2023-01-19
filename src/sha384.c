@@ -8,5 +8,5 @@ void    sha384_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, cha
                                 0x67332667ffc00b31, 0x8eb44a8768581511, 0xdb0c2e0d64f98fa7, 0x47b5481dbefa4fa4 };
     int res = fn_process(input, input_type, 128, vars, 1, sha512_process_firsts_blocks, ssl_mode, algo_name);
     if (res == 1)
-        preprocess_final_output(ssl_mode, algo_name, input_type, input, print_hash_64, vars, 6);
+        preprocess_final_output(ssl_mode, algo_name, input_type, input, print_hashes_64, vars, 6);
 }

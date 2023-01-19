@@ -1,4 +1,12 @@
 .vscode
+*.log
+error.md
+test*
+*test*
+lol*
+lul*
+mdr*
+tmp*
 -p
 *.py
 obj

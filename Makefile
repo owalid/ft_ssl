@@ -1,18 +1,17 @@
 NAME	= ft_ssl
 
 SRC		= main.c \
-			md5.c \
-			sha224.c \
-			sha256.c \
-			sha384.c \
-			sha512.c \
-			process.c \
-			utils.c
+			md5.c sha224.c sha256.c sha384.c sha512.c \
+			digest_process.c cipher_process.c \
+			base64.c des_ecb.c des_cbc.c des_ofb.c des_cfb.c des_ctr.c \
+			utils.c cipher_utils.c \
+			pbkdf.c
 
 OBJ		= $(addprefix $(OBJDIR),$(SRC:.c=.o))
 
 CC		= gcc -g
-CFLAGS	= -Wall -Wextra -Werror
+CFLAGS	=
+# CFLAGS	= -Wall -Wextra -Werror
 
 
 FT		= ./libft/

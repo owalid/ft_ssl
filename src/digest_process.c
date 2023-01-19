@@ -89,7 +89,7 @@ int fn_process(char *input, int input_type, size_t byte_size, void *vars, int sh
             }
 
             if (readed < 0) {
-                ft_putstr(DIR_READ);
+                ft_putstr(ERROR_DIR_READ);
                 ft_putstr(input);
                 ft_putchar('\n');
                 return 0;
