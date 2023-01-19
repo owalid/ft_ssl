@@ -21,3 +21,12 @@
 ## F function from encryption loop
 
 <img src="https://user-images.githubusercontent.com/28403617/213419874-3fa99277-0c28-4c49-b37d-b35669320977.png" />
+
+
+
+## Source
+
+- (Block cipher mode of operation)[https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation]
+- (Wiki des)[https://en.wikipedia.org/wiki/Data_Encryption_Standard]
+- (scaler des)[https://www.scaler.com/topics/des-algorithm/]
+

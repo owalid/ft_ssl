@@ -104,11 +104,14 @@ void    base64_process_dispatch(t_ft_ssl_mode *ssl_mode, int char_size)
     while ((readed = utils_read(ssl_mode->input_fd, (char*)tmp, char_size, ssl_mode)) > 0)
     {
         if (char_size == 4) b64_to_three_bytes((char*)tmp, (char*)output, readed, 1, ssl_mode); // decode
-        else  three_bytes_to_b64((char*)tmp, readed, ssl_mode->output_fd); // encode
+        else three_bytes_to_b64((char*)tmp, readed, ssl_mode->output_fd); // encode
     }
 
     if (readed < 0)
         print_errors(ERROR_READ_GLOBAL, ssl_mode);
+
+    if (char_size == 3)
+        ft_putchar_fd('\n', ssl_mode->output_fd);
 }
 
 
