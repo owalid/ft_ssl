@@ -160,14 +160,14 @@ void permutation(unsigned long *input, unsigned long *arr, unsigned int from_s, 
     // Process permutation according arr table and little endian
     unsigned long tmp = 0;
 
-    for (int i = 0; i < to_s; i++)
+    for (int i = 0; (unsigned int)i < to_s; i++)
         tmp |= ((*input >> (from_s - arr[i])) & 1) << (to_s - i - 1);
 
     *input = 0;
     *input = tmp;
 }
 
-unsigned int shift_left(unsigned long *input, unsigned int n, unsigned int len)
+void shift_left(unsigned long *input, unsigned int n, unsigned int len)
 {
     // Process shift_left according ROTATE_TAB
      *input = ((*input << ROTATE_TAB[n]) | (*input >> (len - ROTATE_TAB[n]))) & 0x0FFFFFFFUL;
@@ -182,7 +182,7 @@ unsigned long encrypt_block(unsigned long block, unsigned long *key)
 {
     // message block: 64 bits
     // key: 48 bits
-    unsigned long end_block = 0, right = 0, left = 0, sbox = 0, xor_round = 0, tmp = 0, tmp_xor_round = 0;
+    unsigned long end_block = 0, right = 0, left = 0, sbox = 0, xor_round = 0;
     int row = 0, col = 0;
 
     block = swap64(block);
@@ -320,7 +320,7 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         block = 0;
         if (ssl_mode->should_padd)
         {
-            pad_block(buffer, readed);
+            pad_block((unsigned char*)buffer, readed);
             readed = 8;
         }
         ft_memcpy(&block, buffer, readed);
@@ -446,7 +446,7 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
 }
 
 
-void        des_process(char *input, t_ft_ssl_mode *ssl_mode, t_fn_encrypt_block fn_encrypt_block, t_fn_decrypt_block fn_decrypt_block)
+void        des_process(t_ft_ssl_mode *ssl_mode, t_fn_encrypt_block fn_encrypt_block, t_fn_decrypt_block fn_decrypt_block)
 {
     unsigned long r_k[16];
 

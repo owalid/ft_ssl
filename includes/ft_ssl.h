@@ -76,6 +76,9 @@ md5, sha256, sha224, sha384, sha512.\n"
 # define CIPHER_LIST "Message Digest algorithm:\n\
 base64, des, des-ecb, des-cbc\n"
 
+
+# define UNUSED(x) (void)(x)
+
 typedef struct		s_ft_ssl_mode
 {
 	unsigned long	key;
@@ -101,20 +104,21 @@ typedef 			void (*t_fn_process_firsts_blocks)(void *raw_w, void *raw_hash);
 typedef				void (*t_fn_print_hash)(void *hash, size_t size);
 typedef				unsigned long (*t_fn_encrypt_block)(unsigned long block, t_ft_ssl_mode *ssl_mode, unsigned long *round_key);
 typedef				unsigned long (*t_fn_decrypt_block)(unsigned long block, t_ft_ssl_mode *ssl_mode, unsigned long *round_key);
-typedef				void(*t_ft_ssl_basic_process)(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
+typedef				void(*t_ft_ssl_dgst_process)(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
+typedef				void(*t_ft_ssl_base64_process)(t_ft_ssl_mode *ssl_mode);
 
 
 typedef struct		s_ft_ssl_digest_op
 {
 	char					*name;
-	t_ft_ssl_basic_process	ft_ssl_dgst_process;
+	t_ft_ssl_dgst_process	ft_ssl_dgst_process;
 }					t_ft_ssl_digest_op;
 
 
 typedef struct		s_ft_ssl_cipher_op
 {
 	char						*name;
-	t_ft_ssl_basic_process		ft_ssl_cipher_process;
+	t_ft_ssl_base64_process		ft_ssl_cipher_process;
 	t_fn_encrypt_block 			fn_encrypt_block;
 	t_fn_decrypt_block 			fn_decrypt_block;
 	short						should_have_key;
@@ -154,8 +158,8 @@ void		    	process_pbkdf(char *pass, char *raw_salt, t_ft_ssl_mode *ssl_mode, in
 // === DES ===
 
 // base64.c
-void    			base64_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
-void 				three_bytes_to_b64(char *raw_input, ssize_t readed, int print, int fd);
+void    			base64_process(t_ft_ssl_mode *ssl_mode);
+void 				three_bytes_to_b64(char *raw_input, ssize_t readed, int fd);
 ssize_t 			b64_to_three_bytes(char *raw_input, char *dest, ssize_t readed, int print, t_ft_ssl_mode *ssl_mode);
 
 // des_ecb.c
@@ -181,7 +185,7 @@ unsigned long       decrypt_ctr_block(unsigned long block, t_ft_ssl_mode *ssl_mo
 
 
 // === CIPHER PROCESS ===
-void        		des_process(char *input, t_ft_ssl_mode *ssl_mode, t_fn_encrypt_block fn_encrypt_block, t_fn_decrypt_block fn_decrypt_block);
+void        		des_process(t_ft_ssl_mode *ssl_mode, t_fn_encrypt_block fn_encrypt_block, t_fn_decrypt_block fn_decrypt_block);
 void        		des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_fn_encrypt_block fn_encrypt_block);
 void        		des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_fn_encrypt_block fn_decrypt_block);
 unsigned long* 		process_round_keys(unsigned long key, unsigned long *round_k);

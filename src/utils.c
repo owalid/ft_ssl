@@ -47,7 +47,7 @@ ssize_t utils_read(int fd, char *data, size_t size_block, t_ft_ssl_mode *ssl_mod
     ft_bzero(data, size_block);
     while ((len = read(fd, buffer, size_block - size)) > 0) {
         if (ssl_mode->decode_mode && ssl_mode->des_b64) // remove \n and spaces
-            len = delete_spaces(buffer, len, ssl_mode->des_mode);
+            len = delete_spaces((char*)buffer, len, ssl_mode->des_mode);
 
         ft_memcpy(data + size, buffer, len);
         size += len;
@@ -140,8 +140,6 @@ void print_hash_64(unsigned long hash, int lower)
 
 void print_hashes_64(void* hash, size_t size)
 {
-    char *str;
-    int len;
     unsigned long *hashh = (unsigned long*)hash;
 
     for (int i = 0; (size_t)i < size; i++) {

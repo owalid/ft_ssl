@@ -130,7 +130,6 @@ int main(int argc, char **argv) {
                 ft_search_modes(argv, argc, ssl_mode); // extract modes options
                 flag = 1;
                 int flag_key = 0;
-                int should_read_stdin_pass = 1;
                 int password_index = 0;
                 char tmp_salt[17]; // 17 for \0
                 char tmp_iv[17]; // 17 for \0
@@ -144,7 +143,6 @@ int main(int argc, char **argv) {
 
                         // generate key and padd if the len of argv[j+1] is < 16
                         ssize_t result_hex = 0;
-                        int len_key = ft_strlen(argv[j + 1]);
                         result_hex = gen_key_padding(argv[j + 1], tmp_key, ssl_mode);
                         ssl_mode->key = result_hex;
                         ssl_mode->have_key = 1;
@@ -176,7 +174,6 @@ int main(int argc, char **argv) {
                         j++;
                     } else if (ft_strcmp(argv[j], "-p") == 0) { // process as password
                         ssl_mode->have_password = 1;
-                        should_read_stdin_pass = 1;
                         password_index = j + 1;
                         if (!argv[j + 1])
                             print_errors(ERROR_PASSWORD_REQUIRED, ssl_mode);
@@ -185,9 +182,7 @@ int main(int argc, char **argv) {
                         if (argc > j + 1)
                         {
                             // generate salt and padd if the len of argv[j + 1] is < 16
-                            ssize_t result_hex_salt = 0;
-                            int len_key = ft_strlen(argv[j + 1]);
-                            result_hex_salt = gen_key_padding(argv[j + 1], tmp_salt, ssl_mode);
+                            gen_key_padding(argv[j + 1], tmp_salt, ssl_mode);
                             ssl_mode->have_salt = 1;
                         }
                         else // if we don't have salt, initialize with 0
@@ -235,12 +230,12 @@ int main(int argc, char **argv) {
 
                 // DES and base64 have different process so we need to check if the function is available
                 if (g_ftssl_des_op[i].ft_ssl_cipher_process) // for base64
-                    g_ftssl_des_op[i].ft_ssl_cipher_process(argv[2], ssl_mode, 0, g_ftssl_des_op[i].name);
+                    g_ftssl_des_op[i].ft_ssl_cipher_process(ssl_mode);
                 else if (g_ftssl_des_op[i].fn_encrypt_block && g_ftssl_des_op[i].fn_decrypt_block)
                 {
                     // for all des-*
                     ssl_mode->des_mode = 1;
-                    des_process(argv[2], ssl_mode, g_ftssl_des_op[i].fn_encrypt_block, g_ftssl_des_op[i].fn_decrypt_block);
+                    des_process(ssl_mode, g_ftssl_des_op[i].fn_encrypt_block, g_ftssl_des_op[i].fn_decrypt_block);
                 }
                 else
                     print_errors("Unexcepted error", ssl_mode);
