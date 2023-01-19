@@ -79,11 +79,3 @@ void    sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, cha
     if (res == 1)
         preprocess_final_output(ssl_mode, algo_name, input_type, input, print_hash_32, vars, 8);
 }
-
-void    print_long(unsigned long n) {
-    for (int index = 0; index < 64; index++) {
-        if (!(index % 8) && index) printf(" ");
-        printf("%d", (n >> (63 - index)) & 1);
-    }
-    printf("\n");
-}
