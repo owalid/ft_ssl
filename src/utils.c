@@ -16,7 +16,7 @@ void    print_errors(char *msg, t_ft_ssl_mode *ssl_mode)
     }
 }
 
-ssize_t delete_spaces(char *buffer, ssize_t len)
+ssize_t delete_spaces(char *buffer, ssize_t len, int des_mode)
 {
     ssize_t i = 0, offset = 0;
     char tmp_buffer[128];
@@ -25,7 +25,9 @@ ssize_t delete_spaces(char *buffer, ssize_t len)
     ft_memcpy(tmp_buffer, buffer, len);
     for (; i + offset < len; i++)
     {
-        while (ft_isspace(tmp_buffer[i + offset]) && tmp_buffer[i + offset] != ' ')
+        // delete all space for des mode
+        // delete all space without ' ' for b64 mode
+        while ((ft_isspace(tmp_buffer[i + offset]) && tmp_buffer[i + offset] != ' ')  || (tmp_buffer[i + offset] == ' ' && des_mode))
             offset++;
         tmp_buffer[i] = tmp_buffer[i + offset];
     }
@@ -45,7 +47,7 @@ ssize_t utils_read(int fd, char *data, size_t size_block, t_ft_ssl_mode *ssl_mod
     ft_bzero(data, size_block);
     while ((len = read(fd, buffer, size_block - size)) > 0) {
         if (ssl_mode->decode_mode && ssl_mode->des_b64) // remove \n and spaces
-            len = delete_spaces(buffer, len);
+            len = delete_spaces(buffer, len, ssl_mode->des_mode);
 
         ft_memcpy(data + size, buffer, len);
         size += len;

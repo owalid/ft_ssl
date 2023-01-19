@@ -236,8 +236,12 @@ int main(int argc, char **argv) {
                 // DES and base64 have different process so we need to check if the function is available
                 if (g_ftssl_des_op[i].ft_ssl_cipher_process) // for base64
                     g_ftssl_des_op[i].ft_ssl_cipher_process(argv[2], ssl_mode, 0, g_ftssl_des_op[i].name);
-                else if (g_ftssl_des_op[i].fn_encrypt_block && g_ftssl_des_op[i].fn_decrypt_block) // for all des-*
+                else if (g_ftssl_des_op[i].fn_encrypt_block && g_ftssl_des_op[i].fn_decrypt_block)
+                {
+                    // for all des-*
+                    ssl_mode->des_mode = 1;
                     des_process(argv[2], ssl_mode, g_ftssl_des_op[i].fn_encrypt_block, g_ftssl_des_op[i].fn_decrypt_block);
+                }
                 else
                     print_errors("Unexcepted error", ssl_mode);
 

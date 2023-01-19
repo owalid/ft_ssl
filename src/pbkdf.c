@@ -76,7 +76,7 @@ void    process_pbkdf(char *pass, char *raw_salt, t_ft_ssl_mode *ssl_mode, int n
         char *stdin_password = tmp_password;
 
         ft_bzero(stdin_password, 4096);
-        stdin_password = getpass("Enter encryption password");
+        stdin_password = getpass("Enter encryption password: ");
         len_pass = ft_strlen(stdin_password);
         tdk_len = ((len_pass / 128) == 0) ? 1 : (len_pass / 128); // get len of blocks for sha512
 

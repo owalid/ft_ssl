@@ -337,6 +337,7 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
 void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_fn_decrypt_block fn_decrypt_block)
 {
     unsigned long result;
+    int flag = 0;
     char buffer[32];
     unsigned long tmp_buffer[4]; // 3 * 8 = 24 and 4 * 8 = 32
     ssize_t readed = 0, tmp_readed = 0, last_block_size = 0;
@@ -357,7 +358,7 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         // ----
         // with 24 we can constitute 3 blocks
         // ----
-
+        flag = 1;
         if (flag_buffer_filled)
         {
             for (int i = 0; i < 4 - ssl_mode->des_b64; i++)
@@ -388,6 +389,7 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         // Process the last read from tmp_buffer[] before process the rest 
         if (tmp_buffer[0] != 0)
         {
+            flag = 1;
             for (int i = 0; i < 4 - ssl_mode->des_b64; i++)
             {
                 result = 0;
@@ -407,8 +409,12 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
             ft_bzero(tmp_buffer, 4*8);
         }
 
-        if (readed == 0 && (!ssl_mode->should_padd || ssl_mode->des_b64))
+        if (readed == 0 || (readed < 8 && ssl_mode->should_padd)) // quit function if we don't have readed or if the block is not good size
+        {
+            if (!flag && ssl_mode->should_padd) // display error when we read 0 in all program
+                print_errors(ERROR_BAD_DECRYPT, ssl_mode);
             return;
+        }
 
         // --- 
         // Process the new read from buffer[]

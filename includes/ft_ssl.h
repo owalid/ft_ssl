@@ -27,6 +27,7 @@
 # define ERROR_READ_GLOBAL "Error on read"
 # define ERROR_BASE64_BAD_INPUT "Error base64: invalid input"
 # define ERROR_PASSWORD_REQUIRED "Password error: password is required with -p option"
+# define ERROR_BAD_DECRYPT "Error bad decrypt"
 // ---
 // WARNING
 // ---
@@ -91,6 +92,7 @@ typedef struct		s_ft_ssl_mode
 	int				have_iv;
 	int				have_key;
 	int				des_b64;
+	int				des_mode;
 	int				should_padd;
 	int				counter;
 }					t_ft_ssl_mode;
