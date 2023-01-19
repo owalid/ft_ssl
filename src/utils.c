@@ -34,15 +34,20 @@ void print_bits(unsigned char *str, size_t len) {
 ssize_t delete_spaces(char *buffer, ssize_t len)
 {
     ssize_t i = 0, offset = 0;
+    char tmp_buffer[128];
 
+    ft_bzero(tmp_buffer, 128);
+    ft_memcpy(tmp_buffer, buffer, len);
     for (; i + offset < len; i++)
     {
-        while (ft_isspace(buffer[i + offset]))
+        while (ft_isspace(tmp_buffer[i + offset]) && tmp_buffer[i + offset] != ' ')
             offset++;
-        buffer[i] = buffer[i + offset];
+        tmp_buffer[i] = tmp_buffer[i + offset];
     }
 
     if (i + offset > len) i--;
+
+    ft_strcpy(buffer, tmp_buffer);
     
     return i;
 }
