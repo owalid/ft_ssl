@@ -12,7 +12,6 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
 {
     unsigned long t_i[2];
     unsigned long result[2];
-    unsigned long last_u = 0;
     int size_password = ft_strlen(password);
     int total_len_concat = size_password + 4 + 8*2; // size password + 1 int + 2 long
     char *concat_str = ft_strnew(total_len_concat);
@@ -53,18 +52,11 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
 }
 
 // DK = PBKDF2(PRF, Password, Salt, c, dkLen)
-unsigned long    process_pbkdf(char *pass, char *raw_salt, t_ft_ssl_mode *ssl_mode, int need_gen_iv)
+void    process_pbkdf(char *pass, char *raw_salt, t_ft_ssl_mode *ssl_mode, int need_gen_iv)
 {
     char salt_str[17];
-    unsigned long tmp_key = 0, tmp_iv = 0;
-    unsigned long salt_number = 0;
-    unsigned long result = 0;
-    unsigned long last_u = 0;
-    unsigned long derived_key = 0;
-    int tdk_len = 0;
-    int c = 4096;
-    int h_len = 256;
-    int len_pass = 0;
+    unsigned long tmp_key = 0, tmp_iv = 0, salt_number = 0;
+    int tdk_len = 0, len_pass = 0;
 
     srand(time(NULL));
     ft_bzero(salt_str, 17);
@@ -116,7 +108,5 @@ unsigned long    process_pbkdf(char *pass, char *raw_salt, t_ft_ssl_mode *ssl_mo
 
         if (need_gen_iv && !ssl_mode->have_iv)
             ssl_mode->iv = tmp_iv;
-
-        return derived_key;
     }
 }

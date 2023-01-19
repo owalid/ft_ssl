@@ -35,6 +35,8 @@ void ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
 
 unsigned long gen_key_padding(char *raw_k, char *dest_key, t_ft_ssl_mode *ssl_mode)
 {
+    // Padding key to 16 bytes if needed
+    // return key in hex
     ssize_t result_hex = 0;
     int len_key = ft_strlen(raw_k);
     ft_bzero(dest_key, 17);
@@ -81,6 +83,10 @@ int main(int argc, char **argv) {
         }
     }
     if (argc >= 2) {
+
+        // ---
+        // digest processing
+        // ---
         for (int i = 0; i < op_dig_size; i++) {
             if (ft_strcmp(argv[1], g_ftssl_digest_op[i].name) == 0) { // get name of digest algorithm
                 flag = 1;
@@ -115,6 +121,10 @@ int main(int argc, char **argv) {
             }
         }
 
+
+        // ---
+        // ciphers processing
+        // ---
         for (int i = 0; i < op_des_size; i++) {
             if (ft_strcmp(argv[1], g_ftssl_des_op[i].name) == 0 && argc >= 2) {
                 ft_search_modes(argv, argc, ssl_mode); // extract modes options
@@ -124,6 +134,7 @@ int main(int argc, char **argv) {
                 int password_index = 0;
                 char tmp_salt[17]; // 17 for \0
                 char tmp_iv[17]; // 17 for \0
+                char tmp_key[17]; // 17 for \0
 
 
                 for (int j = 2; j < argc; j++) {
@@ -132,10 +143,8 @@ int main(int argc, char **argv) {
                             print_errors(ERROR_DES_KEY_NO_PROVIDED, ssl_mode);
 
                         // generate key and padd if the len of argv[j+1] is < 16
-                        char tmp_key[17]; // 17 for \0
                         ssize_t result_hex = 0;
                         int len_key = ft_strlen(argv[j + 1]);
-
                         result_hex = gen_key_padding(argv[j + 1], tmp_key, ssl_mode);
                         ssl_mode->key = result_hex;
                         ssl_mode->have_key = 1;
@@ -165,14 +174,14 @@ int main(int argc, char **argv) {
                         } else
                             print_errors(ERROR_INPUT_FILE_NOT_FOUND, ssl_mode);
                         j++;
-                    } else if (ft_strcmp(argv[j], "-p") == 0) {
+                    } else if (ft_strcmp(argv[j], "-p") == 0) { // process as password
                         ssl_mode->have_password = 1;
                         should_read_stdin_pass = 1;
                         password_index = j + 1;
                         if (!argv[j + 1])
                             print_errors(ERROR_PASSWORD_REQUIRED, ssl_mode);
                         j++;
-                    } else if (ft_strcmp(argv[j], "-s") == 0) {
+                    } else if (ft_strcmp(argv[j], "-s") == 0) { // process as salt
                         if (argc > j + 1)
                         {
                             // generate salt and padd if the len of argv[j + 1] is < 16
@@ -181,24 +190,21 @@ int main(int argc, char **argv) {
                             result_hex_salt = gen_key_padding(argv[j + 1], tmp_salt, ssl_mode);
                             ssl_mode->have_salt = 1;
                         }
-                        else
+                        else // if we don't have salt, initialize with 0
                         {
                             ft_memset(tmp_salt, '0', 16);
                             tmp_salt[16] = 0;
                         }
                         j++;
-                    } else if (ft_strcmp(argv[j], "-v") == 0) {
+                    } else if (ft_strcmp(argv[j], "-v") == 0) { // process as iv
                         ssl_mode->have_iv = 1;
                         if (!argv[j + 1] || argc < j + 1)
                         {
                             ft_memset(tmp_iv, '0', 16);
                             tmp_iv[16] = 0;
                         }
-                        else
-                        {
-                            // generate iv and padd if the len of argv[j + 1] is < 16
+                        else // generate iv and padd if the len of argv[j + 1] is < 16
                             ssl_mode->iv = gen_key_padding(argv[j + 1], tmp_iv, ssl_mode);
-                        }
                         j++;
                     }
                 }
@@ -206,10 +212,10 @@ int main(int argc, char **argv) {
                 // process password generation with pkdf
                 if (g_ftssl_des_op[i].should_have_key)
                 {
-                    if (ssl_mode->have_key && g_ftssl_des_op[i].should_have_iv && !ssl_mode->have_iv)
+                    if (ssl_mode->have_key && g_ftssl_des_op[i].should_have_iv && !ssl_mode->have_iv) // if have key and we don't have iv return error like openssl
                             print_errors(ERROR_DES_IV_NO_PROVIDED, ssl_mode);
                     
-                    if (!ssl_mode->have_key)
+                    if (!ssl_mode->have_key) // if we don't have key and we should have key, use pbkdf
                         process_pbkdf(argv[password_index], (ssl_mode->have_salt == 1) ? tmp_salt : NULL, ssl_mode, g_ftssl_des_op[i].should_have_iv);
                 }
                 
@@ -219,13 +225,15 @@ int main(int argc, char **argv) {
                     ft_putchar_fd('\n', 2);
                 }
                 
-                ssl_mode->should_padd = g_ftssl_des_op[i].should_pad;
+                ssl_mode->should_padd = g_ftssl_des_op[i].should_pad; // for des-ofb, des-cfb, des-ctr
 
                 if (ft_strcmp(argv[1], "base64") == 0)
                     ssl_mode->des_b64 = 1;
 
                 ssl_mode->iv = swap64(ssl_mode->iv);
                 ssl_mode->output_fd = (ssl_mode->output_fd == 0) ? 1 : ssl_mode->output_fd;
+
+                // DES and base64 have different process so we need to check if the function is available
                 if (g_ftssl_des_op[i].ft_ssl_cipher_process) // for base64
                     g_ftssl_des_op[i].ft_ssl_cipher_process(argv[2], ssl_mode, 0, g_ftssl_des_op[i].name);
                 else if (g_ftssl_des_op[i].fn_encrypt_block && g_ftssl_des_op[i].fn_decrypt_block) // for all des-*
@@ -233,6 +241,7 @@ int main(int argc, char **argv) {
                 else
                     print_errors("Unexcepted error", ssl_mode);
 
+                // close file descriptors properly
                 if (ssl_mode->input_fd > 0)
                     close(ssl_mode->input_fd);
                 if (ssl_mode->output_fd > 1)

@@ -54,7 +54,7 @@ void    print_cipher_raw(unsigned long* blocks, int *len_block, int fd, int len_
 
 void        reverse_round_key(unsigned long *r_k)
 {
-    // use in description
+    // use for decrypt
     unsigned long tmp_r_k[16];
     ft_bzero(tmp_r_k, 16*8);
 

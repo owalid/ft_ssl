@@ -1,6 +1,10 @@
 # include "ft_ssl.h"
 # include "libft.h"
 
+// ===
+// This file is part of the ft_ssl project. Is is a simple implementation of the des algorithm.
+// There are parts of pure encryption of des. And parts for processing encryption and decryption with reading from stdin, files. 
+// ===
 
 unsigned long S_BOX[8][4][16] = { // used to obscure the relationship between the key and the ciphertext
     { // S1
@@ -176,6 +180,8 @@ unsigned int shift_left(unsigned long *input, unsigned int n, unsigned int len)
 
 unsigned long encrypt_block(unsigned long block, unsigned long *key)
 {
+    // message block: 64 bits
+    // key: 48 bits
     unsigned long end_block = 0, right = 0, left = 0, sbox = 0, xor_round = 0, tmp = 0, tmp_xor_round = 0;
     int row = 0, col = 0;
 
@@ -197,7 +203,7 @@ unsigned long encrypt_block(unsigned long block, unsigned long *key)
         // 1 & 2-  Expansion Permutation & Key mixing
         xor_round = right;
 
-        permutation(&xor_round, EXPANSION_TAB, 32, 48);
+        permutation(&xor_round, EXPANSION_TAB, 32, 48); // from 32 to 48 bits
 
         xor_round ^= key[i];
 
@@ -225,7 +231,7 @@ unsigned long encrypt_block(unsigned long block, unsigned long *key)
     }
 
     // 5 - Combine left and right
-    end_block = ((left << 32) | right);
+    end_block = ((left << 32) | right); // from 2*32 to 64 bits
 
     permutation(&end_block, FINAL_PERM_TAB, 64, 64); 
 
@@ -239,7 +245,7 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
     unsigned long left = 0, right = 0, concat = 0, curr_round = 0;
 
 
-    permutation(&key, PERMUTATION_INIT_KEY, 64, 56);
+    permutation(&key, PERMUTATION_INIT_KEY, 64, 56); // from 64 to 56 bits
 
     // LEFT IS CARREY
     left = (key >> 28) & 0x0FFFFFFFUL;
@@ -261,7 +267,7 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
         concat = (left << 28) | right;
 
         curr_round = concat;
-        permutation(&curr_round, COMPRESS_KEY_TAB, 56, 48);
+        permutation(&curr_round, COMPRESS_KEY_TAB, 56, 48); // from 56 to 48 bits
         round_k[i] = curr_round;
     }
 
@@ -272,6 +278,10 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
 
 void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_fn_encrypt_block fn_encrypt_block)
 {
+    // ---
+    // Process encryption according fn_encrypt_block as a function pointer
+    // Read from ssl_mode->input_fd and output to ssl_mode->output_fd
+    // ---
 
     //  ======== Process key =========
     unsigned long block, result;
@@ -298,14 +308,14 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
     if (readed < 0)
         print_errors(ERROR_READ_GLOBAL, ssl_mode);
 
-    if (readed == 0 && cpt > 0 && !ssl_mode->should_padd)
+    if (readed == 0 && cpt > 0 && !ssl_mode->should_padd) // write from buff_blocks
     {
         if (ssl_mode->des_b64 == 1) print_cipher_b64(buff_blocks, &cpt, ssl_mode->output_fd, readed);
         else print_cipher_raw(buff_blocks, &cpt, ssl_mode->output_fd, readed);
     }
 
     // check readed and process padding
-    if (readed > 0 || (readed == 0 && ssl_mode->should_padd))
+    if (readed > 0 || (readed == 0 && ssl_mode->should_padd)) // process last block and pad block
     {
         block = 0;
         if (ssl_mode->should_padd)
@@ -315,8 +325,6 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         }
         ft_memcpy(&block, buffer, readed);
         result = fn_encrypt_block(block, ssl_mode, r_k);
-
-        // if (ssl_mode->des_b64 && ssl_mode->should_padd) readed = 8;
 
         ft_memcpy(&buff_blocks[cpt++], &result, readed);
 
@@ -339,7 +347,7 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
     ft_bzero(buffer, 32);
 
     // reverse round key
-    if (ssl_mode->should_padd)
+    if (ssl_mode->should_padd) // for cfb ofb and ctr no need to reverse key.
         reverse_round_key(r_k);
 
     result = 0;
