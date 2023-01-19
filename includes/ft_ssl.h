@@ -68,13 +68,13 @@ General options: \n\
 # define ALGO_LIST "Message Digest algorithm:\n\
 md5, sha256, sha224, sha384, sha512.\n\n\
 Cipher commands:\n\
-base64, des, des-ecb, des-cbc\n"
+base64, des, des-ecb, des-cbc, des-ofb, des-ctr, des-cfb\n"
 
 # define DGST_LIST "Message Digest algorithm:\n\
 md5, sha256, sha224, sha384, sha512.\n"
 
 # define CIPHER_LIST "Message Digest algorithm:\n\
-base64, des, des-ecb, des-cbc\n"
+base64, des, des-ecb, des-cbc, des-ofb, des-ctr, des-cfb\n"
 
 
 # define UNUSED(x) (void)(x)

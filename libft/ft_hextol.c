@@ -1,7 +1,7 @@
 #include "libft.h"
 
 
-ssize_t      ft_hextol(char *str)
+size_t      ft_hextol(char *str)
 {
 	size_t		    result = 0;
     int             len_str = ft_strlen(str);
@@ -14,9 +14,7 @@ ssize_t      ft_hextol(char *str)
             result = result * 16 + (str[i] - 'a' + 10);
         else if (str[i] >= 'A' && str[i] <= 'F')
             result = result * 16 + (str[i] - 'A' + 10);
-        else
-            return -1;
     }
 
-	return (result);
+	return result;
 }

@@ -33,20 +33,30 @@ void ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
     }
 }
 
+void            dest_key_is_hexa(char *key, t_ft_ssl_mode *ssl_mode)
+{
+    int i = 0;
+    while (key[++i])
+    {
+        if (!(key[i] >= '0' && key[i] <= '9') && !(key[i] >= 'a' && key[i] <= 'f') && !(key[i] >= 'A' && key[i] <= 'F'))
+            print_errors(ERROR_DES_NO_HEX, ssl_mode);
+    }
+}
+
 unsigned long gen_key_padding(char *raw_k, char *dest_key, t_ft_ssl_mode *ssl_mode)
 {
     // Padding key to 16 bytes if needed
     // return key in hex
-    ssize_t result_hex = 0;
+    size_t result_hex = 0;
     int len_key = ft_strlen(raw_k);
     ft_bzero(dest_key, 17);
     ft_memset(dest_key, '0', 16);
     ft_memcpy(dest_key, raw_k, (len_key > 16) ? 16 : len_key); // ignoring excess after len 16
 
+    dest_key_is_hexa(dest_key, ssl_mode);
     result_hex = ft_hextol(dest_key);
 
-    if (result_hex == -1 || len_key < 0) print_errors(ERROR_DES_NO_HEX, ssl_mode);
-    else if (len_key < 16) {
+    if (len_key < 16) {
         ft_putstr_fd(WARNING_DES_KEY_TO_SHORT, 2);
         ft_putchar_fd('\n', 2);
     }
