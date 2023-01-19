@@ -97,8 +97,8 @@ void    process_pbkdf(char *pass, char *raw_salt, t_ft_ssl_mode *ssl_mode, int n
 
             ft_putstr("\niv=");
             print_hash_64(ssl_mode->iv, 0);
-            ft_putchar('\n');
         }
+        ft_putchar('\n');
         free(stdin_password);
         exit(0);
     } else {

@@ -214,6 +214,10 @@ int main(int argc, char **argv) {
                     }
                 }
 
+
+                // todo read 16 firsts bytes to check if "Salted__" is presents 
+                
+
                 // process password generation with pkdf
                 if (g_ftssl_des_op[i].should_have_key)
                 {
