@@ -410,9 +410,6 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
             for (int i = 0; i < readed; j++, i += 8)
                 ft_memcpy(&tmp_buffer[j], buffer + i, 8);
         }
-        
-        // printf("tmp_buffer: %lu", tmp_buffer[0]);
-
 
         // calculate last_block_size to apply unpad on last padding
         last_blocks_size = ((readed/8) - 1) <= 0 ? 1 : (readed/8);

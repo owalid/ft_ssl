@@ -16,21 +16,6 @@ void    print_errors(char *msg, t_ft_ssl_mode *ssl_mode)
     }
 }
 
-void print_bit(unsigned char n) {
-	for (int i = 7; i >= 0; i--) {
-		printf("%d", (n >> i) & 1);
-	}
-	printf(" ");
-}
-
-void print_bits(unsigned char *str, size_t len) {
-	for (size_t i = 0; i < len; i++) {
-		if (!(i % 8)) printf("\n");
-		print_bit(str[i]);
-	}
-	printf("\n");
-}
-
 ssize_t delete_spaces(char *buffer, ssize_t len)
 {
     ssize_t i = 0, offset = 0;
