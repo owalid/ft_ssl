@@ -47,6 +47,7 @@ Message Digest options:\n\
 Output options: \n\
 -r\treverse the format of the output.\n\
 -p\techo STDIN to STDOUT and append the checksum to STDOUT.\n\
+-P\tPrint the iv/key and exit.\n\
 -q\tquiet mode.\n\
 -s\tprint the sum of the given string.\n\
 Parameters:\n\
@@ -98,6 +99,7 @@ typedef struct		s_ft_ssl_mode
 	int				des_mode;
 	int				should_padd;
 	int				counter;
+  int       print_key_exit;
 }					t_ft_ssl_mode;
 
 typedef 			void (*t_fn_process_firsts_blocks)(void *raw_w, void *raw_hash);
@@ -141,7 +143,7 @@ void    			sha224_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, 
 void    			sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
 void    			sha256_process_firsts_blocks(void *raw_w, void *raw_hash);
 void 				simple_sha256(char *input, unsigned int *dest);
-void 				hmac_sha256(char *password, char *key, int key_len, unsigned int *dest);
+void hmac_sha256(unsigned int *password, unsigned int *key, int key_len, unsigned int *dest);
 
 
 // sha384.c

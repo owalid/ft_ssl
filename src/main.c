@@ -13,6 +13,8 @@ void ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
             ssl_mode->reverse_mode = 1;
         } else if (ft_strcmp(argv[i], "-p") == 0) {
             ssl_mode->std_mode = 1;
+        } else if (ft_strcmp(argv[i], "-P") == 0) {
+            ssl_mode->print_key_exit = 1;
         } else if (ft_strcmp(argv[i], "-s") == 0 || ft_strcmp(argv[i], "-i") == 0
                     || ft_strcmp(argv[i], "-o") == 0 || ft_strcmp(argv[i], "-k") == 0
                     || ft_strcmp(argv[i], "-v") == 0) { // need to be process after

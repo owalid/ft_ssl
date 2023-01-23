@@ -81,18 +81,22 @@ void    sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, cha
 }
 
 
-void hmac_sha256(char *password, char *key, int key_len, unsigned int *dest)
+void hmac_sha256(unsigned int *password, unsigned int *key, int key_len, unsigned int *dest)
 {
     unsigned int vars1[] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
     unsigned int vars2[] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
-    unsigned char i_key[64], o_key[64];
+    unsigned int i_key[64], o_key[64];
     ft_bzero(i_key, 64);
     ft_bzero(o_key, 64);
     memset(i_key, 0, 64);
     memset(o_key, 0, 64);
 
     for (int i = 0; i < key_len; i++)
+    {
         i_key[i] = key[i] ^ 0x36;
+        o_key[i] = key[i] ^ 0x5c;
+    }
+
 
 
     // process first block as i_key (inner padd)
@@ -100,11 +104,6 @@ void hmac_sha256(char *password, char *key, int key_len, unsigned int *dest)
     
     // process message with vars1 updated
     fn_process(password, 0, 64, vars1, 1, sha256_process_firsts_blocks, NULL, NULL);
-    
-
-
-    for (int i = 0; i < key_len; i++)
-        o_key[i] = key[i] ^ 0x5c;
 
     // process first block as o_key (outer padd)
     sha256_process_firsts_blocks(o_key, vars2);

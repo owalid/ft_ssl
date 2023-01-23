@@ -33,7 +33,7 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
 
         
         // simple_sha256(concat_str, result);
-        hmac_sha256(password, concat_str, 8+4, result);
+        hmac_sha256((unsigned int *)password, (unsigned int *)concat_str, 8+4, result);
         // simple_sha256(password, concat_str);
         for (int i = 0; i < 8; i++)
             t_i[i] = result[i];
@@ -57,7 +57,7 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
             // ft_memcpy(concat_str + size_password + 8, &result[1], 8);
 
             // ft_memcpy(result2, result, 8);
-            hmac_sha256(password, (unsigned char *)result, 8*4, result);
+            hmac_sha256((unsigned int *)password, result, 8*4, result);
             // simple_sha256(password, concat_str);
             for (int i = 0; i < 8; i++)
                 t_i[i] ^= result[i];
@@ -116,7 +116,18 @@ void    process_pbkdf(char *pass, char *raw_salt, t_ft_ssl_mode *ssl_mode, int n
         tdk_len = ((len_pass / 128) == 0) ? 1 : (len_pass / 128); // get len of blocks for sha512
 
         process_rounds(stdin_password, salt_number, tdk_len, &tmp_key, &tmp_iv);
+        free(stdin_password);
+    } else {
+        len_pass = ft_strlen(pass);
+        tdk_len = ((len_pass / 128) == 0) ? 1 : (len_pass / 128); // get len of blocks for sha512
+        process_rounds(pass, salt_number, tdk_len, &ssl_mode->key, &tmp_iv);
+    }
 
+    if (need_gen_iv && !ssl_mode->have_iv)
+            ssl_mode->iv = tmp_iv;
+
+    if (ssl_mode->print_key_exit)
+    {
         // display as 
         // salt=...
         // key=...
@@ -127,21 +138,10 @@ void    process_pbkdf(char *pass, char *raw_salt, t_ft_ssl_mode *ssl_mode, int n
         // print_hash_64(tmp_key, 0);
         if (need_gen_iv)
         {
-            if (!ssl_mode->have_iv)
-                ssl_mode->iv = tmp_iv;
-
             ft_putstr("\niv=");
             print_hash_64(ssl_mode->iv, 0);
         }
         ft_putchar('\n');
-        free(stdin_password);
         exit(0);
-    } else {
-        len_pass = ft_strlen(pass);
-        tdk_len = ((len_pass / 128) == 0) ? 1 : (len_pass / 128); // get len of blocks for sha512
-        process_rounds(pass, salt_number, tdk_len, &ssl_mode->key, &tmp_iv);
-
-        if (need_gen_iv && !ssl_mode->have_iv)
-            ssl_mode->iv = tmp_iv;
     }
 }
