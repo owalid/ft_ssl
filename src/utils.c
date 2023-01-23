@@ -1,6 +1,33 @@
 #include "ft_ssl.h"
 #include "libft.h"
 
+// TODO REMOVE ONLY FOR DEBUG
+void print_bit(unsigned char n) {
+	for (int i = 7; i >= 0; i--) {
+		printf("%d", (n >> i) & 1);
+	}
+	printf(" ");
+}
+
+void print_bits(unsigned char *str, size_t len) {
+	for (size_t i = 0; i < len; i++) {
+		if (!(i % 8)) printf("\n");
+		print_bit(str[i]);
+	}
+	printf("\n");
+}
+
+
+void    print_long(unsigned long n) {
+    for (int index = 0; index < 64; index++) {
+        if (!(index % 8) && index) printf(" ");
+        printf("%d", (n >> (63 - index)) & 1);
+    }
+    printf("\n");
+}
+
+// END TODO
+
 void    print_errors(char *msg, t_ft_ssl_mode *ssl_mode)
 {
     ft_putstr_fd(msg, 2);

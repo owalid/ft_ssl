@@ -140,6 +140,9 @@ void    			sha224_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, 
 // sha256.c
 void    			sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
 void    			sha256_process_firsts_blocks(void *raw_w, void *raw_hash);
+void 				simple_sha256(char *input, unsigned int *dest);
+void 				hmac_sha256(char *password, char *key, int key_len, unsigned int *dest);
+
 
 // sha384.c
 void    			sha384_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
@@ -223,4 +226,10 @@ void    			print_errors(char *msg, t_ft_ssl_mode *ssl_mode);
 void				process_last_block(char *input, void *vars, size_t total_size, int should_swap, size_t byte_size, t_fn_process_firsts_blocks fn_process_firsts_blocks);
 int 				fn_process(char *input, int input_type, size_t byte_size, void *vars, int should_swap, t_fn_process_firsts_blocks fn_process_firsts_blocks, t_ft_ssl_mode *ssl_mode, char *algo_name);
 
+
+// todo remove only for debug
+void print_bit(unsigned char n);
+void print_bits(unsigned char *str, size_t len);
+void print_long(unsigned long n);
+// end todo
 #endif
