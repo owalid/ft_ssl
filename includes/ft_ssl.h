@@ -218,7 +218,7 @@ unsigned int        right_rotate_32(unsigned int n, unsigned int d);
 
 void				print_hash_32(void* hash, size_t size);
 void 				print_hashes_64(void* hash, size_t size);
-void 				print_hash_64(unsigned long hash, int lower);
+void 				print_hash_64(unsigned long hash, int lower, int should_swap);
 
 void 				preprocess_final_output(t_ft_ssl_mode *ssl_mode, char *algo_name, int input_type, char *input, t_fn_print_hash fn_print_hash, void *hash, size_t size);
 void    			print_errors(char *msg, t_ft_ssl_mode *ssl_mode);

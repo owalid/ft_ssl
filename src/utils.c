@@ -150,9 +150,12 @@ void print_hash_32(void *hash, size_t size)
     }
 }
 
-void print_hash_64(unsigned long hash, int lower)
+void print_hash_64(unsigned long hash, int lower, int should_swap)
 {
     char *str;
+    if (should_swap)
+        hash = swap64(hash);
+        
     if (lower)
         str = ft_strlowcase(ft_utoa_base(hash, 16));
     else
@@ -170,7 +173,7 @@ void print_hashes_64(void* hash, size_t size)
     unsigned long *hashh = (unsigned long*)hash;
 
     for (int i = 0; (size_t)i < size; i++) {
-        print_hash_64(hashh[i], 1);
+        print_hash_64(hashh[i], 1, 0);
     }
 }
 
