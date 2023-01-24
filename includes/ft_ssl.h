@@ -84,7 +84,8 @@ base64, des, des-ecb, des-cbc, des-ofb, des-ctr, des-cfb\n"
 typedef struct		s_ft_ssl_mode
 {
 	unsigned long	key;
-	unsigned long	iv;	
+	unsigned long	iv;
+	unsigned long	salt;
 	int				quiet_mode;
 	int				reverse_mode;
 	int				std_mode;

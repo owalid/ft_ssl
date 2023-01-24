@@ -227,7 +227,7 @@ int main(int argc, char **argv) {
 
 
                 // todo read 16 firsts bytes to check if "Salted__" is presents
-                if (ssl_mode->have_password && !ssl_mode->have_salt && g_ftssl_des_op[i].should_have_key)
+                if (ssl_mode->have_password && !ssl_mode->have_salt && g_ftssl_des_op[i].should_have_key && ssl_mode->decode_mode)
                     read_salt(ssl_mode, tmp_salt);
 
                 // exit(0); //! remove this

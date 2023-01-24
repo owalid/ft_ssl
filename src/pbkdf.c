@@ -107,6 +107,7 @@ void    process_pbkdf(char *pass, char *raw_salt, t_ft_ssl_mode *ssl_mode, int n
     if (need_gen_iv && !ssl_mode->have_iv)
         ssl_mode->iv = tmp_iv;
 
+    ssl_mode->salt = swap64(salt_number);
 
     // display as 
     // salt=...

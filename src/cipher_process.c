@@ -294,6 +294,11 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
     ft_bzero(buffer, 8);
 
     // TODO WRITE SALTED IF NO KEY PROVIDED
+    if (!ssl_mode->have_key)
+    {
+        write(ssl_mode->output_fd, "Salted__", 8);
+        write(ssl_mode->output_fd, &ssl_mode->salt, 8);
+    }
 
     while ((readed = utils_read(ssl_mode->input_fd, buffer, 8, ssl_mode)) == 8)
     {
