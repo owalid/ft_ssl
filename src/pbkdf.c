@@ -61,9 +61,6 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
             round_result[i] = t_i[i];
     }
 
-    // *key = swap32(round_result[1]) | ((unsigned long)swap32(round_result[0]) << 32);
-    // *iv = swap32(round_result[3]) | ((unsigned long)swap32(round_result[2]) << 32);
-
     *key = round_result[0] | ((unsigned long)round_result[1] << 32);
     *key = swap64(*key);
     *iv = round_result[2] | ((unsigned long)round_result[3] << 32);
@@ -108,24 +105,24 @@ void    process_pbkdf(char *pass, char *raw_salt, t_ft_ssl_mode *ssl_mode, int n
 
 
     if (need_gen_iv && !ssl_mode->have_iv)
-            ssl_mode->iv = tmp_iv;
+        ssl_mode->iv = tmp_iv;
 
-    if (ssl_mode->print_key_exit)
+
+    // display as 
+    // salt=...
+    // key=...
+    // iv=...
+    ft_putstr_fd("salt=", 2);
+    print_hash_64(salt_number, 0, 0, 2);
+    ft_putstr_fd("\nkey=", 2);
+    print_hash_64(ssl_mode->key, 0, 0, 2);
+    if (need_gen_iv)
     {
-        // display as 
-        // salt=...
-        // key=...
-        // iv=...
-        ft_putstr("salt=");
-        print_hash_64(salt_number, 0, 0);
-        ft_putstr("\nkey=");
-        print_hash_64(ssl_mode->key, 0, 1);
-        if (need_gen_iv)
-        {
-            ft_putstr("\niv=");
-            print_hash_64(ssl_mode->iv, 0, 1);
-        }
-        ft_putchar('\n');
-        exit(0);
+        ft_putstr_fd("\niv=", 2);
+        print_hash_64(ssl_mode->iv, 0, 1, 2);
     }
+    ft_putchar_fd('\n', 2);
+    
+    if (ssl_mode->print_key_exit)
+        exit(0);
 }

@@ -102,6 +102,7 @@ typedef struct		s_ft_ssl_mode
 	int				counter;
   	int       		print_key_exit;
 	int				iter_number;
+	int				salt_from_file;
 }					t_ft_ssl_mode;
 
 typedef 			void (*t_fn_process_firsts_blocks)(void *raw_w, void *raw_hash);
@@ -220,10 +221,12 @@ unsigned int        right_rotate_32(unsigned int n, unsigned int d);
 
 void				print_hash_32(void* hash, size_t size);
 void 				print_hashes_64(void* hash, size_t size);
-void 				print_hash_64(unsigned long hash, int lower, int should_swap);
+void 				print_hash_64(unsigned long hash, int lower, int should_swap, int fd);
 
 void 				preprocess_final_output(t_ft_ssl_mode *ssl_mode, char *algo_name, int input_type, char *input, t_fn_print_hash fn_print_hash, void *hash, size_t size);
 void    			print_errors(char *msg, t_ft_ssl_mode *ssl_mode);
+
+void				read_salt(t_ft_ssl_mode *ssl_mode, char *tmp_salt);
 
 // process.c
 void				process_last_block(char *input, void *vars, size_t total_size, int should_swap, size_t byte_size, t_fn_process_firsts_blocks fn_process_firsts_blocks);

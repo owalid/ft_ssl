@@ -73,6 +73,12 @@ ssize_t utils_read(int fd, char *data, size_t size_block, t_ft_ssl_mode *ssl_mod
 
     ft_bzero(data, size_block);
     while ((len = read(fd, buffer, size_block - size)) > 0) {
+        if (ssl_mode->salt_from_file > 0)
+        {
+            ft_memcpy(buffer, buffer + ssl_mode->salt_from_file, len - ssl_mode->salt_from_file);
+            ft_bzero(buffer + (len - ssl_mode->salt_from_file), len - (len - ssl_mode->salt_from_file));
+        }
+
         if (ssl_mode->decode_mode && ssl_mode->des_b64) // remove \n and spaces
             len = delete_spaces((char*)buffer, len, ssl_mode->des_mode);
 
@@ -150,12 +156,12 @@ void print_hash_32(void *hash, size_t size)
     }
 }
 
-void print_hash_64(unsigned long hash, int lower, int should_swap)
+void print_hash_64(unsigned long hash, int lower, int should_swap, int fd)
 {
     char *str;
     if (should_swap)
         hash = swap64(hash);
-        
+
     if (lower)
         str = ft_strlowcase(ft_utoa_base(hash, 16));
     else
@@ -163,8 +169,8 @@ void print_hash_64(unsigned long hash, int lower, int should_swap)
 
     int len = ft_strlen(str);
     for (int i = 0; i < 16 - len; i++)
-        ft_putchar('0');
-    ft_putstr(str);
+        ft_putchar_fd('0', fd);
+    ft_putstr_fd(str, fd);
     free(str);
 }
 
@@ -173,7 +179,7 @@ void print_hashes_64(void* hash, size_t size)
     unsigned long *hashh = (unsigned long*)hash;
 
     for (int i = 0; (size_t)i < size; i++) {
-        print_hash_64(hashh[i], 1, 0);
+        print_hash_64(hashh[i], 1, 0, 1);
     }
 }
 
@@ -201,4 +207,52 @@ unsigned int left_rotate(unsigned int n, unsigned int d) {
 
 unsigned int right_rotate_32(unsigned int n, unsigned int d) {
     return (n >> d) | (n << (32 - d));
+}
+
+
+
+void   read_salt(t_ft_ssl_mode *ssl_mode, char *tmp_salt)
+{
+    ssize_t len = 0;
+    unsigned long salt;
+    char buffer[16];
+    char *tmp_utoa;
+
+    ft_bzero(buffer, 16);
+    len = read(ssl_mode->input_fd, buffer, 8);
+
+    if (len > 0)
+    {
+        // printf("buffer = ");
+        // write(1, buffer, 8);
+        if (ft_strcmp(buffer, "Salted__") == 0)
+        {
+            len = read(ssl_mode->input_fd, &salt, 8);
+            if (len < 0)
+            {
+                printf("error read");
+            } else if (len < 8) {
+                printf("error incomplet salt");
+            }  else {
+                ssl_mode->salt_from_file += 16;
+            }
+
+            // TODO GET SALT
+            // ssl_mode->salt
+            // printf("salt ?\n");
+            // printf("tmp_salt = %s", tmp_salt);
+            // print_hex(tmp_salt, 8);
+            salt = swap64(salt);
+            tmp_utoa = ft_utoa_base(salt, 16);
+            ft_memcpy(tmp_salt, tmp_utoa, 16);
+            ssl_mode->have_salt = 1;
+            free(tmp_utoa);
+            // printf("tmp_salt = %s\n\n", tmp_salt);
+            // ft_memcpy(tmp_salt, &salt, 8);
+        } else {
+            printf("pass no strcmp");
+        }
+    } else if (len < 0) {
+        printf("error read");
+    }
 }

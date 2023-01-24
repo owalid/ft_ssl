@@ -355,6 +355,7 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
 
     while ((readed = utils_read(ssl_mode->input_fd, buffer, 32, ssl_mode)) == 32)
     {
+        ssl_mode->salt_from_file = 0;
         // ----
         // with 24 we can constitute 3 blocks
         // ----
