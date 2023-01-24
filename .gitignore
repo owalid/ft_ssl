@@ -1,6 +1,6 @@
 .vscode
 *.log
-*.html
+*.html*
 error.md
 test*
 *test*
