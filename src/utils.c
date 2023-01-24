@@ -67,7 +67,7 @@ ssize_t delete_spaces(char *buffer, ssize_t len, int des_mode)
 }
 
 ssize_t utils_read(int fd, char *data, size_t size_block, t_ft_ssl_mode *ssl_mode) {
-    char buffer[128];
+    unsigned char buffer[128];
     ssize_t len = 0;
     size_t size = 0;
 
