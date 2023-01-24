@@ -248,7 +248,7 @@ int main(int argc, char **argv) {
                     ft_putchar_fd('\n', 2);
                 }
 
-                exit(0); //! remove this
+                // exit(0); //! remove this
 
                 
                 ssl_mode->should_padd = g_ftssl_des_op[i].should_pad; // for des-ofb, des-cfb, des-ctr

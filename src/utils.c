@@ -73,11 +73,11 @@ ssize_t utils_read(int fd, char *data, size_t size_block, t_ft_ssl_mode *ssl_mod
 
     ft_bzero(data, size_block);
     while ((len = read(fd, buffer, size_block - size)) > 0) {
-        if (ssl_mode->salt_from_file > 0)
-        {
-            ft_memcpy(buffer, buffer + ssl_mode->salt_from_file, len - ssl_mode->salt_from_file);
-            ft_bzero(buffer + (len - ssl_mode->salt_from_file), len - (len - ssl_mode->salt_from_file));
-        }
+        // if (ssl_mode->salt_from_file > 0)
+        // {
+        //     ft_memcpy(buffer, buffer + ssl_mode->salt_from_file, len - ssl_mode->salt_from_file);
+        //     ft_bzero(buffer + (len - ssl_mode->salt_from_file), len - (len - ssl_mode->salt_from_file));
+        // }
 
         if (ssl_mode->decode_mode && ssl_mode->des_b64) // remove \n and spaces
             len = delete_spaces((char*)buffer, len, ssl_mode->des_mode);

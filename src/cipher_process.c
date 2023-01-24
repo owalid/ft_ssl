@@ -293,6 +293,8 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
     ft_bzero(buff_blocks, 3*8);
     ft_bzero(buffer, 8);
 
+    // TODO WRITE SALTED IF NO KEY PROVIDED
+
     while ((readed = utils_read(ssl_mode->input_fd, buffer, 8, ssl_mode)) == 8)
     {
         block = 0;
@@ -377,6 +379,8 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         }
         flag_buffer_filled = 1;
     }
+    // write(1, buffer, readed);
+    // exit(1); //! todo remove this
 
     if (readed < 0)
         print_errors(ERROR_READ_GLOBAL, ssl_mode);

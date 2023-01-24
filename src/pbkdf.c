@@ -30,7 +30,7 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
 
     ssl_mode->iter_number = (ssl_mode->iter_number > 0) ? ssl_mode->iter_number : 4096;
 
-    printf("ssl_mode->iter_number = %d", ssl_mode->iter_number);
+    // printf("ssl_mode->iter_number = %d", ssl_mode->iter_number);
     for (int l = 1; l <= dk_len; l++)
     {
         swap_l = swap32(l);
