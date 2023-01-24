@@ -58,8 +58,8 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
             round_result[i] = t_i[i];
     }
 
-    *key = round_result[0] | ((unsigned long)round_result[1] << 32);
-    *iv = round_result[2] | ((unsigned long)round_result[3] << 32);
+    *key = swap32(round_result[1]) | ((unsigned long)swap32(round_result[0]) << 32);
+    *iv = swap32(round_result[3]) | ((unsigned long)swap32(round_result[2]) << 32);
 }
 
 // DK = PBKDF2(PRF, Password, Salt, c, dkLen)
