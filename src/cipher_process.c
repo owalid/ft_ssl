@@ -384,6 +384,29 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         }
         flag_buffer_filled = 1;
     }
+
+    // printf("readed: %d", readed);
+    
+    if (ssl_mode->b64_has_been_truncated)
+    {
+        while(readed % 3 != 0)
+        {
+            buffer[readed++] = '=';
+            // readed++;
+        }
+        write(1, buffer, readed);
+        exit(0);
+    }
+    // printf("readed: %d", readed);
+
+    // if (readed % 3 != 0)
+    // {
+    //     buffer[readed] = '=';
+    //     buffer[readed + 1] = '=';
+    //     readed+=2;
+    // }
+
+    // buffer
     // write(1, buffer, readed);
     // exit(1); //! todo remove this
 

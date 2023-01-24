@@ -67,7 +67,7 @@ ssize_t delete_spaces(char *buffer, ssize_t len, int des_mode)
 }
 
 ssize_t utils_read(int fd, char *data, size_t size_block, t_ft_ssl_mode *ssl_mode) {
-    unsigned char buffer[128];
+    char buffer[128];
     ssize_t len = 0;
     size_t size = 0;
 
@@ -78,10 +78,10 @@ ssize_t utils_read(int fd, char *data, size_t size_block, t_ft_ssl_mode *ssl_mod
         //     ft_memcpy(buffer, buffer + ssl_mode->salt_from_file, len - ssl_mode->salt_from_file);
         //     ft_bzero(buffer + (len - ssl_mode->salt_from_file), len - (len - ssl_mode->salt_from_file));
         // }
-
         if (ssl_mode->decode_mode && ssl_mode->des_b64) // remove \n and spaces
             len = delete_spaces((char*)buffer, len, ssl_mode->des_mode);
 
+        // write(1, buffer, len);
         ft_memcpy(data + size, buffer, len);
         size += len;
         if (size == size_block) {
@@ -215,19 +215,44 @@ void   read_salt(t_ft_ssl_mode *ssl_mode, char *tmp_salt)
 {
     ssize_t len = 0;
     unsigned long salt;
-    char buffer[16];
+    char buffer[24];
+    char tmp_buffer[24];
     char *tmp_utoa;
 
-    ft_bzero(buffer, 16);
-    len = read(ssl_mode->input_fd, buffer, 8);
+    ft_bzero(buffer, 24);
+    ft_bzero(tmp_buffer, 24);
 
+    if (ssl_mode->des_b64)
+    {
+        len = read(ssl_mode->input_fd, tmp_buffer, 22);
+        tmp_buffer[22] = '=';
+        tmp_buffer[23] = '=';
+        // write(1, tmp_buffer, 24);
+        // printf("\n");
+        b64_to_three_bytes(tmp_buffer, buffer, 24, 0, ssl_mode);
+        ft_memcpy(&salt, buffer + 8, 8);
+        ft_bzero(buffer + 8, 8);
+        ssl_mode->b64_has_been_truncated = 1;
+    } else {
+        len = read(ssl_mode->input_fd, buffer, 8);
+    }
+
+    // write(1, buffer, 8);
+    // printf("buffer: %s\n", buffer);
+    // printf("buffer: %s\n", buffer);
+    // print_hex(&salt, 8);
+    // exit(0);
     if (len > 0)
     {
         // printf("buffer = ");
         // write(1, buffer, 8);
         if (ft_strcmp(buffer, "Salted__") == 0)
         {
-            len = read(ssl_mode->input_fd, &salt, 8);
+            if (!ssl_mode->des_b64)
+            {
+                len = read(ssl_mode->input_fd, &salt, 8);
+            }
+
             if (len < 0)
             {
                 printf("error read");
@@ -244,6 +269,7 @@ void   read_salt(t_ft_ssl_mode *ssl_mode, char *tmp_salt)
             // print_hex(tmp_salt, 8);
             salt = swap64(salt);
             tmp_utoa = ft_utoa_base(salt, 16);
+            // printf("tmp_utoa: %s", tmp_utoa);
             ft_memcpy(tmp_salt, tmp_utoa, 16);
             ssl_mode->have_salt = 1;
             free(tmp_utoa);
@@ -255,4 +281,5 @@ void   read_salt(t_ft_ssl_mode *ssl_mode, char *tmp_salt)
     } else if (len < 0) {
         printf("error read");
     }
+    // exit(0); //! need to remove this
 }

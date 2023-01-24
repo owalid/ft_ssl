@@ -104,6 +104,7 @@ typedef struct		s_ft_ssl_mode
   	int       		print_key_exit;
 	int				iter_number;
 	int				salt_from_file;
+	int				b64_has_been_truncated;
 }					t_ft_ssl_mode;
 
 typedef 			void (*t_fn_process_firsts_blocks)(void *raw_w, void *raw_hash);
