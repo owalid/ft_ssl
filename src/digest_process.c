@@ -2,10 +2,7 @@
 # include "libft.h"
 
 void process_last_block(char *input, void *vars, size_t total_size, int should_swap, size_t byte_size, t_fn_process_firsts_blocks fn_process_firsts_blocks)
-{
-    printf("total_size:%lu", total_size);
-    printf("\nbytes_size:%lu\n", byte_size);
-    
+{   
     size_t lasts_read = total_size % byte_size;
     
     if (lasts_read < byte_size) {
