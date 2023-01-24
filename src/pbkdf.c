@@ -42,7 +42,7 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
         for (int i = 0; i < 8; i++)
             t_i[i] = round_result[i];
 
-        for (int i = 1; i < 3; i++) // process F function
+        for (int i = 1; i < 4096; i++) // process F function
         {
             // concatenate password with last_u
             hmac_sha256((char *)round_result, password, size_password, 8*4, round_result);
@@ -59,23 +59,7 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
     }
 
     *key = round_result[0] | ((unsigned long)round_result[1] << 32);
-    // printf("should_have =\B8B91D03402FFBD\n");
-    // print_hash_64(*key, 0, 1);
-    // print_hash_64(swap64(*key), 0);
-    // exit(1);
     *iv = round_result[2] | ((unsigned long)round_result[3] << 32);
-    // ( << 2) | final_result[0];
-    // print_hex(key, 8);
-    // exit(1);
-
-    // printf("\n\n");
-    // printf("should_have =\B8B91D03402FFBD\n");
-    // printf("my_key =\t%s\n", ft_utoa_base(final_key, 16));
-    // // printf("result[1] = %s \n", ft_utoa_base(result[1], 16));
-    // *key = result[0];
-    // *iv = result[1];
-
-    // exit(1);
 }
 
 // DK = PBKDF2(PRF, Password, Salt, c, dkLen)
