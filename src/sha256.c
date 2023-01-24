@@ -147,12 +147,12 @@ void hmac_sha256(char *password, char *key, int key_len, int pass_len, unsigned 
         o_key[i] ^= 0x5c;
     }
 
-    print_hex(i_key, 64);
-    print_hex(o_key, 64);
+    // print_hex(i_key, 64);
+    // print_hex(o_key, 64);
 
     // process first block as i_key (inner padd)
     sha256_process_firsts_blocks(i_key, vars1);
-    print_hex(vars1, 32);
+    // print_hex(vars1, 32);
 
     // process message with vars1 updated
     process_last_block(password, vars1, 64+pass_len, 1, 64, sha256_process_firsts_blocks);
@@ -165,12 +165,12 @@ void hmac_sha256(char *password, char *key, int key_len, int pass_len, unsigned 
         ft_memcpy(res_var_1 + (i*4), &tmp_hash, 4);
     }
 
-    print_hex(res_var_1, 32);
+    // print_hex(res_var_1, 32);
 
 
     process_last_block(res_var_1, vars2, 64+32, 1, 64, sha256_process_firsts_blocks);
 
     for (int i = 0; i < 8; i++)
-        dest[i] = vars2[i];
-        // dest[i] = swap32(vars2[i]);
+        // dest[i] = vars2[i];
+        dest[i] = swap32(vars2[i]);
 }

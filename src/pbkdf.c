@@ -31,42 +31,49 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
     ft_bzero(concat_str, total_len_concat);
 
     unsigned long swapped_salt = swap64(salt);
-    print_hex(&swapped_salt, 8);
+    // print_hex(&swapped_salt, 8);
 
     dk_len = (dk_len == 0) ? 1 : dk_len;
     ft_bzero(final_result, 8*4);
     for (int l = 1; l <= dk_len; l++)
     {
         swap_l = swap32(l);
-        print_hex(&swap_l, 4);
+        // print_hex(&swap_l, 4);
         // concatenate password with (concatenate of salt with l)
         ft_bzero(concat_str, total_len_concat);
         ft_memcpy(concat_str, &swapped_salt, 8);
         ft_memcpy(concat_str + 8, &swap_l, 4);
-        print_hex(concat_str, 12);
+        // print_hex(concat_str, 12);
         hmac_sha256(concat_str, password, size_password, 8+4, result);
         
         for (int i = 0; i < 8; i++)
-            final_result[i] = result[i];
+            t_i[i] = result[i];
+        //     result[i] = swap32(result[i]);
 
-        print_hex(final_result, 32);
-        // print_hex(result, 32);
+        print_hex(result, 32);
         
 
-        // for (int i = 1; i < 1; i++) // process F function
-        // {
-        //     // concatenate password with last_u
-        //     hmac_sha256(password, result, 8*4, result);
+        for (int i = 1; i < 3; i++) // process F function
+        {
+            // concatenate password with last_u
+            hmac_sha256(result, password, size_password, 8*4, result);
+            print_hex(result, 32);
             
-        //     // xor result to optain T
-        //     for (int i = 0; i < 8; i++)
-        //         t_i[i] ^= result[i];
-        // }
+            // xor result to optain T
+            for (int i = 0; i < 8; i++)
+                t_i[i] ^= result[i];
+        }
 
-        // // concatenate all T
-        // for (int i = 0; i < 8; i++)
-        //     final_result[i] = t_i[i];
+        print_hex(t_i, 32);
+
+        // concatenate all T
+        for (int i = 0; i < 8; i++)
+            final_result[i] = swap32(t_i[i]);
+
+
     }
+    // exit(0);
+
     // free(concat_str);
 
     // print_hashes_64(result, 8);
