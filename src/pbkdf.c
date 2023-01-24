@@ -11,7 +11,7 @@ void    generate_salt(char *salt)
 
 // echo "lol" | ./ft_ssl des-ecb -s "1F3A6C95CE34681E"
 // echo "lol" | openssl des-ecb -P -pass "pass:lol" -provider legacy -provider default -S "1F3A6C95CE34681E" -iter 1 -pbkdf2
-void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned long *key, unsigned long *iv)
+void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned long *key, unsigned long *iv, t_ft_ssl_mode *ssl_mode)
 {
     char concat_str[12]; // 12 = 4 + 8 (1 int + 1 long)
     unsigned int t_i[8];
@@ -28,6 +28,9 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
     ft_bzero(round_result, 8*4);
     ft_bzero(t_i, 8*4);
 
+    ssl_mode->iter_number = (ssl_mode->iter_number > 0) ? ssl_mode->iter_number : 4096;
+
+    printf("ssl_mode->iter_number = %d", ssl_mode->iter_number);
     for (int l = 1; l <= dk_len; l++)
     {
         swap_l = swap32(l);
@@ -42,7 +45,7 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
         for (int i = 0; i < 8; i++)
             t_i[i] = round_result[i];
 
-        for (int i = 1; i < 4096; i++) // process F function
+        for (int i = 1; i < ssl_mode->iter_number; i++) // process F function
         {
             // concatenate password with last_u
             hmac_sha256((char *)round_result, password, size_password, 8*4, round_result);
@@ -58,8 +61,13 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
             round_result[i] = t_i[i];
     }
 
-    *key = swap32(round_result[1]) | ((unsigned long)swap32(round_result[0]) << 32);
-    *iv = swap32(round_result[3]) | ((unsigned long)swap32(round_result[2]) << 32);
+    // *key = swap32(round_result[1]) | ((unsigned long)swap32(round_result[0]) << 32);
+    // *iv = swap32(round_result[3]) | ((unsigned long)swap32(round_result[2]) << 32);
+
+    *key = round_result[0] | ((unsigned long)round_result[1] << 32);
+    *key = swap64(*key);
+    *iv = round_result[2] | ((unsigned long)round_result[3] << 32);
+    *iv = swap64(*iv);
 }
 
 // DK = PBKDF2(PRF, Password, Salt, c, dkLen)
@@ -89,12 +97,12 @@ void    process_pbkdf(char *pass, char *raw_salt, t_ft_ssl_mode *ssl_mode, int n
         len_pass = ft_strlen(stdin_password);
         tdk_len = ((len_pass / 128) == 0) ? 1 : (len_pass / 128); // get len of blocks for hmac-sha256
 
-        process_rounds(stdin_password, salt_number, tdk_len, &ssl_mode->key, &tmp_iv);
+        process_rounds(stdin_password, salt_number, tdk_len, &ssl_mode->key, &tmp_iv, ssl_mode);
         free(stdin_password);
     } else {
         len_pass = ft_strlen(pass);
         tdk_len = ((len_pass / 128) == 0) ? 1 : (len_pass / 128); // get len of blocks for hmac-sha256
-        process_rounds(pass, salt_number, tdk_len, &ssl_mode->key, &tmp_iv);
+        process_rounds(pass, salt_number, tdk_len, &ssl_mode->key, &tmp_iv, ssl_mode);
         // exit(0);
     }
 

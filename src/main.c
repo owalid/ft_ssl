@@ -17,7 +17,7 @@ void ft_search_modes(char **argv, int argc, t_ft_ssl_mode *ssl_mode) {
             ssl_mode->print_key_exit = 1;
         } else if (ft_strcmp(argv[i], "-s") == 0 || ft_strcmp(argv[i], "-i") == 0
                     || ft_strcmp(argv[i], "-o") == 0 || ft_strcmp(argv[i], "-k") == 0
-                    || ft_strcmp(argv[i], "-v") == 0) { // need to be process after
+                    || ft_strcmp(argv[i], "-v") == 0 || ft_strcmp(argv[i], "-iter") == 0) { // need to be process after
             i++;
             continue;
         } else if (ft_strcmp(argv[i], "-d") == 0) {
@@ -203,6 +203,15 @@ int main(int argc, char **argv) {
                             tmp_salt[16] = 0;
                         }
                         j++;
+                    } else if (ft_strcmp(argv[j], "-iter") == 0) {
+                        if (argc > j + 1)
+                        {
+                            ssl_mode->iter_number = ft_atoi(argv[j + 1]);
+                            ssl_mode->iter_number = (ssl_mode->iter_number > 0) ? ssl_mode->iter_number : 4096; 
+                        } else
+                        {
+                            ft_putstr_fd(WARNING_ITER, 2);
+                        }
                     } else if (ft_strcmp(argv[j], "-v") == 0) { // process as iv
                         ssl_mode->have_iv = 1;
                         if (!argv[j + 1] || argc < j + 1)

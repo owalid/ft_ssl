@@ -34,6 +34,7 @@
 # define WARNING_DES_KEY_TO_SHORT "Warning: hexa string too short, padding with zero bytes to length"
 # define WARNING_DES_KEY_TO_LONG "Warning: hexa string too long, ignoring excess"
 # define WARNING_IV_NOT_USED "Warning: iv not used by this cipher"
+# define WARNING_ITER "Warning: unexcepted iter number, will use default (4096)."
 
 // ---
 // OTHERS
@@ -99,7 +100,8 @@ typedef struct		s_ft_ssl_mode
 	int				des_mode;
 	int				should_padd;
 	int				counter;
-  int       print_key_exit;
+  	int       		print_key_exit;
+	int				iter_number;
 }					t_ft_ssl_mode;
 
 typedef 			void (*t_fn_process_firsts_blocks)(void *raw_w, void *raw_hash);
