@@ -81,37 +81,139 @@ void    sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, cha
 }
 
 
-void hmac_sha256(unsigned int *password, unsigned int *key, int key_len, unsigned int *dest)
+void hmac_sha256(char *password, char *key, int key_len, unsigned int *dest)
 {
     unsigned int vars1[] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
     unsigned int vars2[] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
-    unsigned int i_key[64], o_key[64];
+    char res_var_1[32];
+    char i_key[64], o_key[64];
+    
+    ft_bzero(res_var_1, 32);
     ft_bzero(i_key, 64);
     ft_bzero(o_key, 64);
-    memset(i_key, 0, 64);
-    memset(o_key, 0, 64);
 
-    for (int i = 0; i < key_len; i++)
+    ft_memset(i_key, 0, 64);
+    ft_memset(res_var_1, 0, 32);
+    ft_memset(o_key, 0, 64);
+
+    size_t pass_len = ft_strlen(password);
+
+
+
+    ft_memcpy(i_key, key, key_len);
+    ft_memcpy(o_key, key, key_len);
+
+    for (int i = 0; i < 64; i++)
     {
-        i_key[i] = key[i] ^ 0x36;
-        o_key[i] = key[i] ^ 0x5c;
+        i_key[i] ^= 0x36;
+        o_key[i] ^= 0x5c;
     }
 
-
+    // for (int i = 0; i < 64; )
 
     // process first block as i_key (inner padd)
     sha256_process_firsts_blocks(i_key, vars1);
     
+
     // process message with vars1 updated
-    fn_process(password, 0, 64, vars1, 1, sha256_process_firsts_blocks, NULL, NULL);
+    // process_last_block(password, vars1, pass_len, 0, 64, sha256_process_firsts_blocks);
+
+    fn_process(password, 0, 64, vars1, 0, sha256_process_firsts_blocks, NULL, NULL);
 
     // process first block as o_key (outer padd)
     sha256_process_firsts_blocks(o_key, vars2);
 
+
+    for(int i = 0, j = 0; i < 32; i += 4, j++)
+        ft_memcpy(res_var_1 + i, &vars1[j], 4);
+
+    // res_var_1[32] = 0;
+    // res_var_1[32] = 0;
     // process message with vars2 updated
-    fn_process((unsigned char*)vars1, 0, 64, vars2, 1, sha256_process_firsts_blocks, NULL, NULL);
+    // process_last_block(res_var_1, vars2, 32, 0, 64, sha256_process_firsts_blocks);
+    fn_process(res_var_1, 0, 64, vars2, 0, sha256_process_firsts_blocks, NULL, NULL);
 
     for (int i = 0; i < 8; i++)
         dest[i] = vars2[i];
     // ft_memcpy(dest, vars2, 8);
 }
+
+
+
+
+// void hmac_sha256(char *password, char *key, int key_len, unsigned int *dest)
+// {
+//     unsigned int vars1[] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
+//     unsigned int vars2[] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
+//     char res_var_1[32];
+//     char i_key[64], o_key[64];
+
+//     size_t pass_len = ft_strlen(password);
+//     int tot_fist_blocks_size = pass_len + 64;
+//     char *first_blocks = ft_strnew(tot_fist_blocks_size);
+
+//     ft_bzero(first_blocks, tot_fist_blocks_size+1);
+//     ft_memset(first_blocks, 0, tot_fist_blocks_size+1);
+
+//     char last_blocks[64+32];
+//     ft_bzero(last_blocks, 64+32);
+//     ft_memset(last_blocks, 0, 64+32);
+
+//     ft_bzero(res_var_1, 32);
+//     ft_bzero(i_key, 64);
+//     ft_bzero(o_key, 64);
+
+//     ft_memset(i_key, 0, 64);
+//     ft_memset(res_var_1, 0, 32);
+//     ft_memset(o_key, 0, 64);
+
+
+//     ft_memcpy(i_key, key, key_len);
+//     ft_memcpy(o_key, key, key_len);
+
+
+//     printf("password: %s\n", password);
+//     printf("password_len: %d\n", pass_len);
+
+
+//     for (int i = 0; i < 64; i++)
+//     {
+//         i_key[i] ^= 0x36;
+//         o_key[i] ^= 0x5c;
+//     }
+
+//     ft_memcpy(first_blocks, i_key, 64);
+//     ft_memcpy(first_blocks+64, password, pass_len);
+//     // first_blocks[tot_fist_blocks_size + 1] = 0;
+
+//     // for (int i = 0; i < 64; )
+
+//     // ft_memcpy()
+
+//     // process first block as i_key (inner padd)
+//     // sha256_process_firsts_blocks(i_key, vars1);
+    
+
+//     // process message with vars1 updated
+//     // process_last_block((char *)password, vars1, 0, 0, 64, sha256_process_firsts_blocks);
+
+//     fn_process(first_blocks, 0, 64, vars1, 0, sha256_process_firsts_blocks, NULL, NULL);
+
+//     ft_memcpy(last_blocks, o_key, 64);
+
+
+//     // process first block as o_key (outer padd)
+//     // sha256_process_firsts_blocks(o_key, vars2);
+
+
+//     for(int i = 0; i < 8; i++)
+//         ft_memcpy(last_blocks + 64 + (i*4), &vars1[i], 4);
+
+//     // process message with vars2 updated
+//     // process_last_block(res_var_1, vars2, 64, 0, 64, sha256_process_firsts_blocks);
+//     fn_process(last_blocks, 0, 64, vars2, 0, sha256_process_firsts_blocks, NULL, NULL);
+
+//     for (int i = 0; i < 8; i++)
+//         dest[i] = vars2[i];
+//     // ft_memcpy(dest, vars2, 8);
+// }

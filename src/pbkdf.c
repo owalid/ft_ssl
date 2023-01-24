@@ -17,47 +17,62 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
     unsigned int result[8];
     unsigned int final_result[8];
     unsigned int res_res[dk_len*8];
+    unsigned int concat_int[2];
+
+
+    ft_bzero(concat_int, 8+4);
 
     int size_password = ft_strlen(password);
-    int total_len_concat = 4 + 8*4; // size password + 1 int + 8*4 uint
+    int total_len_concat = 0; // size password + 1 int + 8*4 uint
     char *concat_str = malloc(total_len_concat);
 
-    dk_len = (dk_len == 0) ? 1 : dk_len;
-    ft_bzero(final_result, 8*4);
-    for (int l = 1; l <= dk_len; l++)
-    {
-        // concatenate password with (concatenate of salt with l)
-        ft_bzero(concat_str, total_len_concat);
-        ft_memcpy(concat_str, &salt, 8);
-        ft_memcpy(concat_str + 8, &l, 4);
+    ft_bzero(concat_str, total_len_concat);
+    ft_memset(concat_str, 0, total_len_concat);
+    // ft_memcpy(concat_str, &salt, 8);
+    hmac_sha256(password, concat_str, 0, result);
 
-        hmac_sha256((unsigned int *)password, (unsigned int *)concat_str, 8+4, result);
 
-        for (int i = 0; i < 8; i++)
-            t_i[i] = result[i];
+    // dk_len = (dk_len == 0) ? 1 : dk_len;
+    // ft_bzero(final_result, 8*4);
+    // for (int l = 1; l <= dk_len; l++)
+    // {
+    //     // concatenate password with (concatenate of salt with l)
+    //     ft_bzero(concat_str, total_len_concat);
+    //     ft_memcpy(concat_str, &salt, 8);
+    //     ft_memcpy(concat_str + 8, &l, 4);
 
-        for (int i = 0; i < 1; i++) // process F function
-        {
-            // concatenate password with last_u
-            hmac_sha256((unsigned int *)password, result, 8*4, result);
+    //     hmac_sha256((unsigned int *)password, (unsigned int *)concat_str, 8+4, result);
+
+    //     for (int i = 0; i < 8; i++)
+    //         t_i[i] = result[i];
+
+    //     for (int i = 0; i < 1; i++) // process F function
+    //     {
+    //         // concatenate password with last_u
+    //         hmac_sha256((unsigned int *)password, result, 8*4, result);
             
-            // xor result to optain T
-            for (int i = 0; i < 8; i++)
-                t_i[i] ^= result[i];
-        }
+    //         // xor result to optain T
+    //         for (int i = 0; i < 8; i++)
+    //             t_i[i] ^= result[i];
+    //     }
 
-        // concatenate all T
-        for (int i = 0; i < 8; i++)
-            final_result[i] = t_i[i];
-    }
-    free(concat_str);
+    //     // concatenate all T
+    //     for (int i = 0; i < 8; i++)
+    //         final_result[i] = t_i[i];
+    // }
+    // free(concat_str);
 
     // print_hashes_64(result, 8);
+    printf("\n\nwithout key, without pass:\n");
+    printf("b613679a0814d9ec772f95d778c35fc5ff1697c493715653c6c712144292c5ad\n\n");
+    printf("without key, with pass lol:\n");
+    printf("ed094d614919a055e78dc191fb658b9b0e7b24d0d05eb421211eecdc37ebb566\n");
     printf("\n");
-    print_hash_32(final_result, 8);
-    printf("\n");
+    printf("my result:\n");
+    print_hash_32(result, 8);
+    printf("\n\n");
     printf("should have=6C07F78FECD825FE\n");
-    printf("key=%s%s\n", ft_utoa_base(final_result[0], 16), ft_utoa_base(final_result[1], 16));
+    printf("key=%s%s\n", ft_utoa_base(result[0], 16), ft_utoa_base(result[1], 16));
     // printf("result[1] = %s \n", ft_utoa_base(result[1], 16));
 
     *key = result[0];
