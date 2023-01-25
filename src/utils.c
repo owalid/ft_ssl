@@ -218,6 +218,7 @@ void   read_salt(t_ft_ssl_mode *ssl_mode, char *tmp_salt)
     char buffer[72];
     char tmp_buffer[96];
     char *tmp_utoa;
+    // process as 32
     /*
         96/4 = 24.0
         24*3 = 72
