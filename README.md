@@ -33,7 +33,7 @@ Cipher options:
 -p         Password in ascii is the next argument.
 -P         Print the iv/key and exit.
 -s         The salt in hex is the next argument.
--iter +int Specify the iteration count
+-iter +int Specify the iteration count. (default 4096)
 -v         Initialization vector in hex is the next argument.
 
 General options: 
