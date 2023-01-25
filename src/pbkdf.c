@@ -120,7 +120,7 @@ void    process_pbkdf(char *pass, char *raw_salt, t_ft_ssl_mode *ssl_mode, int n
     if (need_gen_iv)
     {
         ft_putstr_fd("\niv=", 2);
-        print_hash_64(ssl_mode->iv, 0, 1, 2);
+        print_hash_64(ssl_mode->iv, 0, 0, 2);
     }
     ft_putchar_fd('\n', 2);
     

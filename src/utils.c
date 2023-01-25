@@ -215,23 +215,28 @@ void   read_salt(t_ft_ssl_mode *ssl_mode, char *tmp_salt)
 {
     ssize_t len = 0;
     unsigned long salt;
-    char buffer[48];
-    char tmp_buffer[56];
+    char buffer[72];
+    char tmp_buffer[96];
     char *tmp_utoa;
-
-    ft_bzero(buffer, 56);
-    ft_bzero(tmp_buffer, 48);
+    /*
+        96/4 = 24.0
+        24*3 = 72
+        72-16 = 56
+        56 / 8 = 7.0
+    */
+    ft_bzero(buffer, 96);
+    ft_bzero(tmp_buffer, 72);
 
 
     if (ssl_mode->des_b64)
     {
-        len = utils_read(ssl_mode->input_fd, tmp_buffer, 56, ssl_mode);
+        len = utils_read(ssl_mode->input_fd, tmp_buffer, 96, ssl_mode);
         
         // write(1, tmp_buffer, len);
         // printf("\n");
 
-        // len = read(ssl_mode->input_fd, tmp_buffer, 56);
-        len = b64_to_three_bytes(tmp_buffer, buffer, len, 0, ssl_mode); // tmp_buffer 56 -> buffer 48
+        // len = read(ssl_mode->input_fd, tmp_buffer, 96);
+        len = b64_to_three_bytes(tmp_buffer, buffer, len, 0, ssl_mode); // tmp_buffer 96 -> buffer 72
         
         // printf("len - 2*8 = %d\n", len - 2*8);
 
@@ -240,7 +245,7 @@ void   read_salt(t_ft_ssl_mode *ssl_mode, char *tmp_salt)
         ft_memcpy(&salt, buffer + 8, 8);
 
         // copy 8*4 last bytes
-        ssl_mode->tmp_b64_buffer_read = len - 2 * 8;
+        ssl_mode->tmp_b64_buffer_read = len - 16;
         ft_memcpy(ssl_mode->tmp_b64_buffer, buffer + 16, ssl_mode->tmp_b64_buffer_read);
         ft_bzero(buffer + 8, 16);
         // printf("ssl_mode->tmp_b64_buffer_read = %d\n", ssl_mode->tmp_b64_buffer_read);

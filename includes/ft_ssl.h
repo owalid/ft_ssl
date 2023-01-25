@@ -87,7 +87,7 @@ typedef struct		s_ft_ssl_mode
 	unsigned long	key;
 	unsigned long	iv;
 	unsigned long	salt;
-	char			tmp_b64_buffer[32];
+	char			tmp_b64_buffer[56];
 	int				tmp_b64_buffer_read;
 	int				quiet_mode;
 	int				reverse_mode;
