@@ -298,6 +298,7 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
     {
         if (ssl_mode->des_b64)
         {
+            // printf("ssl_mode->salt = %d", ssl_mode->salt);
             ft_memcpy(&buff_blocks[cpt++], "Salted__", 8);
             buff_blocks[cpt++] = ssl_mode->salt;
         } else {
@@ -345,6 +346,9 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         if (ssl_mode->des_b64 == 1) print_cipher_b64(buff_blocks, &cpt, ssl_mode->output_fd, readed);
         else print_cipher_raw(buff_blocks, &cpt, ssl_mode->output_fd, readed);
     }
+
+    if (!ssl_mode->have_key && ssl_mode->des_b64)
+        ft_putchar_fd('\n', ssl_mode->output_fd);
 }
 
 
@@ -388,8 +392,7 @@ void        process_from_magic(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_fn
                         last_block_size = (ssl_mode->tmp_b64_buffer_read % 8 == 0) ? 8 : ssl_mode->tmp_b64_buffer_read % 8;
 
                     write(ssl_mode->output_fd, &result, last_block_size);
-                    exit(0);
-                    return; // quit function if we don't have readed
+                    exit(0); // quit function if we don't have readed
                 } else write(ssl_mode->output_fd, &result, 8);
             }
         } else {
