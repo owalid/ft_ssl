@@ -63,7 +63,7 @@ Cipher options:\n\
 -p\t\tPassword in ascii is the next argument.\n\
 -P\t\tPrint the iv/key and exit.\n\
 -s\t\tThe salt in hex is the next argument.\n\
--iter +int\tSpecify the iteration count\n\
+-iter +int\tSpecify the iteration count. (default 4096)\n\
 -v\t\tInitialization vector in hex is the next argument.\n\n\
 General options: \n\
 -help\tDisplay this summary\n\
