@@ -48,23 +48,23 @@ Cipher commands:\n\
 base64, des, des-ecb, des-cbc\n\n\
 Message Digest options:\n\
 Output options: \n\
--r\treverse the format of the output.\n\
--p\techo STDIN to STDOUT and append the checksum to STDOUT.\n\
--q\tquiet mode.\n\
--s\tprint the sum of the given string.\n\
+-r\tReverse the format of the output.\n\
+-p\tEcho STDIN to STDOUT and append the checksum to STDOUT.\n\
+-q\tQuiet mode.\n\
+-s\tPrint the sum of the given string.\n\
 Parameters:\n\
 file Files to digest (optional; default is stdin).\n\n\n\
 Cipher options:\n\
--a\t\tdecode/encode the input/output in base64, depending on the encrypt mode.\n\
--d\t\tdecrypt mode.\n\
--e\t\tencrypt mode (default).\n\
--i\t\tinput file for message.\n\
--o\t\toutput file for message.\n\
--p\t\tpassword in ascii is the next argument.\n\
+-a\t\tDecode/encode the input/output in base64, depending on the encrypt mode.\n\
+-d\t\tDecrypt mode.\n\
+-e\t\tEncrypt mode (default).\n\
+-i\t\tInput file for message.\n\
+-o\t\tOutput file for message.\n\
+-p\t\tPassword in ascii is the next argument.\n\
 -P\t\tPrint the iv/key and exit.\n\
--s\t\tthe salt in hex is the next argument.\n\
+-s\t\tThe salt in hex is the next argument.\n\
 -iter +int\tSpecify the iteration count\n\
--v\t\tinitialization vector in hex is the next argument.\n\n\
+-v\t\tInitialization vector in hex is the next argument.\n\n\
 General options: \n\
 -help\tDisplay this summary\n\
 -list\tList digests\n"
