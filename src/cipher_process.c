@@ -293,7 +293,7 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
     ft_bzero(buff_blocks, 3*8);
     ft_bzero(buffer, 8);
 
-    // TODO WRITE SALTED IF NO KEY PROVIDED
+    // WRITE SALTED IF NO KEY PROVIDED
     if (!ssl_mode->have_key)
     {
         write(ssl_mode->output_fd, "Salted__", 8);
@@ -350,7 +350,6 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
     ssize_t readed = 0, tmp_readed = 0, last_block_size = 0;
     int last_blocks_size = 0, flag_buffer_filled = 0;
 
-
     ft_bzero(tmp_buffer, 4*8);
     ft_bzero(buffer, 32);
 
@@ -359,6 +358,40 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         reverse_round_key(r_k);
 
     result = 0;
+
+    if (ssl_mode->tmp_b64_buffer != 0)
+    {   
+        // printf("hello world");
+        // exit(0);
+        ft_memcpy((char*)&tmp_buffer, ssl_mode->tmp_b64_buffer, ssl_mode->tmp_b64_buffer_read);
+
+        flag_buffer_filled = (ssl_mode->tmp_b64_buffer_read == 24) ? 1 : 0;
+
+        if (!flag_buffer_filled)
+        {
+            int size_block = ssl_mode->tmp_b64_buffer_read/8;
+
+            for (int i = 0; i < ssl_mode->tmp_b64_buffer_read/8; i++)
+            {
+                result = 0;
+                result = fn_decrypt_block(tmp_buffer[i], ssl_mode, r_k);
+                if (i + 1 == size_block)
+                {
+                    if (ssl_mode->should_padd)
+                        last_block_size = unpad((unsigned char*)&result);
+                    else
+                        last_block_size = (ssl_mode->tmp_b64_buffer_read % 8 == 0) ? 8 : ssl_mode->tmp_b64_buffer_read % 8;
+
+                    write(ssl_mode->output_fd, &result, last_block_size);
+                    return; // quit function if we don't have readed
+                } else write(ssl_mode->output_fd, &result, 8);
+
+            }
+        }
+        // write(1, tmp_buffer, ssl_mode->tmp_b64_buffer_read);
+        // exit(0);
+        ft_bzero(ssl_mode->tmp_b64_buffer, 32);
+    }
 
     while ((readed = utils_read(ssl_mode->input_fd, buffer, 32, ssl_mode)) == 32)
     {
@@ -384,19 +417,19 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         }
         flag_buffer_filled = 1;
     }
-
     // printf("readed: %d", readed);
+    // exit(0);
     
-    if (ssl_mode->b64_has_been_truncated)
-    {
-        while(readed % 3 != 0)
-        {
-            buffer[readed++] = '=';
-            // readed++;
-        }
-        write(1, buffer, readed);
-        exit(0);
-    }
+    // if (ssl_mode->b64_has_been_truncated)
+    // {
+    //     while(readed % 3 != 0)
+    //     {
+    //         buffer[readed++] = '=';
+    //         // readed++;
+    //     }
+    //     write(1, buffer, readed);
+    //     exit(0);
+    // }
     // printf("readed: %d", readed);
 
     // if (readed % 3 != 0)
@@ -427,7 +460,7 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
             {
                 result = 0;
                 result = fn_decrypt_block(tmp_buffer[i], ssl_mode, r_k);
-
+                // printf("HERE MON POTE");
                 if (i == (4 - ssl_mode->des_b64) - 1 && readed == 0) // -1 to get last block
                 {
                     if (ssl_mode->should_padd)

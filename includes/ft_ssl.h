@@ -48,20 +48,21 @@ Message Digest options:\n\
 Output options: \n\
 -r\treverse the format of the output.\n\
 -p\techo STDIN to STDOUT and append the checksum to STDOUT.\n\
--P\tPrint the iv/key and exit.\n\
 -q\tquiet mode.\n\
 -s\tprint the sum of the given string.\n\
 Parameters:\n\
 file Files to digest (optional; default is stdin).\n\n\n\
 Cipher options:\n\
--a\tdecode/encode the input/output in base64, depending on the encrypt mode.\n\
--d\tdecrypt mode.\n\
--e\tencrypt mode (default).\n\
--i\tinput file for message.\n\
--o\toutput file for message.\n\
--p\tpassword in ascii is the next argument.\n\
--s\tthe salt in hex is the next argument.\n\
--v\tinitialization vector in hex is the next argument.\n\n\
+-a\t\tdecode/encode the input/output in base64, depending on the encrypt mode.\n\
+-d\t\tdecrypt mode.\n\
+-e\t\tencrypt mode (default).\n\
+-i\t\tinput file for message.\n\
+-o\t\toutput file for message.\n\
+-p\t\tpassword in ascii is the next argument.\n\
+-P\t\tPrint the iv/key and exit.\n\
+-s\t\tthe salt in hex is the next argument.\n\
+-iter +int\tSpecify the iteration count\n\
+-v\t\tinitialization vector in hex is the next argument.\n\n\
 General options: \n\
 -help\tDisplay this summary\n\
 -list\tList digests\n"
@@ -86,6 +87,8 @@ typedef struct		s_ft_ssl_mode
 	unsigned long	key;
 	unsigned long	iv;
 	unsigned long	salt;
+	char			tmp_b64_buffer[32];
+	int				tmp_b64_buffer_read;
 	int				quiet_mode;
 	int				reverse_mode;
 	int				std_mode;
