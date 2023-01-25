@@ -81,7 +81,7 @@ void    sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, cha
 }
 
 
-void hmac_sha256(char *password, char *key, int key_len, int pass_len, unsigned int *dest)
+void hmac_sha256(char *password, char *key, int pass_len, unsigned int *dest)
 {
     unsigned int vars1[] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
     unsigned int vars2[] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
@@ -113,7 +113,6 @@ void hmac_sha256(char *password, char *key, int key_len, int pass_len, unsigned 
 
     // process first block as i_key (inner padd)
     sha256_process_firsts_blocks(i_key, vars1);
-    // print_hex(vars1, 32);
 
     ft_memcpy(tmp_password, password, pass_len);
     // process message with vars1 updated

@@ -1,8 +1,45 @@
 # ft_ssl
 
-
 [42 cursus] An introduction to cryptographic hashing algorithms
 
+
+# Usage
+
+```
+Usage: ft_ssl algorithm [options] [file...]
+
+Message Digest commands:
+md5, sha224, sha256, sha384, sha512.
+
+Cipher commands:
+base64, des, des-ecb, des-cbc
+
+Message Digest options:
+Output options: 
+-r      Reverse the format of the output.
+-p      Echo STDIN to STDOUT and append the checksum to STDOUT.
+-q      Quiet mode.
+-s      Print the sum of the given string.
+Parameters:
+file Files to digest (optional; default is stdin).
+
+
+Cipher options:
+-a         Decode/encode the input/output in base64, depending on the encrypt mode.
+-d         Decrypt mode.
+-e         Encrypt mode (default).
+-i         Input file for message.
+-o         Output file for message.
+-p         Password in ascii is the next argument.
+-P         Print the iv/key and exit.
+-s         The salt in hex is the next argument.
+-iter +int Specify the iteration count
+-v         Initialization vector in hex is the next argument.
+
+General options: 
+-help   Display this summary
+-list   List digests
+```
 
 # DES
 
@@ -12,7 +49,7 @@
 
 ## Key generation
 
-<img src="https://user-images.githubusercontent.com/28403617/213421169-4af62b72-b4b7-4353-8871-2ed461f45597.png" />
+<img src="https://user-images.githubusercontent.com/28403617/214658874-4324cb78-2647-4ba2-ad27-7511662d7f15.png" />
 
 ## Encryption loop
 
@@ -28,5 +65,7 @@
 
 - (Block cipher mode of operation)[https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation]
 - (Wiki des)[https://en.wikipedia.org/wiki/Data_Encryption_Standard]
+- (Wiki b64)[https://en.wikipedia.org/wiki/Base64]
 - (scaler des)[https://www.scaler.com/topics/des-algorithm/]
+
 

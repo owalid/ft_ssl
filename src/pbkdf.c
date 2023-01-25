@@ -8,9 +8,6 @@ void    generate_salt(char *salt)
         salt[i] = rand() % 256;
 }
 
-
-// echo "lol" | ./ft_ssl des-ecb -s "1F3A6C95CE34681E"
-// echo "lol" | openssl des-ecb -P -pass "pass:lol" -provider legacy -provider default -S "1F3A6C95CE34681E" -iter 1 -pbkdf2
 void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned long *key, unsigned long *iv, t_ft_ssl_mode *ssl_mode)
 {
     char concat_str[12]; // 12 = 4 + 8 (1 int + 1 long)
@@ -55,8 +52,7 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
         ft_memcpy(concat_str, &swapped_salt, 8);
         ft_memcpy(concat_str + 8, &swap_l, 4);
 
-        hmac_sha256(concat_str, clean_password, size_password, 8+4, round_result);
-        // exit(0);
+        hmac_sha256(concat_str, clean_password, 8+4, round_result);
         
         for (int i = 0; i < 8; i++)
             t_i[i] = round_result[i];
@@ -64,7 +60,7 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
         for (int i = 1; i < ssl_mode->iter_number; i++) // process F function
         {
             // concatenate password with last_u
-            hmac_sha256((char *)round_result, clean_password, size_password, 8*4, round_result);
+            hmac_sha256((char *)round_result, clean_password, 8*4, round_result);
             
             // xor round_result to optain T
             for (int i = 0; i < 8; i++)
@@ -87,7 +83,7 @@ void   process_rounds(char *password, unsigned long salt, int dk_len, unsigned l
 void    process_pbkdf(char *pass, char *raw_salt, t_ft_ssl_mode *ssl_mode, int need_gen_iv)
 {
     char salt_str[17];
-    unsigned long tmp_key = 0, tmp_iv = 0, salt_number = 0;
+    unsigned long tmp_iv = 0, salt_number = 0;
     int tdk_len = 0, len_pass = 0;
 
     srand(time(NULL));
@@ -114,9 +110,7 @@ void    process_pbkdf(char *pass, char *raw_salt, t_ft_ssl_mode *ssl_mode, int n
         free(stdin_password);
     } else {
         len_pass = ft_strlen(pass);
-        // tdk_len = ((len_pass / 128) == 0) ? 1 : (len_pass / 128); // get len of blocks for hmac-sha256
         process_rounds(pass, salt_number, tdk_len, &ssl_mode->key, &tmp_iv, ssl_mode);
-        // exit(0);
     }
 
 

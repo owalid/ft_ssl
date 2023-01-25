@@ -153,7 +153,7 @@ void    			sha224_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, 
 void    			sha256_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
 void    			sha256_process_firsts_blocks(void *raw_w, void *raw_hash);
 void 				simple_sha256(char *input, unsigned int *dest);
-void hmac_sha256(char *password, char *key, int key_len, int pass_len, unsigned int *dest);
+void 				hmac_sha256(char *password, char *key, int pass_len, unsigned int *dest);
 
 // sha384.c
 void    			sha384_process(char *input, t_ft_ssl_mode *ssl_mode, int input_type, char *algo_name);
