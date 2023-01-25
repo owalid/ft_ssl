@@ -1,33 +1,6 @@
 #include "ft_ssl.h"
 #include "libft.h"
 
-// TODO REMOVE ONLY FOR DEBUG
-void print_bit(unsigned char n) {
-	for (int i = 7; i >= 0; i--) {
-		printf("%d", (n >> i) & 1);
-	}
-	printf(" ");
-}
-
-void print_bits(unsigned char *str, size_t len) {
-	for (size_t i = 0; i < len; i++) {
-		if (!(i % 8)) printf("\n");
-		print_bit(str[i]);
-	}
-	printf("\n");
-}
-
-
-void    print_long(unsigned long n) {
-    for (int index = 0; index < 64; index++) {
-        if (!(index % 8) && index) printf(" ");
-        printf("%d", (n >> (63 - index)) & 1);
-    }
-    printf("\n");
-}
-
-// END TODO
-
 void    print_errors(char *msg, t_ft_ssl_mode *ssl_mode)
 {
     ft_putstr_fd(msg, 2);
@@ -73,15 +46,9 @@ ssize_t utils_read(int fd, char *data, size_t size_block, t_ft_ssl_mode *ssl_mod
 
     ft_bzero(data, size_block);
     while ((len = read(fd, buffer, size_block - size)) > 0) {
-        // if (ssl_mode->salt_from_file > 0)
-        // {
-        //     ft_memcpy(buffer, buffer + ssl_mode->salt_from_file, len - ssl_mode->salt_from_file);
-        //     ft_bzero(buffer + (len - ssl_mode->salt_from_file), len - (len - ssl_mode->salt_from_file));
-        // }
         if (ssl_mode->decode_mode && ssl_mode->des_b64) // remove \n and spaces
             len = delete_spaces((char*)buffer, len, ssl_mode->des_mode);
 
-        // write(1, buffer, len);
         ft_memcpy(data + size, buffer, len);
         size += len;
         if (size == size_block) {
@@ -232,15 +199,7 @@ void   read_salt(t_ft_ssl_mode *ssl_mode, char *tmp_salt)
     if (ssl_mode->des_b64)
     {
         len = utils_read(ssl_mode->input_fd, tmp_buffer, 96, ssl_mode);
-        
-        // write(1, tmp_buffer, len);
-        // printf("\n");
-
-        // len = read(ssl_mode->input_fd, tmp_buffer, 96);
         len = b64_to_three_bytes(tmp_buffer, buffer, len, 0, ssl_mode); // tmp_buffer 96 -> buffer 72
-        
-        // printf("len - 2*8 = %d\n", len - 2*8);
-
 
         // remove 2*8 firsts bytes
         ft_memcpy(&salt, buffer + 8, 8);
@@ -249,55 +208,32 @@ void   read_salt(t_ft_ssl_mode *ssl_mode, char *tmp_salt)
         ssl_mode->tmp_b64_buffer_read = len - 16;
         ft_memcpy(ssl_mode->tmp_b64_buffer, buffer + 16, ssl_mode->tmp_b64_buffer_read);
         ft_bzero(buffer + 8, 16);
-        // printf("ssl_mode->tmp_b64_buffer_read = %d\n", ssl_mode->tmp_b64_buffer_read);
-        // exit(0);
-    } else {
+    } else
         len = read(ssl_mode->input_fd, buffer, 8);
-    }
 
-    // write(1, buffer, 8);
-    // printf("buffer: %s\n", buffer);
-    // printf("buffer: %s\n", buffer);
-    // print_hex(&salt, 8);
-    // exit(0);
     if (len > 0)
     {
-        // printf("buffer = ");
-        // write(1, buffer, 8);
         if (ft_strcmp(buffer, "Salted__") == 0)
         {
             if (!ssl_mode->des_b64)
-            {
                 len = read(ssl_mode->input_fd, &salt, 8);
-            }
 
             if (len < 0)
-            {
-                printf("error read");
-            } else if (len < 8) {
-                printf("error incomplet salt");
-            }  else {
+                print_errors(ERROR_READ_GLOBAL, ssl_mode);
+            else if (len < 8)
+                print_errors(ERROR_INCOMPLET_SALT, ssl_mode);
+            else
                 ssl_mode->salt_from_file += 16;
-            }
 
-            // TODO GET SALT
-            // ssl_mode->salt
-            // printf("salt ?\n");
-            // printf("tmp_salt = %s", tmp_salt);
-            // print_hex(tmp_salt, 8);
             salt = swap64(salt);
             tmp_utoa = ft_utoa_base(salt, 16);
-            // printf("tmp_utoa: %s", tmp_utoa);
             ft_memcpy(tmp_salt, tmp_utoa, 16);
             ssl_mode->have_salt = 1;
             free(tmp_utoa);
-            // printf("tmp_salt = %s\n\n", tmp_salt);
-            // ft_memcpy(tmp_salt, &salt, 8);
         } else {
-            printf("pass no strcmp");
+            print_errors(ERROR_READ_GLOBAL, ssl_mode);
         }
     } else if (len < 0) {
-        printf("error read");
+        print_errors(ERROR_READ_GLOBAL, ssl_mode);
     }
-    // exit(0); //! need to remove this
 }

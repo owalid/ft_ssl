@@ -363,7 +363,6 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
     {
         if (ssl_mode->des_b64)
         {
-            // printf("ssl_mode->salt = %d", ssl_mode->salt);
             ft_memcpy(&buff_blocks[cpt++], "Salted__", 8);
             buff_blocks[cpt++] = ssl_mode->salt;
         } else {
@@ -480,7 +479,6 @@ void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
             for (int i = 0; i < 4 - ssl_mode->des_b64; i++)
             {
                 result = fn_decrypt_block(tmp_buffer[i], ssl_mode, r_k);
-                // printf("HERE MON POTE");
                 if (i == (4 - ssl_mode->des_b64) - 1 && readed == 0) // -1 to get last block
                 {
                     if (ssl_mode->should_padd)

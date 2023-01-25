@@ -28,6 +28,8 @@
 # define ERROR_BASE64_BAD_INPUT "Error base64: invalid input"
 # define ERROR_PASSWORD_REQUIRED "Password error: password is required with -p option"
 # define ERROR_BAD_DECRYPT "Error bad decrypt"
+# define ERROR_INCOMPLET_SALT "Error bad magic"
+
 // ---
 // WARNING
 // ---
@@ -236,11 +238,4 @@ void				read_salt(t_ft_ssl_mode *ssl_mode, char *tmp_salt);
 // process.c
 void				process_last_block(char *input, void *vars, size_t total_size, int should_swap, size_t byte_size, t_fn_process_firsts_blocks fn_process_firsts_blocks);
 int 				fn_process(char *input, int input_type, size_t byte_size, void *vars, int should_swap, t_fn_process_firsts_blocks fn_process_firsts_blocks, t_ft_ssl_mode *ssl_mode, char *algo_name);
-
-
-// todo remove only for debug
-void print_bit(unsigned char n);
-void print_bits(unsigned char *str, size_t len);
-void print_long(unsigned long n);
-// end todo
 #endif

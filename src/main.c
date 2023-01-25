@@ -226,11 +226,9 @@ int main(int argc, char **argv) {
                 }
 
 
-                // todo read 16 firsts bytes to check if "Salted__" is presents
-                if (ssl_mode->have_password && !ssl_mode->have_salt && g_ftssl_des_op[i].should_have_key && ssl_mode->decode_mode)
+                // read 16 firsts bytes to check if "Salted__" is presents
+                if (!ssl_mode->have_salt && g_ftssl_des_op[i].should_have_key && ssl_mode->decode_mode && !ssl_mode->have_key)
                     read_salt(ssl_mode, tmp_salt);
-
-                // exit(0); //! remove this
 
                 // process password generation with pkdf
                 if (g_ftssl_des_op[i].should_have_key)
@@ -247,9 +245,6 @@ int main(int argc, char **argv) {
                     ft_putstr_fd(WARNING_IV_NOT_USED, 2);
                     ft_putchar_fd('\n', 2);
                 }
-
-                // exit(0); //! remove this
-
                 
                 ssl_mode->should_padd = g_ftssl_des_op[i].should_pad; // for des-ofb, des-cfb, des-ctr
 

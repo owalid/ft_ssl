@@ -1,45 +1,6 @@
 #include "ft_ssl.h"
 #include "libft.h"
 
-
-#define MAX_HEX 10//include
-
-int	ft_isprint(int c)
-{
-	if ((c > 31 && c < 127))
-		return (1);
-	else
-		return (0);
-}
-
-void	print_hex(unsigned char *addr, size_t size)
-{
-	int i;
-	char s[MAX_HEX + 1];
-
-	i = 0;
-	printf("\n %ld bytes\n00 - ", size);
-	while (size)
-	{
-		printf("%.02X ", *addr);
-		if (ft_isprint(*addr))
-			s[i % MAX_HEX] = *addr;
-		else
-			s[i % MAX_HEX] = '.';
-		addr++;
-		size--;
-		i++;
-		if (!(i % MAX_HEX))
-		{
-			s[MAX_HEX] = 0;
-			printf(" |%s|\n%.2d - ", s, i);
-		}
-	}
-	printf("\n");
-}
-
-
-
 unsigned int K_SHA256[] = {
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
