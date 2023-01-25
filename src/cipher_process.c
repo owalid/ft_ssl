@@ -296,8 +296,14 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
     // WRITE SALTED IF NO KEY PROVIDED
     if (!ssl_mode->have_key)
     {
-        write(ssl_mode->output_fd, "Salted__", 8);
-        write(ssl_mode->output_fd, &ssl_mode->salt, 8);
+        if (ssl_mode->des_b64)
+        {
+            ft_memcpy(&buff_blocks[cpt++], "Salted__", 8);
+            buff_blocks[cpt++] = ssl_mode->salt;
+        } else {
+            write(ssl_mode->output_fd, "Salted__", 8);
+            write(ssl_mode->output_fd, &ssl_mode->salt, 8);
+        }
     }
 
     while ((readed = utils_read(ssl_mode->input_fd, buffer, 8, ssl_mode)) == 8)
@@ -309,6 +315,7 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
         if (cpt == 3) {
             if (ssl_mode->des_b64 == 1) print_cipher_b64(buff_blocks, &cpt, ssl_mode->output_fd, 0);
             else print_cipher_raw(buff_blocks, &cpt, ssl_mode->output_fd, 0);
+            cpt = 0;
         }
     }
     
