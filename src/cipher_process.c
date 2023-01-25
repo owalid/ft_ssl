@@ -276,6 +276,71 @@ unsigned long* process_round_keys(unsigned long key, unsigned long *round_k)
 
 
 
+void        process_from_magic(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_fn_decrypt_block fn_decrypt_block, unsigned long *tmp_buffer, int *flag_buffer_filled, int *flag)
+{
+    unsigned long result = 0;
+    ssize_t last_block_size = 0;
+
+    ft_bzero(tmp_buffer, 32);
+
+    *flag_buffer_filled = (ssl_mode->tmp_b64_buffer_read == 56) ? 1 : 0;
+    if (!*flag_buffer_filled) // if we have already read all from salt magic
+    {
+        if (ssl_mode->tmp_b64_buffer_read == 48) // process one tmp_buffer full
+        {
+            ft_memcpy((char*)tmp_buffer, ssl_mode->tmp_b64_buffer, 32);
+
+            for (int i = 0; i < 4; i++)
+            {
+                result = fn_decrypt_block(tmp_buffer[i], ssl_mode, r_k);
+                write(ssl_mode->output_fd, &result, 8);
+            }
+            ssl_mode->tmp_b64_buffer_read -= 32;
+            ft_memcpy(ssl_mode->tmp_b64_buffer, ssl_mode->tmp_b64_buffer + 32, 16);
+            ft_bzero(ssl_mode->tmp_b64_buffer + 16, 16); 
+        }
+
+        // process as tmp_buffer between 8 -> 32 and unpad as the last
+        int size_block = ssl_mode->tmp_b64_buffer_read / 8;
+        size_block += (ssl_mode->tmp_b64_buffer_read % 8) ? 1 : 0;
+        size_block += (size_block == 0 && !ssl_mode->should_padd && ssl_mode->des_b64 && ssl_mode->tmp_b64_buffer_read != 0 ? 1 : 0);
+        ft_bzero(tmp_buffer, 32);
+        ft_memcpy((char*)tmp_buffer, ssl_mode->tmp_b64_buffer, ssl_mode->tmp_b64_buffer_read);
+
+        for (int i = 0; i < size_block; i++)
+        {
+            result = fn_decrypt_block(tmp_buffer[i], ssl_mode, r_k);
+            if (i + 1 == size_block)
+            {
+                if (ssl_mode->should_padd)
+                    last_block_size = unpad((unsigned char*)&result);
+                else
+                    last_block_size = (ssl_mode->tmp_b64_buffer_read % 8 == 0) ? 8 : ssl_mode->tmp_b64_buffer_read % 8;
+
+                write(ssl_mode->output_fd, &result, last_block_size);
+                exit(0); // quit function if we don't have readed
+            } else write(ssl_mode->output_fd, &result, 8);
+        }
+    } else {
+        // process first block as 32
+        // process second as 24 and update flag_buffer_filled as true
+        ft_memcpy((char*)tmp_buffer, ssl_mode->tmp_b64_buffer, 32);
+        for (int i = 0; i < 4; i++)
+        {
+            result = fn_decrypt_block(tmp_buffer[i], ssl_mode, r_k);
+            write(ssl_mode->output_fd, &result, 8);
+        }
+
+        ft_bzero(tmp_buffer, 32);
+        ft_memcpy((char*)tmp_buffer, ssl_mode->tmp_b64_buffer + 32, 24);
+        *flag_buffer_filled = 1;
+        *flag = 1;
+    }
+    ft_bzero(ssl_mode->tmp_b64_buffer, 32);
+}
+
+
+
 void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_fn_encrypt_block fn_encrypt_block)
 {
     // ---
@@ -352,66 +417,6 @@ void        des_encrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_f
 }
 
 
-void        process_from_magic(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_fn_decrypt_block fn_decrypt_block, unsigned long *tmp_buffer, int *flag_buffer_filled, int *flag)
-{
-        unsigned long result = 0;
-        ssize_t last_block_size = 0;
-
-        ft_bzero(tmp_buffer, 32);
-
-        *flag_buffer_filled = (ssl_mode->tmp_b64_buffer_read == 56) ? 1 : 0;
-        if (!*flag_buffer_filled) // if we have already read all from salt magic
-        {
-            if (ssl_mode->tmp_b64_buffer_read == 48) // process one tmp_buffer full
-            {
-                ft_memcpy((char*)tmp_buffer, ssl_mode->tmp_b64_buffer, 32);
-
-                for (int i = 0; i < 4; i++)
-                {
-                    result = fn_decrypt_block(tmp_buffer[i], ssl_mode, r_k);
-                    write(ssl_mode->output_fd, &result, 8);
-                }
-                ssl_mode->tmp_b64_buffer_read -= 32;
-                ft_memcpy(ssl_mode->tmp_b64_buffer, ssl_mode->tmp_b64_buffer + 32, 16);
-                ft_bzero(ssl_mode->tmp_b64_buffer + 16, 16); 
-            }
-
-            // process as tmp_buffer between 8 -> 32 and unpad as the last
-            int size_block = ssl_mode->tmp_b64_buffer_read / 8;
-            ft_bzero(tmp_buffer, 32);
-            ft_memcpy((char*)tmp_buffer, ssl_mode->tmp_b64_buffer, ssl_mode->tmp_b64_buffer_read);
-
-            for (int i = 0; i < size_block; i++)
-            {
-                result = fn_decrypt_block(tmp_buffer[i], ssl_mode, r_k);
-               if (i + 1 == size_block)
-                {
-                    if (ssl_mode->should_padd)
-                        last_block_size = unpad((unsigned char*)&result);
-                    else
-                        last_block_size = (ssl_mode->tmp_b64_buffer_read % 8 == 0) ? 8 : ssl_mode->tmp_b64_buffer_read % 8;
-
-                    write(ssl_mode->output_fd, &result, last_block_size);
-                    exit(0); // quit function if we don't have readed
-                } else write(ssl_mode->output_fd, &result, 8);
-            }
-        } else {
-            // process first block as 32
-            // process second as 24 and update flag_buffer_filled as true
-            ft_memcpy((char*)tmp_buffer, ssl_mode->tmp_b64_buffer, 32);
-            for (int i = 0; i < 4; i++)
-            {
-                result = fn_decrypt_block(tmp_buffer[i], ssl_mode, r_k);
-                write(ssl_mode->output_fd, &result, 8);
-            }
-
-            ft_bzero(tmp_buffer, 32);
-            ft_memcpy((char*)tmp_buffer, ssl_mode->tmp_b64_buffer + 32, 24);
-            *flag_buffer_filled = 1;
-            *flag = 1;
-        }
-        ft_bzero(ssl_mode->tmp_b64_buffer, 32);
-}
 
 
 void        des_decrypt_process(t_ft_ssl_mode *ssl_mode, unsigned long *r_k, t_fn_decrypt_block fn_decrypt_block)

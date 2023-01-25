@@ -139,19 +139,16 @@ void hmac_sha256(char *password, char *key, int key_len, int pass_len, unsigned 
     ft_memset(res_var_1, 0, 32);
     ft_memset(o_key, 0, 64);
 
-    // size_t pass_len = ft_strlen(password);
 
-    ft_memcpy(i_key, key, key_len);
-    ft_memcpy(o_key, key, key_len);
+
+    ft_memcpy(i_key, key, 64);
+    ft_memcpy(o_key, key, 64);
 
     for (int i = 0; i < 64; i++)
     {
         i_key[i] ^= 0x36;
         o_key[i] ^= 0x5c;
     }
-
-    // print_hex(i_key, 64);
-    // print_hex(o_key, 64);
 
     // process first block as i_key (inner padd)
     sha256_process_firsts_blocks(i_key, vars1);
