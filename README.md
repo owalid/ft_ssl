@@ -1,6 +1,6 @@
 <div align="center">
-  <img height="600px" src="https://user-images.githubusercontent.com/28403617/214816333-8eb0d620-d550-4de5-bf9f-20e70de6c010.svg#gh-light-mode-only">
-  <img height="600px" src="https://user-images.githubusercontent.com/28403617/214816435-826743cc-d7b5-499d-b274-43cd246d96a6.svg#gh-dark-mode-only">
+  <img height="500px" src="https://user-images.githubusercontent.com/28403617/214816333-8eb0d620-d550-4de5-bf9f-20e70de6c010.svg#gh-light-mode-only">
+  <img height="500px" src="https://user-images.githubusercontent.com/28403617/214816435-826743cc-d7b5-499d-b274-43cd246d96a6.svg#gh-dark-mode-only">
 </div>
 
 ## [42 cursus] An introduction to cryptographic hashing algorithms
@@ -65,11 +65,9 @@ General options:
 
 ## Source
 
-- (Block cipher mode of operation)[https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation]
-- (Wiki des)[https://en.wikipedia.org/wiki/Data_Encryption_Standard]
-- (Wiki b64)[https://en.wikipedia.org/wiki/Base64]
-- (Wiki Hmac)[https://en.wikipedia.org/wiki/HMAC]
-- (Wiki pbkdf)[https://fr.wikipedia.org/wiki/PBKDF2]
-- (scaler des)[https://www.scaler.com/topics/des-algorithm/]
-
-
+- [Block cipher mode of operation](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation)
+- [Wiki des](https://en.wikipedia.org/wiki/Data_Encryption_Standard)
+- [Wiki b64](https://en.wikipedia.org/wiki/Base64)
+- [Wiki Hmac](https://en.wikipedia.org/wiki/HMAC)
+- [Wiki pbkdf](https://fr.wikipedia.org/wiki/PBKDF2)
+- [scaler des](https://www.scaler.com/topics/des-algorithm/)
