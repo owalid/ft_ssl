@@ -1,6 +1,6 @@
 <div align="center">
-  <img height="400px" src="https://user-images.githubusercontent.com/28403617/214816333-8eb0d620-d550-4de5-bf9f-20e70de6c010.svg#gh-light-mode-only">
-  <img height="400px" src="https://user-images.githubusercontent.com/28403617/214816435-826743cc-d7b5-499d-b274-43cd246d96a6.svg#gh-dark-mode-only">
+  <img height="600px" src="https://user-images.githubusercontent.com/28403617/214816333-8eb0d620-d550-4de5-bf9f-20e70de6c010.svg#gh-light-mode-only">
+  <img height="600px" src="https://user-images.githubusercontent.com/28403617/214816435-826743cc-d7b5-499d-b274-43cd246d96a6.svg#gh-dark-mode-only">
 </div>
 
 ## [42 cursus] An introduction to cryptographic hashing algorithms
