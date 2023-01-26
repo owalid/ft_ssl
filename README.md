@@ -68,6 +68,8 @@ General options:
 - (Block cipher mode of operation)[https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation]
 - (Wiki des)[https://en.wikipedia.org/wiki/Data_Encryption_Standard]
 - (Wiki b64)[https://en.wikipedia.org/wiki/Base64]
+- (Wiki Hmac)[https://en.wikipedia.org/wiki/HMAC]
+- (Wiki pbkdf)[https://fr.wikipedia.org/wiki/PBKDF2]
 - (scaler des)[https://www.scaler.com/topics/des-algorithm/]
 
 
