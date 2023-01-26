@@ -14,7 +14,7 @@ Message Digest commands:
 md5, sha224, sha256, sha384, sha512.
 
 Cipher commands:
-base64, des, des-ecb, des-cbc
+base64, des, des-ecb, des-cbc, des-ofb, des-ctr, des-cfb
 
 Message Digest options:
 Output options: 
@@ -27,16 +27,16 @@ file Files to digest (optional; default is stdin).
 
 
 Cipher options:
--a         Decode/encode the input/output in base64, depending on the encrypt mode.
--d         Decrypt mode.
--e         Encrypt mode (default).
--i         Input file for message.
--o         Output file for message.
--p         Password in ascii is the next argument.
--P         Print the iv/key and exit.
--s         The salt in hex is the next argument.
--iter +int Specify the iteration count. (default 4096)
--v         Initialization vector in hex is the next argument.
+-a              Decode/encode the input/output in base64, depending on the encrypt mode.
+-d              Decrypt mode.
+-e              Encrypt mode (default).
+-i              Input file for message.
+-o              Output file for message.
+-p              Password in ascii is the next argument.
+-P              Print the iv/key and exit.
+-s              The salt in hex is the next argument.
+-iter +int      Specify the iteration count. (default 4096)
+-v              Initialization vector in hex is the next argument.
 
 General options: 
 -help   Display this summary
