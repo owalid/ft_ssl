@@ -163,7 +163,7 @@ int main(int argc, char **argv) {
                     } else if (ft_strcmp(argv[j], "-o") == 0 && ssl_mode->output_fd == 0) { // process output file
                         if (argv[j + 1])
                         {
-                            ssl_mode->output_fd = open(argv[j + 1], O_WRONLY | O_CREAT, 0777);
+                            ssl_mode->output_fd = open(argv[j + 1], O_TRUNC | O_WRONLY | O_CREAT, 0777);
                             if (ssl_mode->output_fd == -1)
                             {
                                 ft_putstr_fd(ERROR_FILE, 2);

@@ -45,7 +45,7 @@
 Message Digest commands:\n\
 md5, sha224, sha256, sha384, sha512.\n\n\
 Cipher commands:\n\
-base64, des, des-ecb, des-cbc\n\n\
+base64, des, des-ecb, des-cbc, des-ofb, des-ctr, des-cfb\n\n\
 Message Digest options:\n\
 Output options: \n\
 -r\tReverse the format of the output.\n\
