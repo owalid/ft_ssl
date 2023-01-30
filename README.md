@@ -3,6 +3,8 @@
   <img height="500px" src="https://user-images.githubusercontent.com/28403617/214816435-826743cc-d7b5-499d-b274-43cd246d96a6.svg#gh-dark-mode-only">
 </div>
 
+[![wakatime](https://wakatime.com/badge/user/57a746b4-0744-4dc9-a0f3-61d9ea529bde/project/cb84d9ed-45df-4427-81bf-e63e6bb6b5ed.svg)](https://wakatime.com/badge/user/57a746b4-0744-4dc9-a0f3-61d9ea529bde/project/cb84d9ed-45df-4427-81bf-e63e6bb6b5ed)
+
 ## [42 cursus] An introduction to cryptographic hashing algorithms
 
 # Usage
